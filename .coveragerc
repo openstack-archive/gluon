@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = gluon
+omit = gluon/openstack/*
+
+[report]
+ignore_errors = True
