@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    readme
+   architecturaldescription
    installation
    usage
    contributing
