@@ -12,6 +12,8 @@ Contents:
    :maxdepth: 2
 
    readme
+   high_level_design
+   repo_strcuture
    installation
    usage
    contributing
