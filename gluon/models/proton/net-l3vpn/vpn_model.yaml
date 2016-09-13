@@ -1,0 +1,60 @@
+# This is the minimum required port for Gluon-connectivity to work.
+VpnInstance:
+    api:
+      name: vpns
+      parent:
+        type: root
+    attributes:
+        id:
+            type: uuid
+            primary: 'True'
+            description: "UUID of port instance"
+        vpn_instance_name:
+            required: True
+            type: string
+            length: 32
+            description: "Name of VPN"
+        description:
+            type: string
+            length: 255
+            description: "About the VPN"
+        ipv4_family:
+            type: VpnAfConfig
+            description: "Pointer to VPN AF cofiguration for IPv4"
+        ipv6_family:
+            type: VpnAfConfig
+            description: "Pointer to VPN AF cofiguration for IPv6"
+        route_distinguishers:
+            type: string
+            length: 32
+            description: "Route distinguisher for this VPN"
+
+VpnAfConfig:
+    api:
+      name: vpnafconfigs
+      parent:
+        type: root
+    attributes:
+        vrf_rt_value:
+            required: True
+            type: string
+            length: 32
+            primary: 'True'
+            description: "Route target string"
+        vrf_rt_type:
+            type: enum
+            required: True
+            description: "Route target type"
+            values:
+                - export_extcommunity
+                - import_extcommunity
+                - both
+
+        import_route_policy:
+            type: string
+            length: 32
+            description: "Route target import policy"
+        export_route_policy:
+            type: string
+            length: 32
+            description: "Route target export policy"
