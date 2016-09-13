@@ -56,3 +56,7 @@ ChangeLog
 
 # Files created by releasenotes build
 releasenotes/build
+
+.idea
+gluon/gluon.sqlite
+gluon/clean.sqlite
