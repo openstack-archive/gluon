@@ -16,8 +16,12 @@
 # under the License.
 
 from oslotest import base
+from oslo_config import cfg
 
 
 class TestCase(base.BaseTestCase):
 
     """Test case base class for all unit tests."""
+
+    def setup(self):
+        pass

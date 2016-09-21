@@ -1,0 +1,117 @@
+# This is the minimum required port for Gluon-connectivity to work.
+ProtonBasePort:
+    api:
+      name: baseports
+      parent:
+        type: root
+    attributes:
+        id:
+            type: uuid
+            primary: 'True'
+            description: "UUID of base port instance"
+        tenant_id:
+            type: 'uuid'
+            required: True
+            description: "UUID of tenant owning this port"
+        name:
+            type: 'string'
+            length: 64
+            description: "Descriptive name for port"
+        network_id:
+            type: 'uuid'
+            description: "UUID of network - not used for Proton"
+        mac_address:
+            type: 'string'
+            length: 17
+            required: True
+            description: "MAC address for port"
+            validate: mac_address
+        admin_state_up:
+            type: 'boolean'
+            required: True
+            description: "Admin state of port"
+        device_owner:
+            type: 'string'
+            length: 128
+            description: "Name of compute or network service (if bound)"
+        device_id:
+            type: 'uuid'
+            description: "UUID of bound VM"
+        status:
+            type: 'enum'
+            required: True
+            description: "Operational status of port"
+            values:
+                - 'ACTIVE'
+                - 'DOWN'
+        vnic_type:
+            type: enum
+            required: true
+            description: "binding:vnic_type: Port should be attache to this VNIC type"
+            values:
+               - 'normal'
+               - 'virtual'
+               - 'direct'
+               - 'macvtap'
+               - 'sriov'
+               - 'whole-dev'
+        host_id:
+            type: 'string'
+            length: 32
+            description: "binding:host_id: Name of bound host"
+        vif_details:
+            type: 'string' # what are we going to use, JSON?
+            length: 128
+            description: "binding:vif_details: JSON string for VIF details"
+        profile:
+            type: 'string' # what are we going to use, JSON?
+            length: 128
+            description: "binding:profile: JSON string for binding profile dictionary"
+        vif_type:
+            type: 'string'
+            length: 32
+            description: "binding:vif_type: Headline binding type for VIF"
+        zone:
+            type: 'string'
+            length: 64
+            description: "zone information"
+        ipaddress:
+            type: 'string'
+            length: 64
+            description: "IP Address of port"
+            validate: 'ipv4address'
+        subnet_prefix:
+            type: 'integer'
+            description: "Subnet mask"
+            values:
+                - '1-31'
+        gateway:
+            type: 'string'
+            length: 64
+            description: "Default gateway"
+            validate: 'ipv4address'
+        mtu:
+            type: 'integer'
+            description: "MTU"
+            required: True
+        vlan_transparency:
+            type: 'boolean'
+            description: "Allow VLAN tagged traffic on port"
+            required: True
+
+# TODO this would be inheritance in a more sane arrangement.
+VPNPort:
+    api:
+      name: vpnports
+      parent:
+        type: root
+    attributes:
+        id:
+            type: 'ProtonBasePort'
+            required: True
+            primary: True
+            description: "Pointer to base port instance (UUID)"
+        vpn_instance:
+            type: 'VpnInstance'
+            required: True
+            description: "Pointer to VPN instance (UUID)"

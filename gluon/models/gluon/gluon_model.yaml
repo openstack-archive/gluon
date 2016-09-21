@@ -1,0 +1,51 @@
+# This is used in Gluon to remember details of bindings - who has bound and who provides
+# the port to be bound to.
+GluonInternalPort:
+  api:
+    name: ports
+    parent:
+      type: root
+      #type: GluonServiceBackend
+      #attribute: owner
+  attributes:
+    id:
+      type: uuid
+      required: True
+      primary: True
+      description: "UUID of port"
+    owner:
+      type: GluonServiceBackend
+      required: True
+      description: "Pointer to backend service instance (name)"
+    device_owner:
+      type: 'string'
+      length: 128
+      description: "Name of compute or network service (if bound)"
+    device_id:
+      type: 'uuid'
+      description: "UUID of bound VM"
+
+
+
+GluonServiceBackend:
+  api:
+    name: backends
+    parent:
+      type: root
+  attributes:
+    name:
+      type: string
+      length: 32
+      required: True
+      primary: True
+      description: "Name of the backend service - no spaces"
+    service_type:
+      type: string
+      length: 32
+      required: True
+      description: "Type of service provided by backend"
+    url:
+      type: string
+      length: 32
+      required: True
+      description: "URL of proton endpoint"
