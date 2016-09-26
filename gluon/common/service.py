@@ -13,8 +13,9 @@
 #    under the License.
 
 from oslo_config import cfg
-
 from oslo_log import log as logging
+
+
 logging.register_options(cfg.CONF)
 
 

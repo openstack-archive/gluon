@@ -16,15 +16,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_utils import strutils
-from oslo_utils import uuidutils
-import wsme
 import six
+import wsme
 from wsme import types as wtypes
 
 from gluon.common import exception
-
 from oslo_log._i18n import _
+from oslo_utils import strutils
+from oslo_utils import uuidutils
+
 
 class DynamicDict(wtypes.DynamicBase):
     pass
@@ -38,11 +38,6 @@ class NameType(wtypes.UserType):
 
     basetype = wtypes.text
     name = 'name'
-    # FIXME(lucasagomes): When used with wsexpose decorator WSME will try
-    # to get the name of the type by accessing it's __name__ attribute.
-    # Remove this __name__ attribute once it's fixed in WSME.
-    # https://bugs.launchpad.net/wsme/+bug/1265590
-    __name__ = name
 
     @staticmethod
     def validate(value):
@@ -62,11 +57,6 @@ class UuidType(wtypes.UserType):
 
     basetype = wtypes.text
     name = 'uuid'
-    # FIXME(lucasagomes): When used with wsexpose decorator WSME will try
-    # to get the name of the type by accessing it's __name__ attribute.
-    # Remove this __name__ attribute once it's fixed in WSME.
-    # https://bugs.launchpad.net/wsme/+bug/1265590
-    __name__ = name
 
     @staticmethod
     def validate(value):
@@ -88,11 +78,6 @@ class BooleanType(wtypes.UserType):
 
     basetype = wtypes.text
     name = 'boolean'
-    # FIXME(lucasagomes): When used with wsexpose decorator WSME will try
-    # to get the name of the type by accessing it's __name__ attribute.
-    # Remove this __name__ attribute once it's fixed in WSME.
-    # https://bugs.launchpad.net/wsme/+bug/1265590
-    __name__ = name
 
     @staticmethod
     def validate(value):
@@ -135,21 +120,15 @@ class MultiType(wtypes.UserType):
             raise ValueError(_("Expected '%(type)s', got '%(value)s'")
                              % {'type': self.types, 'value': type(value)})
 
- 
 class Text(wtypes.UserType):
     basetype = six.text_type
     name = 'text'
-    # FIXME(lucasagomes): When used with wsexpose decorator WSME will try
-    # to get the name of the type by accessing it's __name__ attribute.
-    # Remove this __name__ attribute once it's fixed in WSME.
-    # https://bugs.launchpad.net/wsme/+bug/1265590
-    __name__ = name
 
     @staticmethod
     def validate(value):
         if isinstance(value, six.string_types):
             return
-        raise ValueError(_("Expected String, got '%s'" % value)) 
+        raise ValueError(_("Expected String, got '%s'" % value))
 
 
 def create_enum_type(*values):

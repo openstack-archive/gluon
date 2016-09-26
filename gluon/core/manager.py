@@ -11,13 +11,16 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
+from gluon.backends import backend_base as BackendBase
 from gluon.common import exception
 from oslo_log import log as logging
-from gluon.backends import backend_base as BackendBase
-# This has to be dne to get the Database Models
-# build before the API is build.
+
+# This has to be done to get the Database Models
+# built before the API is built.
 # It should be done in a better way.
 from gluon.db.sqlalchemy import models
+
 
 LOG = logging.getLogger(__name__)
 logger = LOG

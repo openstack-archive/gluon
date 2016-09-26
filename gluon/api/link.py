@@ -13,9 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from gluon.api import baseObject
 import pecan
 from wsme import types as wtypes
+
+from gluon.api import baseObject
 
 
 def build_url(resource, resource_args, bookmark=False, base_url=None):

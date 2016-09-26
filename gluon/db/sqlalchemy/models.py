@@ -14,16 +14,16 @@
 
 import os
 import six.moves.urllib.parse as urlparse
-
-from oslo_db.sqlalchemy import models
-from oslo_db import options as db_options
-from oslo_config import cfg
 from sqlalchemy import schema
 from sqlalchemy import (Column, Integer, String)
 from sqlalchemy.ext.declarative import declarative_base
+
+from oslo_config import cfg
+from oslo_db.sqlalchemy import models
+from oslo_db import options as db_options
 from gluon.common import paths
-from gluon.sync_etcd.log import logupdate
 from gluon.sync_etcd.log import logdelete
+from gluon.sync_etcd.log import logupdate
 
 
 sql_opts = [

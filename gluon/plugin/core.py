@@ -1,11 +1,26 @@
-import json
+# Copyright (c) 2016 Nokia, Inc.
+# All Rights Reserved
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
 import etcd
+import json
 import os
 
 from gluon.backends.backend_base import Manager
+from neutron.plugins.ml2.plugin import Ml2Plugin
 from oslo_log import helpers as log_helpers
 from oslo_log import log
-from neutron.plugins.ml2.plugin import Ml2Plugin
 
 
 class MyData:
@@ -33,7 +48,7 @@ class GluonPlugin(Ml2Plugin):
     def check_gluon_port(self, id):
         """Get Gluon Port Info
 
-        Check to see if port is a gluon port. If so, return service, url, and tenant_id.
+        Check to see if port is a Gluon port. If so, return service, url, and tenant_id.
         Otherwise, it is a Neutron port.  Return None
 
         :param id: UUID of Port
@@ -41,7 +56,7 @@ class GluonPlugin(Ml2Plugin):
         try:
             return json.loads(self.etcd_client.get(PluginData.gluon_base + '/' + id).value)
         except etcd.EtcdKeyNotFound:
-            LOG.debug("Not a gluon port: %s" % id)
+            LOG.debug("Not a Gluon port: %s" % id)
         except etcd.EtcdException:
             LOG.error("Cannot connect to etcd, make sure that etcd is running.")
         except Exception as e:
@@ -113,7 +128,7 @@ class GluonPlugin(Ml2Plugin):
                 binding_profile = port_data.get('binding:profile', None)
                 result = driver.bind(id, device_owner, zone, device_id, host_id, binding_profile)
         except Exception as e:
-            LOG.debug("Port bind/ubind failed")
+            LOG.debug("Port bind/unbind failed")
             raise e
         return result
 
@@ -124,7 +139,7 @@ class GluonPlugin(Ml2Plugin):
             for net in nets:
                 if net["name"] == 'GluonNetwork':
                     self.gluon_network = net["id"]
-                    LOG.debug("Found gluon network %s" % self.gluon_network)
+                    LOG.debug("Found Gluon network %s" % self.gluon_network)
                     break
         if self.gluon_subnet is None:
             subnets = super(GluonPlugin, self).get_subnets(context)
@@ -141,7 +156,7 @@ class GluonPlugin(Ml2Plugin):
         Create a subnet, which represents a range of IP addresses
         that can be allocated to devices
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param subnet: dictionary describing the subnet, with keys
                        as listed in the  :obj:`RESOURCE_ATTRIBUTE_MAP` object
                        in :file:`neutron/api/v2/attributes.py`.  All keys will
@@ -155,7 +170,7 @@ class GluonPlugin(Ml2Plugin):
     def update_subnet(self, context, id, subnet):
         """Update values of a subnet.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the subnet to update.
         :param subnet: dictionary with keys indicating fields to update.
                        valid keys are those that have a value of True for
@@ -171,7 +186,7 @@ class GluonPlugin(Ml2Plugin):
     def get_subnet(self, context, id, fields=None):
         """Retrieve a subnet.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the subnet to fetch.
         :param fields: a list of strings that are valid keys in a
                        subnet dictionary as listed in the
@@ -192,7 +207,7 @@ class GluonPlugin(Ml2Plugin):
         the identity of the user making the request (as indicated by the
         context) as well as any filters.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param filters: a dictionary with keys that are valid keys for
                         a subnet as listed in the :obj:`RESOURCE_ATTRIBUTE_MAP`
                         object in :file:`neutron/api/v2/attributes.py`.
@@ -222,7 +237,7 @@ class GluonPlugin(Ml2Plugin):
         the user making the request (as indicated by the context) as well as
         any filters.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param filters: a dictionary with keys that are valid keys for
                         a network as listed in the
                         :obj:`RESOURCE_ATTRIBUTE_MAP` object in
@@ -243,7 +258,7 @@ class GluonPlugin(Ml2Plugin):
     def delete_subnet(self, context, id):
         """Delete a subnet.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the subnet to delete.
         """
         result = super(GluonPlugin, self).delete_subnet(context, id)
@@ -254,7 +269,7 @@ class GluonPlugin(Ml2Plugin):
     def create_subnetpool(self, context, subnetpool):
         """Create a subnet pool.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param subnetpool: Dictionary representing the subnetpool to create.
         """
         result = super(GluonPlugin, self).create_subnetpool(context, subnetpool)
@@ -265,7 +280,7 @@ class GluonPlugin(Ml2Plugin):
     def update_subnetpool(self, context, id, subnetpool):
         """Update a subnet pool.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param subnetpool: Dictionary representing the subnetpool attributes
                            to update.
         """
@@ -277,7 +292,7 @@ class GluonPlugin(Ml2Plugin):
     def get_subnetpool(self, context, id, fields=None):
         """Show a subnet pool.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: The UUID of the subnetpool to show.
         """
         result = super(GluonPlugin, self).get_subnetpool(context, id, fields)
@@ -298,7 +313,7 @@ class GluonPlugin(Ml2Plugin):
     def delete_subnetpool(self, context, id):
         """Delete a subnet pool.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: The UUID of the subnet pool to delete.
         """
         result = super(GluonPlugin, self).delete_subnetpool(context, id)
@@ -312,7 +327,7 @@ class GluonPlugin(Ml2Plugin):
         Create a network, which represents an L2 network segment which
         can have a set of subnets and ports associated with it.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param network: dictionary describing the network, with keys
                         as listed in the  :obj:`RESOURCE_ATTRIBUTE_MAP` object
                         in :file:`neutron/api/v2/attributes.py`.  All keys will
@@ -327,7 +342,7 @@ class GluonPlugin(Ml2Plugin):
     def update_network(self, context, id, network):
         """Update values of a network.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the network to update.
         :param network: dictionary with keys indicating fields to update.
                         valid keys are those that have a value of True for
@@ -343,7 +358,7 @@ class GluonPlugin(Ml2Plugin):
     def get_network(self, context, id, fields=None):
         """Retrieve a network.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the network to fetch.
         :param fields: a list of strings that are valid keys in a
                        network dictionary as listed in the
@@ -364,7 +379,7 @@ class GluonPlugin(Ml2Plugin):
         the identity of the user making the request (as indicated by the
         context) as well as any filters.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param filters: a dictionary with keys that are valid keys for
                         a network as listed in the
                         :obj:`RESOURCE_ATTRIBUTE_MAP` object in
@@ -392,7 +407,7 @@ class GluonPlugin(Ml2Plugin):
         of the user making the request (as indicated by the context) as well
         as any filters.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param filters: a dictionary with keys that are valid keys for
                         a network as listed in the
                         :obj:`RESOURCE_ATTRIBUTE_MAP` object
@@ -413,7 +428,7 @@ class GluonPlugin(Ml2Plugin):
     def delete_network(self, context, id):
         """Delete a network.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the network to delete.
         """
         result = super(GluonPlugin, self).delete_network(context, id)
@@ -427,7 +442,7 @@ class GluonPlugin(Ml2Plugin):
         Create a port, which is a connection point of a device (e.g., a VM
         NIC) to attach to a L2 neutron network.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param port: dictionary describing the port, with keys as listed in the
                      :obj:`RESOURCE_ATTRIBUTE_MAP` object in
                      :file:`neutron/api/v2/attributes.py`.  All keys will be
@@ -442,7 +457,7 @@ class GluonPlugin(Ml2Plugin):
     def update_port(self, context, id, port):
         """Update values of a port.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the port to update.
         :param port: dictionary with keys indicating fields to update.
                      valid keys are those that have a value of True for
@@ -461,7 +476,7 @@ class GluonPlugin(Ml2Plugin):
     def get_port(self, context, id, fields=None):
         """Retrieve a port.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the port to fetch.
         :param fields: a list of strings that are valid keys in a port
                        dictionary as listed in the
@@ -485,7 +500,7 @@ class GluonPlugin(Ml2Plugin):
         The contents of the list depends on the identity of the user making
         the request (as indicated by the context) as well as any filters.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param filters: a dictionary with keys that are valid keys for
                         a port as listed in the  :obj:`RESOURCE_ATTRIBUTE_MAP`
                         object in :file:`neutron/api/v2/attributes.py`. Values
@@ -513,7 +528,7 @@ class GluonPlugin(Ml2Plugin):
         The result depends on the identity of the user making the request
         (as indicated by the context) as well as any filters.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param filters: a dictionary with keys that are valid keys for
                         a network as listed in the
                         :obj:`RESOURCE_ATTRIBUTE_MAP` object in
@@ -534,7 +549,7 @@ class GluonPlugin(Ml2Plugin):
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a port.
 
-        :param context: neutron api request context
+        :param context: Neutron API request context
         :param id: UUID representing the port to delete.
         """
         result = super(GluonPlugin, self).delete_port(context, id, l3_port_check)

@@ -11,12 +11,14 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import webob.exc as exc
-from gluon.sync_etcd.thread import SyncData
+
 from gluon.common import exception
 from gluon.core.manager import ApiManager
-from oslo_log import log as logging
+from gluon.sync_etcd.thread import SyncData
 from oslo_config import cfg
+from oslo_log import log as logging
 
 
 LOG = logging.getLogger(__name__)
@@ -78,7 +80,7 @@ class ProtonManager(ApiManager):
     def create_baseports(self, api_class, port):
         port.create()
         #
-        # Register port in gluon
+        # Register port in Gluon
         #
         msg = {"port_id": port.id, "tenant_id": port.tenant_id, "service": self.service, "url":self.url, "operation": "register"}
         SyncData.sync_queue.put(msg)
@@ -89,7 +91,7 @@ class ProtonManager(ApiManager):
 
     def delete_baseports(self, api_class, obj_class, key):
         #
-        # Remove port from gluon
+        # Remove port from Gluon
         #
         msg = {"port_id": key, "operation": "deregister"}
         SyncData.sync_queue.put(msg)
