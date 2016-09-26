@@ -19,9 +19,8 @@ from pecan import rest
 from wsme import types as wtypes
 import wsmeext.pecan as wsme_pecan
 
-from gluon.api.baseObject import APIBase
 from gluon.api import link
-
+from gluon.api.baseObject import APIBase
 from gluon.api.controller.v1.base import API as v1
 
 
@@ -62,7 +61,7 @@ class Root(APIBase):
         root = Root()
         root.name = "Gluon API"
         root.description = ("OpenStack Gluon acts as a port arbiter between "
-                            "Nova and port-provider such as neutron")
+                            "Nova and port-provider such as Neutron")
         root.versions = [Version.convert('v1')]
         root.default_version = Version.convert('v1')
         return root
@@ -80,7 +79,7 @@ class RootController(rest.RestController):
 
     @wsme_pecan.wsexpose(Root)
     def get(self):
-        # NOTE: The reason why convert() it's being called for every
+        # NOTE: The reason why convert() is being called for every
         #       request is because we need to get the host url from
         #       the request object to make the links.
         return Root.convert()
@@ -89,7 +88,7 @@ class RootController(rest.RestController):
     def _route(self, args, request=None):
         """Overrides the default routing behavior.
 
-        It redirects the request to the default version of the gluon API
+        It redirects the request to the default version of the Gluon API
         if the version number is not specified in the url.
         """
 

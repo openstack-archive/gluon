@@ -14,13 +14,14 @@
 
 import datetime
 
-import wsme
-from  oslo_utils.uuidutils import generate_uuid
-from wsme import types as wtypes
 from pecan import rest, expose
+import wsme
+from wsme import types as wtypes
 import wsmeext.pecan as wsme_pecan
+
 from gluon.api import types
 from gluon.core.manager import get_api_manager
+from oslo_utils.uuidutils import generate_uuid
 
 
 class APIBase(wtypes.Base):
@@ -208,7 +209,7 @@ class SubObjectController(RootObjectController):
                     filters=filters))
         new_cls.get_all = classmethod(get_all)
 
-        @wsme_pecan.wsexpose(new_cls._API_object_class, 
+        @wsme_pecan.wsexpose(new_cls._API_object_class,
                              new_cls._parent_identifier_type,
                              new_cls._primary_key_type,
                              template='json')

@@ -15,15 +15,15 @@
 import six
 import sqlalchemy.orm.exc
 
+from gluon.common import exception
+from gluon.db import api
+from gluon.db.sqlalchemy import models as sql_models
+from oslo_config import cfg
 from oslo_db import exception as db_exc
 from oslo_db.sqlalchemy import session as db_session
 from oslo_db.sqlalchemy import utils as db_utils
-from oslo_config import cfg
 from oslo_log import log as logging
 
-from gluon.db import api
-from gluon.db.sqlalchemy import models as sql_models
-from gluon.common import exception
 
 CONF = cfg.CONF
 

@@ -13,10 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+
+from gluon.backends import backend_base
 from gluon.backends.backends.proton_client import Client
 from oslo_config import cfg
-from gluon.backends import backend_base
-import json
 
 
 API_SERVICE_OPTS = [

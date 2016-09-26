@@ -14,11 +14,13 @@
 
 import pecan
 from pecan import rest
-import wsmeext.pecan as wsme_pecan
 from wsme import types as wtypes
+import wsmeext.pecan as wsme_pecan
+
 from gluon.api import link
 from gluon.api.baseObject import APIBase
 from gluon.common.particleGenerator import generator as particle_generator
+
 
 class V1(APIBase):
     """The representation of the version 1 of the API."""
@@ -46,7 +48,7 @@ class API(rest.RestController):
 
     @wsme_pecan.wsexpose(V1)
     def get(self):
-        # NOTE: The reason why convert() it's being called for every
+        # NOTE: The reason why convert() is being called for every
         #       request is because we need to get the host url from
         #       the request object to make the links.
         return V1.convert()

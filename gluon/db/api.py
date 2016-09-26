@@ -40,7 +40,7 @@ class Connection(object):
 
     @abc.abstractmethod
     def create(self, model, values):
-        """Create a new gluon object from model.
+        """Create a new Gluon object from model.
 
         :param model: Class of the object which should be created
         :param values: A dict containing several items used to identify

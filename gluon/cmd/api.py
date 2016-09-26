@@ -21,14 +21,15 @@ from gluon.api import app as api_app
 from gluon.common import service
 from gluon.common.particleGenerator.generator import set_package
 from gluon.common.particleGenerator import generator as particle_generator
-from gluon.db.sqlalchemy import models as sql_models
 from gluon.core.manager import register_api_manager
-from gluon.cmd.manager import ProtonManager
-from gluon.sync_etcd.thread import start_sync_thread
 import gluon.cmd.config
+from gluon.cmd.manager import ProtonManager
+from gluon.db.sqlalchemy import models as sql_models
+from gluon.sync_etcd.thread import start_sync_thread
 from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_log._i18n import _LI
+
 
 LOG = logging.getLogger(__name__)
 #
