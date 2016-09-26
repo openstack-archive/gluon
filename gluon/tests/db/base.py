@@ -16,15 +16,15 @@
 # under the License.
 
 import fixtures
-import shutil
 import os
-from oslo_config import cfg
+import shutil
 
+from oslo_config import cfg
 from gluon.common import paths
 from gluon.db import api as dbapi
 from gluon.db.sqlalchemy import api as sqla_api
-from gluon.tests import base
 from gluon.db.sqlalchemy import models
+from gluon.tests import base
 
 
 CONF = cfg.CONF

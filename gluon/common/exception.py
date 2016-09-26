@@ -18,12 +18,13 @@ Includes decorator for re-raising Cloudpulse-type exceptions.
 
 """
 
-from oslo_log import log as logging
+import six
+
 from oslo_config import cfg
+from oslo_log import log as logging
 from oslo_log._i18n import _LE
 from oslo_log._i18n import _
 
-import six
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -142,7 +143,7 @@ class RequestURITooLong(GluonClientException):
 
 
 class ConnectionFailed(GluonClientException):
-    message = _("Connection to gluon failed: %(reason)s")
+    message = _("Connection to Gluon failed: %(reason)s")
 
 
 class SslCertificateValidationError(GluonClientException):

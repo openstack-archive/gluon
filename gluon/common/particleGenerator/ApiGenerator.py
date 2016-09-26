@@ -12,17 +12,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import yaml
-import sys
 import six
-from oslo_versionedobjects import fields
+import sys
+import yaml
+
+from gluon.api import types
+from gluon.api.baseObject import APIBaseObject
 from gluon.api.baseObject import RootObjectController
 from gluon.api.baseObject import SubObjectController
-from gluon.api.baseObject import APIBaseObject
-from gluon.core.manager import get_api_manager
 from gluon.common.particleGenerator.DataBaseModelGenerator import DataBaseModelProcessor
-from gluon.api import types
+from gluon.core.manager import get_api_manager
 from gluon.objects import base as obj_base
+from oslo_versionedobjects import fields
 
 
 class APIGenerator(object):
