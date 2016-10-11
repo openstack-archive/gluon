@@ -92,7 +92,7 @@ class APIGenerator(object):
                         self.data[parent]['childs'] = []
                     self.data[parent]['childs'].append(
                         {'name': api_name,
-                         'object': new_controller})
+                         'object': new_controller_class})
                 controllers[table_name] = new_controller_class
             except:
                 print('During processing of table ' + table_name)
