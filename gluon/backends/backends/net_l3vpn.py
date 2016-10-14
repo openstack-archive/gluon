@@ -33,29 +33,25 @@ CONF.register_group(opt_group)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
 
 
-class Provider(backend_base.Provider):
-
-    def __init__(self, logger):
-        self._drivers = {}
-        self._logger = logger
+class Provider(backend_base.ProviderBase):
 
     def driver_for(self, backend, dummy_net, dummy_subnet):
         if backend['service'] == u'net-l3vpn':
-            return Driver(backend, self._logger, dummy_net, dummy_subnet)
+            return Driver(backend, dummy_net, dummy_subnet)
         else:
             return None
 
 
 class Driver(backend_base.Driver):
 
-    def __init__(self, backend, logger, dummy_net, dummy_subnet):
-        self._logger = logger
+    def __init__(self, backend, dummy_net, dummy_subnet):
         self._client = Client(backend)
         self._port_url = backend["url"] + "/v1/" + cfg.CONF.gluon.ports_name
         self._dummy_net = dummy_net
         self._dummy_subnet = dummy_subnet
 
-    def bind(self, port_id, device_owner, zone, device_id, host_id, binding_profile):
+    def bind(self, port_id, device_owner, zone, device_id, host_id,
+             binding_profile):
         args = {}
         args["device_owner"] = device_owner
         args["device_id"] = device_id
@@ -63,7 +59,7 @@ class Driver(backend_base.Driver):
         if binding_profile is not None:
             args["profile"] = json.dumps(binding_profile, indent=0)
         args["zone"] = zone
-        url = self._port_url + "/"+ port_id + "/update"
+        url = self._port_url + "/" + port_id + "/update"
         return self._convert_port_data(self._client.do_put(url, args))
 
     def unbind(self, port_id):
@@ -73,11 +69,11 @@ class Driver(backend_base.Driver):
         args["host_id"] = ''
         args["profile"] = ''
         args["zone"] = ''
-        url = self._port_url + "/"+ port_id + "/update"
+        url = self._port_url + "/" + port_id + "/update"
         return self._convert_port_data(self._client.do_put(url, args))
 
     def port(self, port_id):
-        url = self._port_url + "/"+ port_id
+        url = self._port_url + "/" + port_id
         return self._convert_port_data(self._client.json_get(url))
 
     def ports(self):
@@ -96,17 +92,22 @@ class Driver(backend_base.Driver):
         ret_port_data["admin_state_up"] = port_data["admin_state_up"]
         ret_port_data["network_id"] = self._dummy_net
         ret_port_data["tenant_id"] = port_data.get("tenant_id", '')
-        ret_port_data["device_owner"] = port_data.get("device_owner",'')
-        ret_port_data["device_id"] = port_data.get("device_id",'')
+        ret_port_data["device_owner"] = port_data.get("device_owner", '')
+        ret_port_data["device_id"] = port_data.get("device_id", '')
         ret_port_data["mac_address"] = port_data["mac_address"]
         ret_port_data["extra_dhcp_opts"] = []
         ret_port_data["allowed_address_pairs"] = []
-        ret_port_data["fixed_ips"] = [{"ip_address": port_data["ipaddress"], "subnet_id": self._dummy_subnet}]
+        ret_port_data["fixed_ips"] = \
+            [{"ip_address": port_data.get("ipaddress", "0.0.0.0"),
+              "subnet_id": self._dummy_subnet}]
         ret_port_data["security_groups"] = []
-        ret_port_data["binding:host_id"] = port_data.get("host_id",'')
-        ret_port_data["binding:vif_details"] = json.loads(port_data.get("vif_details",'{}'))
-        ret_port_data["binding:vif_type"] = port_data.get("vif_type", 'ovs')
-        ret_port_data["binding:vnic_type"] = port_data.get("vnic_type", 'normal')
+        ret_port_data["binding:host_id"] = port_data.get("host_id", '')
+        ret_port_data["binding:vif_details"] = \
+            json.loads(port_data.get("vif_details", '{}'))
+        ret_port_data["binding:vif_type"] = port_data.get("vif_type", '')
+        ret_port_data["binding:vnic_type"] = \
+            port_data.get("vnic_type", 'normal')
         if port_data.get("profile", '') != '':
-            ret_port_data["binding:profile"] = json.loads(port_data.get("profile", '{}'))
+            ret_port_data["binding:profile"] = \
+                json.loads(port_data.get("profile", '{}'))
         return ret_port_data

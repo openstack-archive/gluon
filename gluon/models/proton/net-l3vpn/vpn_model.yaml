@@ -8,7 +8,7 @@ VpnInstance:
         id:
             type: uuid
             primary: 'True'
-            description: "UUID of port instance"
+            description: "UUID of VPN instance"
         vpn_instance_name:
             required: True
             type: string
@@ -19,11 +19,13 @@ VpnInstance:
             length: 255
             description: "About the VPN"
         ipv4_family:
-            type: VpnAfConfig
-            description: "Pointer to VPN AF cofiguration for IPv4"
+            type: string
+            length: 255
+            description: "Comma separated list of route target strings (VpnAfConfig)"
         ipv6_family:
-            type: VpnAfConfig
-            description: "Pointer to VPN AF cofiguration for IPv6"
+            type: string
+            length: 255
+            description: "Comma separated list of route target strings (VpnAfConfig)"
         route_distinguishers:
             type: string
             length: 32
@@ -49,7 +51,6 @@ VpnAfConfig:
                 - export_extcommunity
                 - import_extcommunity
                 - both
-
         import_route_policy:
             type: string
             length: 32

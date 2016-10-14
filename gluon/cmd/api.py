@@ -44,6 +44,7 @@ LOG = logging.getLogger(__name__)
 
 def main():
     service.prepare_service(sys.argv)
+    cfg.CONF.log_opt_values(LOG, logging.DEBUG)
     # Set source of model files
     set_package("gluon", "models/proton/net-l3vpn")
     LOG.info("Generating DB Classes")
@@ -59,7 +60,7 @@ def main():
 
     LOG.info(_LI('Starting server in PID %s') % os.getpid())
     LOG.debug("Configuration:")
-    cfg.CONF.log_opt_values(LOG, logging.DEBUG)
+
 
     if host == '0.0.0.0':
         LOG.info(_LI('serving on 0.0.0.0:%(port)s, '
