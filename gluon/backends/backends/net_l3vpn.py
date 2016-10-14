@@ -33,23 +33,17 @@ CONF.register_group(opt_group)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
 
 
-class Provider(backend_base.Provider):
-
-    def __init__(self, logger):
-        self._drivers = {}
-        self._logger = logger
+class MyProvider(backend_base.ProviderBase):
 
     def driver_for(self, backend, dummy_net, dummy_subnet):
         if backend['service'] == u'net-l3vpn':
-            return Driver(backend, self._logger, dummy_net, dummy_subnet)
+            return Driver(backend, dummy_net, dummy_subnet)
         else:
             return None
 
-
 class Driver(backend_base.Driver):
 
-    def __init__(self, backend, logger, dummy_net, dummy_subnet):
-        self._logger = logger
+    def __init__(self, backend, dummy_net, dummy_subnet):
         self._client = Client(backend)
         self._port_url = backend["url"] + "/v1/" + cfg.CONF.gluon.ports_name
         self._dummy_net = dummy_net
@@ -101,11 +95,11 @@ class Driver(backend_base.Driver):
         ret_port_data["mac_address"] = port_data["mac_address"]
         ret_port_data["extra_dhcp_opts"] = []
         ret_port_data["allowed_address_pairs"] = []
-        ret_port_data["fixed_ips"] = [{"ip_address": port_data["ipaddress"], "subnet_id": self._dummy_subnet}]
+        ret_port_data["fixed_ips"] = [{"ip_address": port_data.get("ipaddress","0.0.0.0"), "subnet_id": self._dummy_subnet}]
         ret_port_data["security_groups"] = []
         ret_port_data["binding:host_id"] = port_data.get("host_id",'')
         ret_port_data["binding:vif_details"] = json.loads(port_data.get("vif_details",'{}'))
-        ret_port_data["binding:vif_type"] = port_data.get("vif_type", 'ovs')
+        ret_port_data["binding:vif_type"] = port_data.get("vif_type", '')
         ret_port_data["binding:vnic_type"] = port_data.get("vnic_type", 'normal')
         if port_data.get("profile", '') != '':
             ret_port_data["binding:profile"] = json.loads(port_data.get("profile", '{}'))

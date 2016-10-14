@@ -24,13 +24,17 @@ logger = LOG
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Provider(object):
+class ProviderBase(object):
+
+    def __init__(self):
+        self._drivers = {}
 
     @abc.abstractmethod
     def driver_for(self, backend, dummy_net, dummy_subnet):
         return None
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Driver(object):
 
     @abc.abstractmethod
@@ -69,8 +73,7 @@ class Manager(object):
         self._mgr = stevedore.ExtensionManager(
             namespace='gluon.backends',
             on_load_failure_callback=upset,
-            invoke_on_load=True,
-            invoke_args=(logger),
+            invoke_on_load=True
         )
         for f in self._mgr:
             logger.info('Got backend %s' % f.name)

@@ -58,7 +58,7 @@ class SyncThread(threading.Thread):
         try:
             if msg["operation"] == "update":
                 obj_key = "_".join(msg["key"].split())  # Get rid of spaces
-                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(SyncData.service, SyncData.source, msg["table"], obj_key)
+                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(SyncData.source, SyncData.service, msg["table"], obj_key)
                 table_class = get_db_gen().get_table_class(msg["table"])
                 data = self.db_instance.get_by_primary_key(table_class, msg["key"])
                 values = data.as_dict()
@@ -69,7 +69,7 @@ class SyncThread(threading.Thread):
                 self.etcd_client.write(etcd_key, json_str)
             elif msg["operation"] == "delete":
                 obj_key = "_".join(msg["key"].split())  # Get rid of spaces
-                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(SyncData.service, SyncData.source, msg["table"], obj_key)
+                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(SyncData.source, SyncData.service, msg["table"], obj_key)
                 self.etcd_client.delete(etcd_key)
             elif msg["operation"] == "register":
                 obj_key = "_".join(msg["port_id"].split())  # Get rid of spaces
