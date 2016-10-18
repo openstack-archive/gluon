@@ -75,7 +75,7 @@ Current Repository Structure
   - proton-server code
 
     - Main entry point for proton-server process
-    - Uses particle generator from gluon package to generate the REST AP
+    - Uses particle generator from gluon package to generate the REST API
       from model files
     - Uses particle generator from gluon package to generate sqlalchemy database
       classes from model files
