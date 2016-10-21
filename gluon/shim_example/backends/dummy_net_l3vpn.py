@@ -32,6 +32,11 @@ class DummyNetL3VPN(HandlerBase):
         :param model: Model object
         :returns: dict of vif parameters (vif_type, vif_details)
         """
+        LOG.info("bind_port: %s" % uuid)
+        port = model.ports.get(uuid, None)
+        if not port:
+            LOG.error("Cannot find port")
+            return dict()
         service_binding = model.vpn_ports.get(uuid, None)
         if not service_binding:
             LOG.error("Cannot bind port, not bound to a servcie")
@@ -41,18 +46,26 @@ class DummyNetL3VPN(HandlerBase):
         if not vpn_instance:
             LOG.error("VPN instance not available!")
             return dict()
+        LOG.info("port: %s" % port)
+        LOG.info("service: %s" % vpn_instance)
+        rd_list = list()
+        rd_string = vpn_instance.get("route_distinguishers")
+        if rd_string:
+            tmp_list = rd_string.split(',')
+            for rd_name in tmp_list:
+                rd_list.append(rd_name.strip())
         afconfig_list = list()
+        afconfig_name_list = list()
         afconfig_string = vpn_instance.get("ipv4_family")
         if afconfig_string:
             tmp_list = afconfig_string.split(',')
             for afconfig_name in tmp_list:
-                afconfig_list.append(afconfig_name.strip())
+                afconfig_name_list.append(afconfig_name.strip())
 
-        LOG.info("bind_port: %s" % uuid)
-        LOG.info("service: %s" % vpn_instance)
-        for afconfig_name in afconfig_list:
+        for afconfig_name in afconfig_name_list:
             afconfig = model.vpn_afconfigs.get(afconfig_name, None)
             if (afconfig):
+                afconfig_list.append(afconfig)
                 LOG.info("  afconfig(%s): %s" % (afconfig_name, afconfig))
         LOG.info(changes)
         retval = {'vif_type': 'ovs',
@@ -67,13 +80,10 @@ class DummyNetL3VPN(HandlerBase):
         :param model: Model object
         :returns: None
         """
-        service_binding = model.vpn_ports.get(uuid, None)
-        if not service_binding:
-            instance_id = service_binding["vpn_instance"]
-            LOG.error("Cannot locate bound servcie")
-            vpn_instance = model.vpn_instances.get(instance_id, None)
-            if not vpn_instance:
-                LOG.error("VPN instance not available!")
+        port = model.ports.get(uuid, None)
+        if not port:
+            LOG.error("Cannot find port")
+            return
         LOG.info("unbind_port: %s" % uuid)
         LOG.info(changes)
         return
