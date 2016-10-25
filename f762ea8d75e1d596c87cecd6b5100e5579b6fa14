@@ -1,0 +1,8 @@
+Code-Review+2: Thomas Hambleton <tomhambleton@gmail.com>
+Workflow+1: Thomas Hambleton <tomhambleton@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 25 Oct 2016 05:24:37 +0000
+Reviewed-on: https://review.openstack.org/335782
+Project: openstack/gluon
+Branch: refs/heads/master
