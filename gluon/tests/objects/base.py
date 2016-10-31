@@ -12,9 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
+from gluon.objects import base
 from gluon.tests.db import base as dbbase
 
 
 class ObjectTestCase(dbbase.DbTestCase):
-    pass
+
+    def setUp(self):
+        super(ObjectTestCase, self).setUp()
+        self.gluon_object = base.GluonObject()
