@@ -19,7 +19,7 @@ from gluon.db import api as dbapi
 from oslo_log._i18n import _LI
 from oslo_log import log as logging
 from oslo_versionedobjects import base as ovoo_base
-from oslo_versionedobjects import exception
+# from oslo_versionedobjects import exception
 
 
 LOG = logging.getLogger(__name__)
