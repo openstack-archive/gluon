@@ -15,6 +15,14 @@
 
 import collections
 
+class ChangeData(object):
+    def __init__(self):
+        self.new = dict()
+        self.prev = dict()
+    def __str__(self):
+        '''returns simple dict representation of the mapping'''
+        return "new = " + str(self.new) + ", prev = " + str(self.prev)
+
 
 class ObjBase(collections.MutableMapping):
     '''
@@ -54,15 +62,16 @@ class ObjBase(collections.MutableMapping):
         return '{}, {}'.format(super(ObjBase, self).__repr__(), self.__dict__)
 
     def update_attrs(self, new_attributes):
-        changes = dict()
+        changes = ChangeData()
         for key in new_attributes:
             if key in self.__dict__:
                 if new_attributes[key] != self.__dict__[key]:
+                    changes.prev[key] = self.__dict__[key]
                     self.__dict__[key] = new_attributes[key]
-                    changes[key] = new_attributes[key]
+                    changes.new[key] = new_attributes[key]
             else:
                 self.__dict__[key] = new_attributes[key]
-                changes[key] = new_attributes[key]
+                changes.new[key] = new_attributes[key]
         return changes
 
 

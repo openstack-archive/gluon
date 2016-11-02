@@ -58,6 +58,7 @@ class ProtonManager(ApiManager):
             message = self.etcd_client.read(etcd_key)
             self.wait_index = message.modifiedIndex + 1
         except etcd.EtcdKeyNotFound:
+            self.wait_index = 0
             LOG.info("Key Not Found, creating it: %s" % etcd_key)
             data = dict()
             value = json.dumps(data)

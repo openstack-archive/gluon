@@ -22,7 +22,7 @@ def compute_network_addr(ip, prefix):
     """
     addr = netaddr.IPNetwork(ip)
     addr.prefixlen = int(prefix)
-    return addr.network
+    return str(addr.network)
 
 
 def compute_netmask(prefix):
@@ -33,5 +33,5 @@ def compute_netmask(prefix):
     """
     addr = netaddr.IPNetwork("0.0.0.0")
     addr.prefixlen = int(prefix)
-    return addr.netmask
+    return str(addr.netmask)
 
