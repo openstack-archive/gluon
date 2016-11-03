@@ -13,6 +13,7 @@
 #    under the License.
 
 import datetime
+import six
 
 from pecan import expose
 from pecan import rest
@@ -150,8 +151,8 @@ class RootObjectController(rest.RestController):
 
         @wsme_pecan.wsexpose(new_cls._API_object_class,
                              new_cls._primary_key_type,
-                             unicode,
-                             body=unicode,
+                             six.text_type,
+                             body=six.text_type,
                              template='json')
         def put(self, key, operation, body):
             return self.call_api_manager(
