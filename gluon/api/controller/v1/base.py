@@ -17,8 +17,8 @@ from pecan import rest
 from wsme import types as wtypes
 import wsmeext.pecan as wsme_pecan
 
-from gluon.api import link
 from gluon.api.baseObject import APIBase
+from gluon.api import link
 from gluon.common.particleGenerator import generator as particle_generator
 
 

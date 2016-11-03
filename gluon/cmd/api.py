@@ -17,24 +17,25 @@ import os
 import sys
 from wsgiref import simple_server
 
+from oslo_config import cfg
+from oslo_log._i18n import _LI
+from oslo_log import log as logging
+
 from gluon.api import app as api_app
-from gluon.common import service
-from gluon.common.particleGenerator.generator import set_package
-from gluon.common.particleGenerator import generator as particle_generator
-from gluon.core.manager import register_api_manager
 import gluon.cmd.config
 from gluon.cmd.manager import ProtonManager
+from gluon.common.particleGenerator import generator as particle_generator
+from gluon.common.particleGenerator.generator import set_package
+from gluon.common import service
+from gluon.core.manager import register_api_manager
 from gluon.db.sqlalchemy import models as sql_models
 from gluon.sync_etcd.thread import start_sync_thread
-from oslo_config import cfg
-from oslo_log import log as logging
-from oslo_log._i18n import _LI
-
 
 LOG = logging.getLogger(__name__)
 #
 # Set the package name before class generation.
-# The generator will look in the models directory of the package for the yaml files.
+# The generator will look in the models directory of the package
+# for the yaml files.
 #
 #
 # Register API Manager for this service.
@@ -60,7 +61,6 @@ def main():
 
     LOG.info(_LI('Starting server in PID %s') % os.getpid())
     LOG.debug("Configuration:")
-
 
     if host == '0.0.0.0':
         LOG.info(_LI('serving on 0.0.0.0:%(port)s, '

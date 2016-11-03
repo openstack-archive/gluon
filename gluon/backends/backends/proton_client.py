@@ -15,10 +15,13 @@
 
 import json
 
-from gluon.common import exception as exc
 from oslo_log import log as logging
-from requests import get, put, post, delete
+from requests import delete
+from requests import get
+from requests import post
+from requests import put
 
+from gluon.common import exception as exc
 
 LOG = logging.getLogger(__name__)
 logger = LOG
@@ -38,8 +41,8 @@ class Client(object):
         try:
             rv = json.loads(resp.content)
         except Exception as e:
-            raise exc.MalformedResponseBody(reason="JSON unreadable: %s on %s"
-                                               % (e.message, resp.content))
+            msg = "JSON unreadable: %s on %s" % (e.message, resp.content)
+            raise exc.MalformedResponseBody(reason=msg)
         return rv
 
     def do_delete(self, url):

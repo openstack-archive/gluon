@@ -29,6 +29,7 @@ from oslo_utils import uuidutils
 class DynamicDict(wtypes.DynamicBase):
     pass
 
+
 class DynamicList(wtypes.DynamicBase):
     pass
 
@@ -72,6 +73,7 @@ class UuidType(wtypes.UserType):
         if value is None:
             return None
         return UuidType.validate(value)
+
 
 class BooleanType(wtypes.UserType):
     """A simple boolean type."""
@@ -120,6 +122,7 @@ class MultiType(wtypes.UserType):
             raise ValueError(_("Expected '%(type)s', got '%(value)s'")
                              % {'type': self.types, 'value': type(value)})
 
+
 class Text(wtypes.UserType):
     basetype = six.text_type
     name = 'text'
@@ -128,7 +131,7 @@ class Text(wtypes.UserType):
     def validate(value):
         if isinstance(value, six.string_types):
             return
-        raise ValueError(_("Expected String, got '%s'" % value))
+        raise ValueError(_("Expected String, got '%s'") % value)
 
 
 def create_enum_type(*values):

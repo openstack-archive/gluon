@@ -25,4 +25,3 @@ class TestBackends(base.NetworkServiceAPITestCase):
 
     def test_register(self):
         pass
-

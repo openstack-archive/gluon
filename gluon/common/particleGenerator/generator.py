@@ -18,13 +18,13 @@ import pkg_resources
 import yaml
 
 from oslo_config import cfg
-from oslo_log import log as logging
 from oslo_log._i18n import _LI
-
+from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 
-class MyData:
+
+class MyData(object):
     pass
 
 GenData = MyData()
@@ -44,14 +44,16 @@ def set_package(package, dir):
 def load_model():
     if not GenData.model:
         GenData.model = {}
-        for f in pkg_resources.resource_listdir(GenData.package_name, GenData.model_dir):
+        for f in pkg_resources.resource_listdir(
+                GenData.package_name, GenData.model_dir):
             f = GenData.model_dir + "/" + f
             with pkg_resources.resource_stream(GenData.package_name, f) as fd:
                 GenData.model.update(yaml.safe_load(fd))
 
 
 def build_sql_models(base):
-    from gluon.common.particleGenerator.DataBaseModelGenerator import DataBaseModelProcessor
+    from gluon.common.particleGenerator.DataBaseModelGenerator \
+        import DataBaseModelProcessor
     load_model()
     if not GenData.DataBaseModelGeneratorInstance:
         GenData.DataBaseModelGeneratorInstance = DataBaseModelProcessor()
@@ -66,7 +68,8 @@ def build_api(root):
         return
     load_model()
     if not GenData.APIGeneratorInstance:
-        GenData.APIGeneratorInstance = APIGenerator(GenData.DataBaseModelGeneratorInstance.db_models)
+        GenData.APIGeneratorInstance = APIGenerator(
+            GenData.DataBaseModelGeneratorInstance.db_models)
         GenData.APIGeneratorInstance.add_model(GenData.model)
         GenData.APIGeneratorInstance.create_api(root)
 

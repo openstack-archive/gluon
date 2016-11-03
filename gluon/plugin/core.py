@@ -17,13 +17,14 @@ import etcd
 import json
 import os
 
-from gluon.backends.backend_base import Manager
-from neutron.plugins.ml2.plugin import Ml2Plugin
 from oslo_log import helpers as log_helpers
 from oslo_log import log
 
+from gluon.backends.backend_base import Manager
+from neutron.plugins.ml2.plugin import Ml2Plugin
 
-class MyData:
+
+class MyData(object):
     pass
 
 PluginData = MyData()
@@ -35,6 +36,7 @@ PluginData.proton_host = '127.0.0.1'
 
 LOG = log.getLogger(__name__)
 
+
 class GluonPlugin(Ml2Plugin):
 
     def __init__(self):
@@ -42,23 +44,26 @@ class GluonPlugin(Ml2Plugin):
         self.backend_manager = Manager()
         self.gluon_network = None
         self.gluon_subnet = None
-        self.etcd_client = etcd.Client(host=PluginData.etcd_host, port=PluginData.etcd_port)
+        self.etcd_client = etcd.Client(host=PluginData.etcd_host,
+                                       port=PluginData.etcd_port)
 
     @log_helpers.log_method_call
     def check_gluon_port(self, id):
         """Get Gluon Port Info
 
-        Check to see if port is a Gluon port. If so, return service, url, and tenant_id.
-        Otherwise, it is a Neutron port.  Return None
+        Check to see if port is a Gluon port. If so, return service,
+        url, and tenant_id. Otherwise, it is a Neutron port.  Return None
 
         :param id: UUID of Port
         """
         try:
-            return json.loads(self.etcd_client.get(PluginData.gluon_base + '/' + id).value)
+            return json.loads(
+                self.etcd_client.get(PluginData.gluon_base + '/' + id).value)
         except etcd.EtcdKeyNotFound:
             LOG.debug("Not a Gluon port: %s" % id)
         except etcd.EtcdException:
-            LOG.error("Cannot connect to etcd, make sure that etcd is running.")
+            LOG.error(
+                "Cannot connect to etcd, make sure that etcd is running.")
         except Exception as e:
             LOG.error("Unkown exception:", e)
         return None
@@ -67,7 +72,8 @@ class GluonPlugin(Ml2Plugin):
     def get_gluon_port(self, backend, id, fields):
         result = dict()
         try:
-            driver = self.backend_manager.get_backend_driver(backend, self.gluon_network, self.gluon_subnet)
+            driver = self.backend_manager.get_backend_driver(
+                backend, self.gluon_network, self.gluon_subnet)
             port = driver.port(id)
             if fields is None or len(fields) == 0:
                 result = port
@@ -75,7 +81,7 @@ class GluonPlugin(Ml2Plugin):
                 result["id"] = id
                 for field in fields:
                     result[field] = port.get(field, "")
-        except:
+        except Exception:
             LOG.debug("Port not found")
         return result
 
@@ -91,13 +97,14 @@ class GluonPlugin(Ml2Plugin):
             meta = json.loads(keydata.value)
             if current_service != meta['service']:
                 current_service = meta['service']
-                driver = self.backend_manager.get_backend_driver(meta, self.gluon_network, self.gluon_subnet)
+                driver = self.backend_manager.get_backend_driver(
+                    meta, self.gluon_network, self.gluon_subnet)
             port = driver.port(id)
             LOG.debug("port = %s" % port)
             if filters is not None:
                 found = True
                 for field, values in filters.items():
-                    testval = port.get(field,'')
+                    testval = port.get(field, '')
                     LOG.debug("field = %s" % field)
                     LOG.debug("testval = %s" % testval)
                     LOG.debug("values = %s" % values)
@@ -113,7 +120,8 @@ class GluonPlugin(Ml2Plugin):
     def update_gluon_port(self, backend, id, port):
         result = dict()
         try:
-            driver = self.backend_manager.get_backend_driver(backend, self.gluon_network, self.gluon_subnet)
+            driver = self.backend_manager.get_backend_driver(
+                backend, self.gluon_network, self.gluon_subnet)
             port_data = port["port"]
             host_id = port_data.get('binding:host_id', None)
             LOG.debug("host_id = %s" % host_id)
@@ -123,10 +131,11 @@ class GluonPlugin(Ml2Plugin):
             else:
                 LOG.debug("Performing bind")
                 device_owner = port_data.get('device_owner', '')
-                zone = 'nova'  #??
+                zone = 'nova'  # ??
                 device_id = port_data.get('device_id', '')
                 binding_profile = port_data.get('binding:profile', None)
-                result = driver.bind(id, device_owner, zone, device_id, host_id, binding_profile)
+                result = driver.bind(id, device_owner, zone,
+                                     device_id, host_id, binding_profile)
         except Exception as e:
             LOG.debug("Port bind/unbind failed")
             raise e
@@ -223,11 +232,10 @@ class GluonPlugin(Ml2Plugin):
                        will be returned.
         """
         self.update_gluon_objects(context)
-        result = super(GluonPlugin, self).get_subnets(context, filters, fields,
-                    sorts, limit, marker, page_reverse)
+        result = super(GluonPlugin, self).get_subnets(
+            context, filters, fields, sorts, limit, marker, page_reverse)
         LOG.debug(result)
         return result
-
 
     @log_helpers.log_method_call
     def get_subnets_count(self, context, filters=None):
@@ -272,7 +280,8 @@ class GluonPlugin(Ml2Plugin):
         :param context: Neutron API request context
         :param subnetpool: Dictionary representing the subnetpool to create.
         """
-        result = super(GluonPlugin, self).create_subnetpool(context, subnetpool)
+        result = super(GluonPlugin, self).create_subnetpool(
+            context, subnetpool)
         LOG.debug(result)
         return result
 
@@ -284,7 +293,8 @@ class GluonPlugin(Ml2Plugin):
         :param subnetpool: Dictionary representing the subnetpool attributes
                            to update.
         """
-        result = super(GluonPlugin, self).update_subnetpool(context, id, subnetpool)
+        result = super(GluonPlugin, self).update_subnetpool(
+            context, id, subnetpool)
         LOG.debug(result)
         return result
 
@@ -295,7 +305,8 @@ class GluonPlugin(Ml2Plugin):
         :param context: Neutron API request context
         :param id: The UUID of the subnetpool to show.
         """
-        result = super(GluonPlugin, self).get_subnetpool(context, id, fields)
+        result = super(GluonPlugin, self).get_subnetpool(
+            context, id, fields)
         LOG.debug(result)
         return result
 
@@ -304,8 +315,8 @@ class GluonPlugin(Ml2Plugin):
                         sorts=None, limit=None, marker=None,
                         page_reverse=False):
         """Retrieve list of subnet pools."""
-        result = super(GluonPlugin, self).get_subnetpools(context, filters, fields,
-                        sorts, limit, marker, page_reverse)
+        result = super(GluonPlugin, self).get_subnetpools(
+            context, filters, fields, sorts, limit, marker, page_reverse)
         LOG.debug(result)
         return result
 
@@ -350,7 +361,8 @@ class GluonPlugin(Ml2Plugin):
                         :obj:`RESOURCE_ATTRIBUTE_MAP` object in
                         :file:`neutron/api/v2/attributes.py`.
         """
-        result = super(GluonPlugin, self).update_network(context, id, network)
+        result = super(GluonPlugin, self).update_network(
+            context, id, network)
         LOG.debug(result)
         return result
 
@@ -395,8 +407,8 @@ class GluonPlugin(Ml2Plugin):
                        will be returned.
         """
         self.update_gluon_objects(context)
-        result = super(GluonPlugin, self).get_networks(context, filters, fields,
-                     sorts, limit, marker, page_reverse)
+        result = super(GluonPlugin, self).get_networks(
+            context, filters, fields, sorts, limit, marker, page_reverse)
         return result
 
     @log_helpers.log_method_call
@@ -515,8 +527,8 @@ class GluonPlugin(Ml2Plugin):
                        will be returned.
         """
         self.update_gluon_objects(context)
-        result = super(GluonPlugin, self).get_ports(context, filters, fields,
-                  sorts, limit, marker, page_reverse)
+        result = super(GluonPlugin, self).get_ports(
+            context, filters, fields, sorts, limit, marker, page_reverse)
         self.append_gluon_ports(context, filters, result)
         LOG.debug(result)
         return result
@@ -552,8 +564,7 @@ class GluonPlugin(Ml2Plugin):
         :param context: Neutron API request context
         :param id: UUID representing the port to delete.
         """
-        result = super(GluonPlugin, self).delete_port(context, id, l3_port_check)
+        result = super(GluonPlugin, self).delete_port(
+            context, id, l3_port_check)
         LOG.debug(result)
         return result
-
-

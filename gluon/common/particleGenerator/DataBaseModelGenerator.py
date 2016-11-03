@@ -19,9 +19,10 @@ from __future__ import print_function
 import re
 import six
 import sys
+import yaml
+
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
-import yaml
 
 
 class DataBaseModelProcessor(object):
@@ -35,9 +36,8 @@ class DataBaseModelProcessor(object):
     def get_table_class(self, table_name):
         try:
             return self.db_models[table_name]
-        except ValueError as e:
+        except ValueError:
             raise Exception('Unknown table name %s' % table_name)
-
 
     def build_sqla_models(self, base=None):
         """Make SQLAlchemy classes for each of the elements in the data read"""
@@ -58,7 +58,8 @@ class DataBaseModelProcessor(object):
         for table_name, table_data in six.iteritems(self.data):
             try:
                 attrs = {}
-                for col_name, col_desc in six.iteritems(table_data['attributes']):
+                for col_name, col_desc in six.iteritems(
+                        table_data['attributes']):
                     try:
 
                         options = {}
@@ -108,8 +109,8 @@ class DataBaseModelProcessor(object):
                         # definition
                         if col_desc.get('primary', False):
                             options['primary_key'] = True
-                            # Save the information about the primary key as well
-                            # in the object
+                            # Save the information about the primary key
+                            # as well in the object
                             attrs['_primary_key'] = col_name
 
                         required = col_desc.get('required', False)
@@ -131,18 +132,18 @@ class DataBaseModelProcessor(object):
                         else:
                             raise Exception('Unknown column type %s' %
                                             col_desc['type'])
-                    except:
+                    except Exception:
                         print('During processing of attribute ', col_name,
                               file=sys.stderr)
                         raise
-                if not '_primary_key' in attrs:
+                if '_primary_key' not in attrs:
                     raise Exception("One and only one primary key has to "
                                     "be given to each column")
                 attrs['__tablename__'] = de_camel(table_name)
                 attrs['__name__'] = table_name
 
                 self.db_models[table_name] = type(table_name, (base,), attrs)
-            except:
+            except Exception:
                 print('During processing of table ', table_name,
                       file=sys.stderr)
                 raise

@@ -21,10 +21,9 @@ Includes decorator for re-raising Cloudpulse-type exceptions.
 import six
 
 from oslo_config import cfg
-from oslo_log import log as logging
-from oslo_log._i18n import _LE
 from oslo_log._i18n import _
-
+from oslo_log._i18n import _LE
+from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -106,6 +105,7 @@ class BackendDoesNotExsist(GluonException):
     code = 409
     message = _("Backend with name %(name)s does not exsist.")
 
+
 class GluonClientException(GluonException):
     """Base exception which exceptions from Gluon are mapped into.
 
@@ -120,6 +120,7 @@ class GluonClientException(GluonException):
         if 'status_code' in kwargs:
             self.status_code = kwargs['status_code']
         super(GluonClientException, self).__init__(message, **kwargs)
+
 
 class EndpointNotFound(GluonClientException):
     message = _("Could not find Service or Region in Service Catalog.")

@@ -14,7 +14,8 @@
 
 import datetime
 
-from pecan import rest, expose
+from pecan import expose
+from pecan import rest
 import wsme
 from wsme import types as wtypes
 import wsmeext.pecan as wsme_pecan
@@ -115,48 +116,53 @@ class APIBaseList(APIBase):
 
 
 class RootObjectController(rest.RestController):
-    """ Root Objects are Objects of the API which
-    do not have a parent
-    """
+    """Controller for objects of the API which do not have a parent"""
 
     @classmethod
     def class_builder(base_cls, name, API_object_class,
                       primary_key_type):
         new_cls = type(name, (base_cls,), {})
-        new_cls._list_object_class = APIBaseList.class_builder(name + 'List',
-                                                               name,
-                                                               API_object_class)
+        new_cls._list_object_class = APIBaseList.class_builder(
+            name + 'List', name, API_object_class)
         new_cls._API_object_class = API_object_class
         new_cls._primary_key_type = primary_key_type
 
         @expose('json')
         def get_all(self):
-            return self.call_api_manager(self._list_object_class, 'get_all')
+            return self.call_api_manager(
+                self._list_object_class, 'get_all')
         new_cls.get_all = classmethod(get_all)
 
         @expose('json')
         def get_one(self, key):
-            return self.call_api_manager(self._API_object_class, 'get_one', key)
+            return self.call_api_manager(
+                self._API_object_class, 'get_one', key)
         new_cls.get_one = classmethod(get_one)
 
         @wsme_pecan.wsexpose(new_cls._API_object_class,
-                             body=new_cls._API_object_class, template='json',
+                             body=new_cls._API_object_class,
+                             template='json',
                              status_code=201)
         def post(self, body):
-            return self.call_api_manager_create(self._API_object_class, body.to_db_object())
+            return self.call_api_manager_create(
+                self._API_object_class, body.to_db_object())
         new_cls.post = classmethod(post)
 
-        @wsme_pecan.wsexpose(new_cls._API_object_class, new_cls._primary_key_type,
-                                     unicode,
-                                     body=unicode, template='json')
+        @wsme_pecan.wsexpose(new_cls._API_object_class,
+                             new_cls._primary_key_type,
+                             unicode,
+                             body=unicode,
+                             template='json')
         def put(self, key, operation, body):
-            return self.call_api_manager(self._API_object_class, operation, key, body)
+            return self.call_api_manager(
+                self._API_object_class, operation, key, body)
         new_cls.put = classmethod(put)
 
         @wsme_pecan.wsexpose(None, new_cls._primary_key_type,
-                                 template='json')
+                             template='json')
         def delete(self, key):
-            return self.call_api_manager(new_cls._API_object_class, 'delete', key)
+            return self.call_api_manager(
+                new_cls._API_object_class, 'delete', key)
         new_cls.delete = classmethod(delete)
 
         return new_cls
@@ -164,30 +170,35 @@ class RootObjectController(rest.RestController):
     @classmethod
     def call_api_manager_create(cls, api_class, db_object):
         objClass = cls._API_object_class.get_object_class()
-        call_func = getattr(get_api_manager(), 'create_%s' % cls.__name__, None)
+        call_func = getattr(get_api_manager(),
+                            'create_%s' % cls.__name__, None)
         if not call_func:
-            raise Exception('%s_%s is not implemented' % (func, cls.__name__))
-        #
-        # If the primary key is a UUID and it is not set, we generate one and set it here.
-        #
-        if type(cls._primary_key_type) is types.UuidType:
+            raise Exception('%s_%s is not implemented' %
+                            (call_func, cls.__name__))
+        # If the primary key is a UUID and it is not set,
+        # we generate one and set it here.
+        if isinstance(cls._primary_key_type, types.UuidType):
             gen_uuid = False
             if db_object.db_model._primary_key in db_object.as_dict():
-                if db_object.as_dict()[db_object.db_model._primary_key] == "Unset":
+                if db_object.as_dict()[db_object.db_model._primary_key] \
+                        == "Unset":
                     gen_uuid = True
             else:
                 gen_uuid = True
             if gen_uuid:
-                db_object.__setitem__(db_object.db_model._primary_key, generate_uuid())
+                db_object.__setitem__(
+                    db_object.db_model._primary_key, generate_uuid())
         return call_func(api_class, db_object)
 
     @classmethod
     def call_api_manager(cls, api_class, func, *args):
         objClass = cls._API_object_class.get_object_class()
-        call_func = getattr(get_api_manager(), '%s_%s' % (func, cls.__name__), None)
+        call_func = getattr(
+            get_api_manager(), '%s_%s' % (func, cls.__name__), None)
         if not call_func:
             raise Exception('%s_%s is not implemented' % (func, cls.__name__))
         return call_func(api_class, objClass, *args)
+
 
 class SubObjectController(RootObjectController):
 
@@ -200,7 +211,8 @@ class SubObjectController(RootObjectController):
         new_cls._parent_identifier_type = parent_identifier_type
         new_cls._parent_attribute_name = parent_attribute_name
 
-        @wsme_pecan.wsexpose(new_cls._list_object_class, new_cls._parent_identifier_type,
+        @wsme_pecan.wsexpose(new_cls._list_object_class,
+                             new_cls._parent_identifier_type,
                              template='json')
         def get_all(self, _parent_identifier):
             filters = {self._parent_attribute_name: _parent_identifier}
@@ -213,14 +225,15 @@ class SubObjectController(RootObjectController):
                              new_cls._parent_identifier_type,
                              new_cls._primary_key_type,
                              template='json')
-        def get_one(self, parent_identifier, key):
+        def get_one(self, _parent_identifier, key):
             filters = {self._parent_attribute_name: _parent_identifier}
             return self._API_object_class.build(
                 self._API_object_class.get_object_class(
                 ).get_by_primary_key(key, filters))
         new_cls.get_one = classmethod(get_one)
 
-        @wsme_pecan.wsexpose(new_cls._API_object_class, new_cls._parent_identifier_type,
+        @wsme_pecan.wsexpose(new_cls._API_object_class,
+                             new_cls._parent_identifier_type,
                              body=new_cls._API_object_class, template='json',
                              status_code=201)
         def post(self, parent_identifier, body):

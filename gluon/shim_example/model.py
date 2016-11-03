@@ -15,22 +15,25 @@
 
 import collections
 
+
 class ChangeData(object):
     def __init__(self):
         self.new = dict()
         self.prev = dict()
+
     def __str__(self):
         '''returns simple dict representation of the mapping'''
         return "new = " + str(self.new) + ", prev = " + str(self.prev)
 
 
 class ObjBase(collections.MutableMapping):
-    '''
-    Mapping that works like both a dict and a mutable object, i.e.
-    d = ObjBase(foo='bar')
-    and
-    d.foo returns 'bar'
-    '''
+    """Base object mapping
+
+       Mapping that works like both a dict and a mutable object, i.e.
+        d = ObjBase(foo='bar')
+       and
+        d.foo returns 'bar'
+    """
     # ``__init__`` method required to create instance from class.
     def __init__(self, attributes=None):
         '''Use the object dict'''

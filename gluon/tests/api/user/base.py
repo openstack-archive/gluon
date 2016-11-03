@@ -17,5 +17,5 @@ from gluon.tests.api import base
 class ClientAPITestCase(base.APITestCase):
 
     def setUp(self):
-        super(APITestCase, self).setUp()
+        super(ClientAPITestCase, self).setUp()
         pass

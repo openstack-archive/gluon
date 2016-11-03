@@ -17,21 +17,19 @@ import netaddr
 
 
 def compute_network_addr(ip, prefix):
-    """
-    return network address
-    """
+    """return network address"""
+
     addr = netaddr.IPNetwork(ip)
     addr.prefixlen = int(prefix)
     return str(addr.network)
 
 
 def compute_netmask(prefix):
-    """
-    return netmask
+    """return netmask
+
     :param prefix:
     :return:
     """
     addr = netaddr.IPNetwork("0.0.0.0")
     addr.prefixlen = int(prefix)
     return str(addr.netmask)
-

@@ -17,6 +17,7 @@ import json
 import os
 import sys
 import time
+
 from Queue import Queue
 from threading import Thread
 
@@ -29,7 +30,7 @@ from gluon.shim_example.api_models.net_l3vpn import ApiNetL3VPN
 from gluon.shim_example.backends.dummy_net_l3vpn import DummyNetL3VPN
 
 
-class MyData:
+class MyData(object):
     pass
 
 LOG = logging.getLogger(__name__)
@@ -184,7 +185,7 @@ def main():
             LOG.info("exiting on interrupt")
             exit(1)
 
-        except:
+        except Exception:
             pass
 
 if __name__ == '__main__':

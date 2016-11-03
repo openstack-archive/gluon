@@ -78,11 +78,10 @@ def _paginate_query(model, limit=None, marker=None, sort_key=None,
 
 
 class Connection(api.Connection):
-
     """SqlAlchemy connection."""
 
-    # TODO: this should not be done!!! a database should be created and then
-    # migration should be triggered.
+    # TODO(name): this should not be done!!! a database should be
+    # created and then migration should be triggered.
     LOG.error("models.Base.metadata.create_all(get_engine()) is still called"
               " this should not be done - migration should be triggered")
     sql_models.Base.metadata.create_all(get_engine())
@@ -99,9 +98,9 @@ class Connection(api.Connection):
             obj.save()
         except db_exc.DBDuplicateEntry as e:
             raise exception.AlreadyExists(
-                 key=e.__dict__['columns'][0],
-                 value=values[e.__dict__['columns'][0]],
-                 cls=model.__name__)
+                key=e.__dict__['columns'][0],
+                value=values[e.__dict__['columns'][0]],
+                cls=model.__name__)
         return obj
 
     def _add_filters(self, query, filters):
@@ -113,12 +112,13 @@ class Connection(api.Connection):
 
         return query
 
-    def get_list(self, model, columns=None, filters=None, limit=None, marker=None,
-                 sort_key=None, sort_dir=None, failed=None, period=None):
+    def get_list(self, model, columns=None, filters=None, limit=None,
+                 marker=None, sort_key=None, sort_dir=None, failed=None,
+                 period=None):
         query = model_query(model)
         query = self._add_filters(query, filters)
-        #query = self._add_period_filter(query, period)
-        #query = self._add_failed_filter(query, failed)
+        # query = self._add_period_filter(query, period)
+        # query = self._add_failed_filter(query, failed)
         return _paginate_query(model, limit, marker,
                                sort_key, sort_dir, query)
 
@@ -133,7 +133,7 @@ class Connection(api.Connection):
     def get_by_primary_key(self, model, key):
         pk_type = model.get_primary_key_type()
         query = model_query(model)
-        filter = { pk_type: key }
+        filter = {pk_type: key}
         query = query.filter_by(**filter)
         try:
             return query.one()

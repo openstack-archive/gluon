@@ -34,7 +34,7 @@ class ApiModelBase(object):
         self.name = _name
 
     def handle_object_change(self, object, key, attributes, shim_data):
-        """ Called to update model based on changes to etcd database.
+        """Called to update model based on changes to etcd database.
 
         Based on the changes to the model.  This method will call
         event methods on the registered backend object.  The
@@ -48,9 +48,8 @@ class ApiModelBase(object):
         """
         pass
 
-
     def handle_object_delete(self, object, key, shim_data):
-        """ Called to update model based on changes to etcd database.
+        """Called to update model based on changes to etcd database.
 
         Based on the changes to the model.  This method will call
         event methods on the registered backend object.  The
@@ -70,7 +69,7 @@ class HandlerBase(object):
 
     @abc.abstractmethod
     def bind_port(self, uuid, model, changes):
-        """ Called to bind port to VM.
+        """Called to bind port to VM.
 
         :param uuid: UUID of Port
         :param model: Model object
@@ -81,7 +80,7 @@ class HandlerBase(object):
 
     @abc.abstractmethod
     def unbind_port(self, uuid, model, changes):
-        """ Called to unbind port from VM.
+        """Called to unbind port from VM.
 
         :param uuid: UUID of Port
         :param model: Model object
@@ -91,7 +90,7 @@ class HandlerBase(object):
 
     @abc.abstractmethod
     def modify_port(self, uuid, model, changes):
-        """ Called when attributes change on a bound port.
+        """Called when attributes change on a bound port.
 
         :param uuid: UUID of Port
         :param model: Model object
@@ -102,43 +101,43 @@ class HandlerBase(object):
 
     @abc.abstractmethod
     def delete_port(self, uuid, model):
-        """ Called when a bound port is deleted
+        """Called when a bound port is deleted
 
         :param uuid: UUID of Port
         :param model: Model object
         :param changes: dictionary of changed attributes
         :returns: None
         """
+
         pass
-
-
 
     @abc.abstractmethod
     def modify_service(self, uuid, model, changes):
-        """ Called when attributes change on a service associated
-            with a bound port.
+        """Called when attribute of a service with a bound port changed.
 
         :param uuid: UUID of Service
         :param model: Model Object
         :param changes: dictionary of changed attributes
         :returns: None
         """
+
         pass
 
     @abc.abstractmethod
     def delete_service(self, uuid, model, changes):
-        """ Called when a service associated with a bound port is deleted
+        """Called when a service associated with a bound port is deleted
 
         :param uuid: UUID of Service
         :param model: Model Object
         :param changes: dictionary of changed attributes
         :returns: None
         """
+
         pass
 
     @abc.abstractmethod
     def modify_service_binding(self, uuid, model, prev_binding):
-        """ Called when a service is associated with a bound port.
+        """Called when a service is associated with a bound port.
 
         :param uuid: UUID of Port to locate servcie binding
         :param model: Model Object
@@ -149,18 +148,19 @@ class HandlerBase(object):
 
     @abc.abstractmethod
     def delete_service_binding(self, model, prev_binding):
-        """ Called when a service is disassociated with a bound port.
+        """Called when a service is disassociated with a bound port.
 
         :param model: Model Object
         :param prev_binding: dictionary of previous binding
         :returns: None
         """
+
         pass
 
     @abc.abstractmethod
     def modify_subport_parent(self, uuid, model, prev_parent,
                               prev_parent_type):
-        """ Called when a subport's parent relationship changes.
+        """Called when a subport's parent relationship changes.
 
         :param uuid: UUID of Subport
         :param model: Model object
@@ -168,5 +168,5 @@ class HandlerBase(object):
         :param prev_parent_type: name of previous parent (Port or Subport)
         :returns: None
         """
-        pass
 
+        pass

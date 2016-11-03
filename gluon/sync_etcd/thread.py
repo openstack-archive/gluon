@@ -18,20 +18,20 @@ import six
 from six.moves import queue
 import threading
 
-from gluon.common.particleGenerator.generator import get_db_gen
-from gluon.db import api as dbapi
-from oslo_log import log as logging
 from oslo_log._i18n import _LE
-from oslo_log._i18n import _LW
 from oslo_log._i18n import _LI
-
+from oslo_log._i18n import _LW
+from oslo_log import log as logging
 
 import etcd
+
+from gluon.common.particleGenerator.generator import get_db_gen
+from gluon.db import api as dbapi
 
 LOG = logging.getLogger(__name__)
 
 
-class MyData:
+class MyData(object):
     pass
 
 SyncData = MyData()
@@ -44,23 +44,25 @@ SyncData.service = "net-l3vpn"
 
 
 class SyncThread(threading.Thread):
-    """ A worker thread that takes takes commands to
-        update etcd with table changes.
-    """
+    """Worker thread that takes commands to update etcd with table changes."""
+
     def __init__(self, input_q):
         super(SyncThread, self).__init__()
         self.input_q = input_q
         self.db_instance = dbapi.get_instance()
-        self.etcd_client = etcd.Client(host=SyncData.etcd_host, port=SyncData.etcd_port)
+        self.etcd_client = etcd.Client(host=SyncData.etcd_host,
+                                       port=SyncData.etcd_port)
         LOG.info("SyncThread starting")
 
     def proc_sync_msg(self, msg):
         try:
             if msg["operation"] == "update":
                 obj_key = "_".join(msg["key"].split())  # Get rid of spaces
-                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(SyncData.source, SyncData.service, msg["table"], obj_key)
+                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(
+                    SyncData.source, SyncData.service, msg["table"], obj_key)
                 table_class = get_db_gen().get_table_class(msg["table"])
-                data = self.db_instance.get_by_primary_key(table_class, msg["key"])
+                data = self.db_instance.get_by_primary_key(
+                    table_class, msg["key"])
                 values = data.as_dict()
                 d = {}
                 for key in six.iterkeys(values):
@@ -69,26 +71,31 @@ class SyncThread(threading.Thread):
                 self.etcd_client.write(etcd_key, json_str)
             elif msg["operation"] == "delete":
                 obj_key = "_".join(msg["key"].split())  # Get rid of spaces
-                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(SyncData.source, SyncData.service, msg["table"], obj_key)
+                etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(
+                    SyncData.source, SyncData.service, msg["table"], obj_key)
                 self.etcd_client.delete(etcd_key)
             elif msg["operation"] == "register":
                 obj_key = "_".join(msg["port_id"].split())  # Get rid of spaces
                 port_key = "/gluon/port/{0:s}".format(obj_key)
-                d = {"tenant_id":msg["tenant_id"], "service":msg["service"], "url":msg["url"]}
+                d = {"tenant_id": msg["tenant_id"],
+                     "service": msg["service"], "url": msg["url"]}
                 json_str = json.dumps(d)
                 self.etcd_client.write(port_key, json_str)
             elif msg["operation"] == "deregister":
-                obj_key = "_".join(msg["port_id"].split()) # Get rid of spaces
+                obj_key = "_".join(msg["port_id"].split())  # Get rid of spaces
                 port_key = "/gluon/port/{0:s}".format(obj_key)
                 self.etcd_client.delete(port_key)
             else:
-                LOG.error(_LE("Unkown operation in msg %s") % (msg["operation"]))
+                LOG.error(_LE("Unkown operation in msg %s") %
+                          (msg["operation"]))
         except etcd.EtcdKeyNotFound:
             LOG.warn(_LW("Unknown key %s") % obj_key)
         except Exception as e:
             print(e.__doc__)
             print(e.message)
-            LOG.error(_LE("Error writing to etcd %s, %s") % (e.__doc__, e.message))
+            LOG.error(
+                _LE("Error writing to etcd {doc}, {msg}").format(
+                    doc=e.__doc__, msg=e.message))
             raise ValueError
 
     def run(self):
@@ -107,9 +114,8 @@ class SyncThread(threading.Thread):
 
 
 def start_sync_thread(**kwargs):
-    """
-    Start the SyncThread.  This should be called in the main function.
-    """
+    """Start the SyncThread.  This should be called in the main function."""
+
     if not SyncData.sync_thread_running:
         for key, value in six.iteritems(kwargs):
             if key == "service_name":
