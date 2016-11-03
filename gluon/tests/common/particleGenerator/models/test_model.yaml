@@ -1,0 +1,24 @@
+# for testing purpose only
+
+GluonInternalPort:
+  api:
+    name: ports
+    parent:
+      type: root
+  attributes:
+    id:
+      type: uuid
+      required: True
+      primary: True
+      description: "UUID of port"
+    owner:
+      type: 'string'
+      required: True
+      description: "Pointer to backend service instance (name)"
+    device_owner:
+      type: 'string'
+      length: 128
+      description: "Name of compute or network service (if bound)"
+    device_id:
+      type: 'uuid'
+      description: "UUID of bound VM"
