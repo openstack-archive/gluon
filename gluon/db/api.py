@@ -86,4 +86,3 @@ class Connection(object):
         :param uuid: The uuid of a object.
         :returns: an object of model.
         """
-

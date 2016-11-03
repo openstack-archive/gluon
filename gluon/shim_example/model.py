@@ -25,12 +25,13 @@ class ChangeData(object):
 
 
 class ObjBase(collections.MutableMapping):
-    '''
-    Mapping that works like both a dict and a mutable object, i.e.
-    d = ObjBase(foo='bar')
-    and
-    d.foo returns 'bar'
-    '''
+    """Base object mapping
+
+       Mapping that works like both a dict and a mutable object, i.e.
+        d = ObjBase(foo='bar')
+       and
+        d.foo returns 'bar'
+    """
     # ``__init__`` method required to create instance from class.
     def __init__(self, attributes=None):
         '''Use the object dict'''

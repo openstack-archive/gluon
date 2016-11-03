@@ -16,14 +16,16 @@ import six
 import sys
 import yaml
 
-from gluon.api import types
+from oslo_versionedobjects import fields
+
 from gluon.api.baseObject import APIBaseObject
 from gluon.api.baseObject import RootObjectController
 from gluon.api.baseObject import SubObjectController
-from gluon.common.particleGenerator.DataBaseModelGenerator import DataBaseModelProcessor
+from gluon.api import types
+from gluon.common.particleGenerator.DataBaseModelGenerator \
+    import DataBaseModelProcessor
 from gluon.core.manager import get_api_manager
 from gluon.objects import base as obj_base
-from oslo_versionedobjects import fields
 
 
 class APIGenerator(object):
@@ -46,13 +48,14 @@ class APIGenerator(object):
                 # and a RealObject is created
                 real_object_fields = {}
                 api_object_fields = {}
-                for attribute, attr_value in\
+                for attribute, attr_value in \
                         six.iteritems(table_data['attributes']):
                     api_type = self.translate_model_to_api_type(
                         attr_value['type'], attr_value.get('values'))
                     api_object_fields[attribute] = api_type
-                    real_object_fields[attribute] = self.translate_model_to_real_obj_type(
-                        attr_value['type'], attr_value.get('values'))
+                    real_object_fields[attribute] = \
+                        self.translate_model_to_real_obj_type(
+                            attr_value['type'], attr_value.get('values'))
 
                 # Real object
                 object_class = obj_base.GluonObject.class_builder(
@@ -88,13 +91,14 @@ class APIGenerator(object):
                 # The childs have to be instantized before the
                 # parents so lets make a dict
                 if parent != 'root':
-                    if 'childs' not in controllers.get(parent_attribute_name, {}):
+                    if 'childs' not in controllers.get(
+                            parent_attribute_name, {}):
                         self.data[parent]['childs'] = []
                     self.data[parent]['childs'].append(
                         {'name': api_name,
                          'object': new_controller_class})
                 controllers[table_name] = new_controller_class
-            except:
+            except Exception:
                 print('During processing of table ' + table_name)
                 raise
 

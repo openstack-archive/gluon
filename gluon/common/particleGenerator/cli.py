@@ -16,7 +16,10 @@
 import click
 import json
 import pkg_resources
-from requests import get, put, post, delete
+from requests import delete
+from requests import get
+from requests import post
+from requests import put
 import six
 import yaml
 
@@ -100,7 +103,8 @@ def make_list_func(tablename):
 
 def make_show_func(tablename, primary_key):
     def show_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], tablename, kwargs[primary_key])
+        url = make_url(kwargs["host"], kwargs["port"], tablename,
+                       kwargs[primary_key])
         result = json_get(url)
         print(json.dumps(result, indent=4))
 
@@ -124,7 +128,8 @@ def make_create_func(tablename):
 
 def make_update_func(tablename, primary_key):
     def update_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], tablename, kwargs[primary_key], "update")
+        url = make_url(kwargs["host"], kwargs["port"], tablename,
+                       kwargs[primary_key], "update")
         del kwargs["host"]
         del kwargs["port"]
         del kwargs[primary_key]
@@ -140,7 +145,8 @@ def make_update_func(tablename, primary_key):
 
 def make_delete_func(tablename, primary_key):
     def delete_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], tablename, kwargs[primary_key])
+        url = make_url(kwargs["host"], kwargs["port"], tablename,
+                       kwargs[primary_key])
         do_delete(url)
 
     return delete_func
@@ -191,11 +197,13 @@ def proc_model(cli, package_name="unknown",
                 try:
                     # Step 1: deal with object xrefs
                     if col_desc['type'] in model:
-                        # If referencing another object, get the type of its primary key
+                        # If referencing another object,
+                        # get the type of its primary key
                         tgt_name = col_desc['type']
                         tgt_data = model[tgt_name]
                         primary_col = tgt_data['primary']
-                        table_data["attributes"][col_name]['type'] = tgt_data["attributes"][primary_col]["type"]
+                        table_data["attributes"][col_name]['type'] = \
+                            tgt_data["attributes"][primary_col]["type"]
                     # Step 2: convert our special types to ones a CLI likes
                     if col_desc['type'] == 'uuid':
                         # UUIDs, from a CLI perspective,  are a form of
@@ -204,14 +212,16 @@ def proc_model(cli, package_name="unknown",
                         table_data["attributes"][col_name]['length'] = 64
                     if col_desc.get('primary', False):
                         attrs['_primary_key'] = col_name
-                except:
+                except Exception:
                     print('During processing of attribute ', col_name)
                     raise
-            if not '_primary_key' in attrs:
+            if '_primary_key' not in attrs:
                 raise Exception("One and only one primary key has to "
                                 "be given to each column")
             attrs['__tablename__'] = table_data['api']['name']
-            attrs['__objname__'] = table_data['api']['name'][:-1]  # chop off training 's'
+
+            # chop off training 's'
+            attrs['__objname__'] = table_data['api']['name'][:-1]
             #
             # Create CDUD commands for the table
             #
@@ -219,21 +229,28 @@ def proc_model(cli, package_name="unknown",
             porthelp = "Port of endpoint (%s) " % portenv
             list = make_list_func(attrs['__tablename__'])
             list.func_name = "%s-list" % (attrs['__objname__'])
-            list = click.option("--host", envvar=hostenv, default=hostdefault, help=hosthelp)(list)
-            list = click.option("--port", envvar=portenv, default=portdefault, help=porthelp)(list)
+            list = click.option("--host", envvar=hostenv,
+                                default=hostdefault, help=hosthelp)(list)
+            list = click.option("--port", envvar=portenv,
+                                default=portdefault, help=porthelp)(list)
             cli.command()(list)
 
-            show = make_show_func(attrs['__tablename__'], attrs['_primary_key'])
+            show = make_show_func(attrs['__tablename__'],
+                                  attrs['_primary_key'])
             show.func_name = "%s-show" % (attrs['__objname__'])
-            show = click.option("--host", envvar=hostenv, default=hostdefault, help=hosthelp)(show)
-            show = click.option("--port", envvar=portenv, default=portdefault, help=porthelp)(show)
+            show = click.option("--host", envvar=hostenv,
+                                default=hostdefault, help=hosthelp)(show)
+            show = click.option("--port", envvar=portenv,
+                                default=portdefault, help=porthelp)(show)
             show = click.argument(attrs['_primary_key'])(show)
             cli.command()(show)
 
             create = make_create_func(attrs['__tablename__'])
             create.func_name = "%s-create" % (attrs['__objname__'])
-            create = click.option("--host", envvar=hostenv, default=hostdefault, help=hosthelp)(create)
-            create = click.option("--port", envvar=portenv, default=portdefault, help=porthelp)(create)
+            create = click.option("--host", envvar=hostenv,
+                                  default=hostdefault, help=hosthelp)(create)
+            create = click.option("--port", envvar=portenv,
+                                  default=portdefault, help=porthelp)(create)
             for col_name, col_desc in six.iteritems(table_data['attributes']):
                 kwargs = {}
                 option_name = "--" + col_name
@@ -246,10 +263,13 @@ def proc_model(cli, package_name="unknown",
                 create = click.option(option_name, **kwargs)(create)
             cli.command()(create)
 
-            update = make_update_func(attrs['__tablename__'], attrs['_primary_key'])
+            update = make_update_func(attrs['__tablename__'],
+                                      attrs['_primary_key'])
             update.func_name = "%s-update" % (attrs['__objname__'])
-            update = click.option("--host", envvar=hostenv, default=hostdefault, help=hosthelp)(update)
-            update = click.option("--port", envvar=portenv, default=portdefault, help=porthelp)(update)
+            update = click.option("--host", envvar=hostenv,
+                                  default=hostdefault, help=hosthelp)(update)
+            update = click.option("--port", envvar=portenv,
+                                  default=portdefault, help=porthelp)(update)
             for col_name, col_desc in six.iteritems(table_data['attributes']):
                 if col_name == attrs['_primary_key']:
                     continue
@@ -262,13 +282,18 @@ def proc_model(cli, package_name="unknown",
             update = click.argument(attrs['_primary_key'])(update)
             cli.command()(update)
 
-            del_func = make_delete_func(attrs['__tablename__'], attrs['_primary_key'])
+            del_func = make_delete_func(attrs['__tablename__'],
+                                        attrs['_primary_key'])
             del_func.func_name = "%s-delete" % (attrs['__objname__'])
-            del_func = click.option("--host", envvar=hostenv, default=hostdefault, help=hosthelp)(del_func)
-            del_func = click.option("--port", envvar=portenv, default=portdefault, help=porthelp)(del_func)
+            del_func = click.option("--host", envvar=hostenv,
+                                    default=hostdefault,
+                                    help=hosthelp)(del_func)
+            del_func = click.option("--port", envvar=portenv,
+                                    default=portdefault,
+                                    help=porthelp)(del_func)
             del_func = click.argument(attrs['_primary_key'])(del_func)
             cli.command()(del_func)
 
-        except:
+        except Exception:
             print('During processing of table ', table_name)
             raise

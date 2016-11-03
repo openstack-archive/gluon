@@ -15,8 +15,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslotest import base
 from oslo_config import cfg
+from oslotest import base
 
 
 class TestCase(base.BaseTestCase):

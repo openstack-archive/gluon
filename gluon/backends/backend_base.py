@@ -70,7 +70,7 @@ class Manager(object):
             logger.error('Failed to load %s: %s' % (entrypoint, exception))
 
         # Sort out the client drivers
-        # TODO should probably be NamedExtensionManager
+        # TODO(name) should probably be NamedExtensionManager
         self._mgr = stevedore.ExtensionManager(
             namespace='gluon.backends',
             on_load_failure_callback=upset,

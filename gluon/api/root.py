@@ -19,9 +19,9 @@ from pecan import rest
 from wsme import types as wtypes
 import wsmeext.pecan as wsme_pecan
 
-from gluon.api import link
 from gluon.api.baseObject import APIBase
 from gluon.api.controller.v1.base import API as v1
+from gluon.api import link
 
 
 class Version(APIBase):

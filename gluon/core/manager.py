@@ -25,19 +25,19 @@ from gluon.db.sqlalchemy import models
 LOG = logging.getLogger(__name__)
 logger = LOG
 
-class MyData:
+
+class MyData(object):
     pass
 
 ManagerData = MyData()
 ManagerData.manager = None
 
-#
-# Base class for ApiManager
-#
+
 class ApiManager(object):
+    """Base class for ApiManager"""
 
     def __init__(self):
-        # TODO
+        # TODO(name)
         # backend_manager = BackendBase.Manager(app.config)
         self.gluon_objects = {}
 
@@ -46,18 +46,23 @@ class ApiManager(object):
 
 
 def register_api_manager(manager):
-    """
-    Each service should create a subclass from manager to handle the routing from the API.
-    This manager should be registered before
+    """Register a given API manager
+
+    Each service should create a subclass from manager to handle
+    the routing from the API. This manager should be registered before
+
     :param manager:
     """
+
     ManagerData.manager = manager
 
+
 def get_api_manager():
-    """
-    Return registered API Manager instance
+    """Return registered API Manager instance
+
     :return:
     """
+
     if ManagerData.manager is None:
         LOG.error("No manager registered!")
     return ManagerData.manager

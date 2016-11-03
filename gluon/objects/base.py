@@ -19,15 +19,14 @@ from gluon.db import api as dbapi
 from oslo_log._i18n import _LI
 from oslo_log import log as logging
 from oslo_versionedobjects import base as ovoo_base
-from oslo_versionedobjects import exception
 
 
 LOG = logging.getLogger(__name__)
 
 
-class GluonObject(ovoo_base.VersionedObject, ovoo_base.VersionedObjectDictCompat):
-    """Base class and object factory.
-    """
+class GluonObject(ovoo_base.VersionedObject,
+                  ovoo_base.VersionedObjectDictCompat):
+    """Base class and object factory."""
 
     VERSION = '1.0'
 
@@ -117,8 +116,7 @@ class GluonObject(ovoo_base.VersionedObject, ovoo_base.VersionedObjectDictCompat
         return [cls.from_dict_object(cls(), obj) for obj in db_objects]
 
     def create(self):
-        """Create a Object in the DB.
-        """
+        """Create a Object in the DB."""
         values = self.obj_get_changes()
         LOG.info(_LI('Dumping CREATE port datastructure  %s') % str(values))
         db_object = self.db_instance.create(self.db_model, values)
@@ -126,8 +124,7 @@ class GluonObject(ovoo_base.VersionedObject, ovoo_base.VersionedObjectDictCompat
 
     @classmethod
     def update(cls, key, values):
-        """Update an Object in the DB.
-        """
+        """Update an Object in the DB."""
         db_object = cls.db_instance.get_by_primary_key(cls.db_model, key)
         db_object.update(values)
         db_object.save()
@@ -135,12 +132,6 @@ class GluonObject(ovoo_base.VersionedObject, ovoo_base.VersionedObjectDictCompat
 
     @classmethod
     def delete(cls, key):
-        """Delete a Object in the DB.
-        """
+        """Delete a Object in the DB."""
         db_object = cls.db_instance.get_by_primary_key(cls.db_model, key)
         db_object.delete()
-
-
-
-
-

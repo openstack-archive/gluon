@@ -48,7 +48,6 @@ def bindir_def(*args):
 
 def state_path_def(*args):
     """Return an uninterpolated path relative to $state_path."""
-    x =  CONF.state_path
     return os.path.join('$state_path', *args)
 
 

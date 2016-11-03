@@ -12,23 +12,24 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import webob.exc as exc
 import etcd
-import time
 import json
+import time
+import webob.exc as exc
+
+from oslo_config import cfg
+from oslo_log import log as logging
 
 from gluon.common import exception
 from gluon.core.manager import ApiManager
 from gluon.sync_etcd.thread import SyncData
-from oslo_config import cfg
-from oslo_log import log as logging
 
 
 LOG = logging.getLogger(__name__)
 logger = LOG
 
 
-class MyData:
+class MyData(object):
     pass
 
 ManagerData = MyData()
@@ -63,7 +64,7 @@ class ProtonManager(ApiManager):
             data = dict()
             value = json.dumps(data)
             self.etcd_client.write(etcd_key, value)
-        except:
+        except Exception:
             pass
 
     def wait_for_bind(self, key):
@@ -88,10 +89,8 @@ class ProtonManager(ApiManager):
             except etcd.EtcdException:
                 LOG.error("Cannot connect to etcd, make sure it is running")
                 retry = 0
-            except Exception, e:
+            except Exception as e:
                 LOG.error("Unknown error: %s" % str(e))
-                retry -= 1
-            except:
                 retry -= 1
         return ret_val
 
@@ -101,7 +100,7 @@ class ProtonManager(ApiManager):
     def get_one_vpnports(self, api_class, obj_class, key):
         try:
             obj = obj_class.get_by_primary_key(key)
-        except Exception as e:
+        except Exception:
             raise exc.HTTPNotFound()
         return obj.as_dict()
 
@@ -134,7 +133,7 @@ class ProtonManager(ApiManager):
     def get_one_baseports(self, api_class, obj_class, key):
         try:
             obj = obj_class.get_by_primary_key(key)
-        except Exception as e:
+        except Exception:
             raise exc.HTTPNotFound()
         return obj.as_dict()
 
@@ -193,7 +192,7 @@ class ProtonManager(ApiManager):
     def get_one_vpns(self, api_class, obj_class, key):
         try:
             obj = obj_class.get_by_primary_key(key)
-        except Exception as e:
+        except Exception:
             raise exc.HTTPNotFound()
         return obj.as_dict()
 
@@ -213,7 +212,7 @@ class ProtonManager(ApiManager):
     def get_one_vpnafconfigs(self, api_class, obj_class, key):
         try:
             obj = obj_class.get_by_primary_key(key)
-        except Exception as e:
+        except Exception:
             raise exc.HTTPNotFound()
         return obj.as_dict()
 
@@ -226,8 +225,3 @@ class ProtonManager(ApiManager):
 
     def delete_vpnafconfigs(self, api_class, obj_class, key):
         return obj_class.delete(key)
-
-
-
-
-

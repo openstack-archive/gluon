@@ -14,23 +14,19 @@
 
 
 import pecan
-# TODO enikher
+# TODO(enikher)
 # from gluon.api import middleware
 
-app_dic = {
-           'root': 'gluon.api.root.RootController',
+app_dic = {'root': 'gluon.api.root.RootController',
            'modules': ['gluon.api'],
            'debug': True,
-# TODO (enikher) HOOKS
-#    'hooks': [
-#        hooks.ContextHook(),
-#        hooks.RPCHook(),
-#        hooks.NoExceptionTracebackHook(),
-#    ],
-        'acl_public_routes': [
-                              '/'
-                              ],
-}
+           # TODO(enikher) HOOKS
+           # 'hooks': [
+           #    hooks.ContextHook(),
+           #    hooks.RPCHook(),
+           #    hooks.NoExceptionTracebackHook(),
+           #  ],
+           'acl_public_routes': ['/']}
 
 
 def setup_app(config=None):
@@ -38,15 +34,16 @@ def setup_app(config=None):
     app = pecan.make_app(
         app_dic.pop('root'),
         logging=getattr(config, 'logging', {}),
-        # TODO (enikher)
+        # TODO(enikher)
         # wrap_app=middleware.ParsableErrorMiddleware,
         **app_dic
     )
 
-#   TODO test hook later
+    # TODO(enikher) test hook later
     # timer(30, timerfunc, "Cpulse")
     # tm = Periodic_TestManager()
     # tm.start()
-    # TODO add authentication
+
+    # TODO(enikher) add authentication
     # return auth.install(app, CONF, config.app.acl_public_routes)
     return app

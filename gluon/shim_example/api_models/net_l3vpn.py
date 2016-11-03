@@ -19,8 +19,8 @@ import os
 import etcd
 from oslo_log import log as logging
 
-from gluon.shim_example import model as Model
 from gluon.shim_example.base import ApiModelBase
+from gluon.shim_example import model as Model
 
 LOG = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class ApiNetL3VPN(ApiModelBase):
                         self.handle_object_change(obj_name,
                                                   os.path.basename(status.key),
                                                   attributes, shim_data)
-            except Exception, e:
+            except Exception as e:
                 LOG.error("reading %s keys failed: %s" % (obj_name, str(e)))
                 pass
         self.resync_mode = False
@@ -85,7 +85,7 @@ class ApiNetL3VPN(ApiModelBase):
         try:
             data = {}
             shim_data.client.write(etcd_key, json.dumps(data))
-        except Exception, e:
+        except Exception as e:
             LOG.error("Update etcd to unbound failed: %s" % str(e))
 
     def update_etcd_bound(self, shim_data, key, vif_dict):
@@ -94,7 +94,7 @@ class ApiNetL3VPN(ApiModelBase):
                                                     "ProtonBasePort", key)
         try:
             shim_data.client.write(etcd_key, json.dumps(vif_dict))
-        except Exception, e:
+        except Exception as e:
             LOG.error("Update etcd to bound failed: %s" % str(e))
 
     def handle_port_change(self, key, attributes, shim_data):

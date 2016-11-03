@@ -15,5 +15,4 @@
 import pbr.version
 
 
-__version__ = pbr.version.VersionInfo(
-    'gluon').version_string()
+__version__ = pbr.version.VersionInfo('gluon').version_string()

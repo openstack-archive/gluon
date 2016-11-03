@@ -20,6 +20,7 @@ import os
 import shutil
 
 from oslo_config import cfg
+
 from gluon.common import paths
 from gluon.db import api as dbapi
 from gluon.db.sqlalchemy import api as sqla_api
@@ -29,8 +30,8 @@ from gluon.tests import base
 
 CONF = cfg.CONF
 
-# TODO enikher
-#CONF.import_opt('enable_authentication', 'gluon.api.auth')
+# TODO(enikher)
+# CONF.import_opt('enable_authentication', 'gluon.api.auth')
 
 _DB_CACHE = None
 
@@ -59,7 +60,7 @@ class Database(fixtures.Fixture):
             cleandb = paths.state_path_rel(sqlite_clean_db)
             try:
                 shutil.copyfile(testdb, cleandb)
-            except:
+            except Exception:
                 pass
 
     def setup_sqlite(self):
@@ -68,7 +69,7 @@ class Database(fixtures.Fixture):
     def cleanup(self, dbpath):
         try:
             os.unlink(dbpath)
-        except:
+        except Exception:
             pass
 
     def setUp(self):
@@ -82,9 +83,10 @@ class Database(fixtures.Fixture):
             try:
                 shutil.copyfile(paths.state_path_rel(self.sqlite_clean_db),
                                 paths.state_path_rel(self.sqlite_db))
-            except:
+            except Exception:
                 pass
-            #self.addCleanup(self.cleanup, paths.state_path_rel(self.sqlite_db))
+            # self.addCleanup(
+            #    self.cleanup, paths.state_path_rel(self.sqlite_db))
 
     def post_migrations(self):
         """Any addition steps that are needed outside of the migrations."""
@@ -93,7 +95,7 @@ class Database(fixtures.Fixture):
 class DbTestCase(base.TestCase):
 
     def setUp(self):
-        # TODO enikher
+        # TODO(enikher)
         # cfg.CONF.set_override("enable_authentication", False)
         super(DbTestCase, self).setUp()
 
