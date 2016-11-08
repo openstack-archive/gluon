@@ -20,14 +20,14 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-
+==========================
 Gluon Repository Structure
-====================================
+==========================
 This document describes the repository structure that was used in the initial
 development of Gluon and a proposed structure going forward.
 
 Current Repository Structure
------------------------------
+----------------------------
 - **gluon-nova**
 
   - Networking plugin code for nova
@@ -173,7 +173,7 @@ Proposed Repository Structure
     fly
 
 Notes
-------
+-----
 
 - Right now the gluon-server uses a model file to generate its API and database
   classes.  This may not be the best approach.  The API between Nova and Gluon

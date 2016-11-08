@@ -1,12 +1,14 @@
-===============================
-gluon
-===============================
+=====
+Gluon
+=====
 
-A Model-Driven, Extensible Framework for L3 Networking Services
+A Model-Driven, Extensible Framework for Networking APIs
 
-Please fill here a long description which must be at least 3 lines wrapped on
-80 cols, so that distribution package maintainers can use it in their packages.
-Note that this is a hard requirement.
+Gluon provides a framework for specifying, using a model file,
+APIs for network forwarding.  It is intended to offer devs
+the possibility of quickly prototyping any networking forwarding
+system that describes how a packet moves from port to port or
+port to the outside world.
 
 * Free software: Apache license
 * Documentation: http://docs.openstack.org/developer/gluon
