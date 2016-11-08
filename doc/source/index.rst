@@ -3,13 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+=================================
 Welcome to gluon's documentation!
-========================================================
+=================================
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth:2 
 
    readme
    high_level_design
@@ -17,7 +18,9 @@ Contents:
    installation
    usage
    contributing
+   devref/index
 
+==================
 Indices and tables
 ==================
 

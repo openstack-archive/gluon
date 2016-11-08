@@ -1,3 +1,4 @@
+==============================
 Port and Service Binding Model
 ==============================
 
@@ -11,7 +12,7 @@ creating new network service APIs. It hence supports developers in making the
 best use of the flexibility provided by Gluon.
 
 This model is based on the "service binding pattern" described in the NetReady
-requirements document [1] and was adapted for Gluon.
+requirements document [1]_ and was adapted for Gluon.
 
 The modeling tools in Gluon provide building blocks to allow the creation of
 arbitrarily complex networking APIs.  However, some constraints are needed to
@@ -37,7 +38,9 @@ Specifically, there are four basic entities:
 
   A Port object represents a vNIC which is bindable to an OpenStack instance by
   the compute service (Nova). It hence comprises all required information for
-  defining the hand-off point between a network and a VM instance.
+  defining the hand-off point between a network and a VM instance.  Other
+  services may in the future bind to ports (today, this happens within Neutron
+  to bind things like routers and DHCP services in the ML2 world).
 
 * **Interface**
 
@@ -77,7 +80,9 @@ Specifically, there are four basic entities:
   service can be specified here whereas this is not required for a pure L2
   service.
 
-The following diagram shows the relationship between these objects:::
+The following diagram shows the relationship between these objects:
+
+::
 
 
                                          +-----------+
@@ -109,16 +114,16 @@ The following diagram shows the relationship between these objects:::
 
 
 Base Object Definitions
--------------------------
+-----------------------
 
 These are the base objects for defining APIs.  These objects cannot be used
 directly in an API definition.  They must be used as the base object for
 objects of similar type.  There is an **"extends"** keyword in the
 YAML model to provide this capability.  To have a functional networking API,
-one must extend the BasePort, BaseInterface, BaseService and BaseServiceBinding
-objects.  It is not required that additional attributes are defined for the
-extended objects.  See the Interface definition in the example at the end of
-this document.
+one must extend the ``BasePort``, ``BaseInterface``, ``BaseService`` and 
+``BaseServiceBinding`` objects.  It is not required that additional attributes
+are defined for the extended objects.  See the Interface definition in the
+example_ at the end of this document.
 
 In addition, you can also define objects that do not extend any of the base
 objects.  The proton server will provide CRUD functions on these objects but it
@@ -129,7 +134,7 @@ references only valid Interface and Service objects.
 
 **BasePort**
 
-  The BasePort object must be extended in an API model.  This base object
+  The ``BasePort`` object must be extended in an API model.  This base object
   contains all of the attributes needed by Nova to bind the Port to a VM.  The
   extended object may contain additional attributes needed by the API model
   (but not Nova).  Note, the extended object does not have to define additional
@@ -217,7 +222,7 @@ references only valid Interface and Service objects.
 
 **BaseInterface**
 
-  The BaseInterface object must be extended in an API model.  A default
+  The ``BaseInterface`` object must be extended in an API model.  A default
   Interface object will automatically be created for each Port object.  Note,
   the extended object does not have to define additional attributes.
 
@@ -252,7 +257,7 @@ references only valid Interface and Service objects.
 
 **BaseService**
 
-  The BaseService object must be extended in an API model. There can be
+  The ``BaseService`` object must be extended in an API model. There can be
   multiple Services defined of a given model.  However, an Interface can only
   be bound to one Service.  Note, the extended object does not have to define
   additional attributes.
@@ -277,17 +282,17 @@ references only valid Interface and Service objects.
 
 **BaseServiceBinding**
 
-  The BaseServiceBinding object must be extended in an API model.  Additional
+  The ``BaseServiceBinding`` object must be extended in an API model.  Additional
   attributes can be added to the extended object that are specific for a Port
   bound to the Service. Note, the extended object does not have to define
   additional attributes.
 
-  The service_id attribute can be re-defined in the extended object to specify
+  The ``service_id`` attribute can be re-defined in the extended object to specify
   the specific type of Service that can be bound.  The system will validate
-  that the UUID specified for the interface_id is a known Interface object.  A
+  that the UUID specified for the ``interface_id`` is a known Interface object.  A
   null value is also accepted to effectively "unbind" the interface from the
   service.  The system will also validate that the UUID specified for the
-  service_id is a known Service object.
+  ``service_id`` is a known Service object.
 
 ::
 
@@ -308,16 +313,18 @@ Example L3VPN API using proposed model:
 ---------------------------------------
 
 The following model defines an L3VPN service.  The Port and Interface objects
-extend the BasePort and BaseInterface, respectively.  You can extend an object
+extend the ``BasePort`` and ``BaseInterface``, respectively.  You can extend an object
 without adding attributes.  That is done with the Interface object.  Even if no
 attributes are added, you are still required to extend these objects for a
-functional API.  You must also extend the BaseService and BaseServiceBinding
+functional API.  You must also extend the ``BaseService`` and ``BaseServiceBinding``
 base objects in a similar manner.
 
 Note, the VpnAfConfig object does not extend a base class.  The
 modeling tools allow for the creation of arbitrary objects as needed by an API
 model.  The proton server will not enforce any constraints on the relationships
 between these objects and objects extended from base objects.
+
+.. _example:
 
 ::
 
@@ -420,5 +427,5 @@ between these objects and objects extended from base objects.
 
 References
 
-[1] NetReady - Service Binding model: http://artifacts.opnfv.org/netready/colorado/docs/requirements/index.html#service-binding-design-pattern
+.. [1] NetReady - Service Binding model: http://artifacts.opnfv.org/netready/colorado/docs/requirements/index.html#service-binding-design-pattern
 
