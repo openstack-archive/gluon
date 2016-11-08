@@ -1,6 +1,6 @@
-
+===========================
 Gluon Plugin Wrapper Design
-============================
+===========================
 
 **Original Gluon Architecture**
 
@@ -77,8 +77,11 @@ any other Core Plugin class) and override just the port-related methods.  If
 the method call is for a Gluon port, the Gluon Wrapper Plugin code will forward
 the request to the Proton Server for processing.  Otherwise, the superclass
 method will be called.  The goal is to introduce the Gluon networking
-functionality without breaking the existing ML2 networking.  The following
-diagram provides an overview of this design.
+functionality without breaking the existing ML2 networking - and to ensure
+that a user that doesn't need extended network functionality does not have
+to install it and is not affected by Gluon development - the stability of their
+system remains as before because the code they're running is no different.
+The following diagram provides an overview of this design.
 
 ::
 
@@ -131,7 +134,7 @@ diagram provides an overview of this design.
 
 The Gluon Wrapper Plugin will determine if a port belongs to Gluon by examining
 (looking up the UUID) the etcd database.  The port registration code in the
-Proton Server will be changed to update the etcd database when a new port is
+Proton Server will be changed to also update the etcd database when a new port is
 created or deleted. When a port is registered in the etcd database, the
 following backend information is stored: tenant identifier, networking service
 identifier and Proton Server base URL.  In order to forward the requests to the
@@ -141,7 +144,9 @@ Wrapper Plugin as was used by the Gluon Sever.
 Since we can no longer replace the Networking API plugin in Nova, we must
 provide a consistent “Neutron” networking model to Nova.   Therefore, we have
 to maintain the Network, Subnet and Port associations required by the logic in
-the Neutron API plugin (in Nova).  In the short term, we can create a “dummy”
+the Neutron API plugin (in Nova), at least until we can simplify the Nova-Neutron
+communication so that Nova does not need to retrieve subnet and network objects.
+In the short term, we can create a “dummy”
 Network and Subnet object in the Neutron Server that can be associated with all
 Gluon ports.  In the long term, it may be possible to add attributes to the
 Network and Subnet objects to change the semantics of the objects to reflect a
