@@ -1,3 +1,4 @@
+==============================
 Port and Service Binding Model
 ==============================
 
@@ -37,7 +38,9 @@ Specifically, there are four basic entities:
 
   A Port object represents a vNIC which is bindable to an OpenStack instance by
   the compute service (Nova). It hence comprises all required information for
-  defining the hand-off point between a network and a VM instance.
+  defining the hand-off point between a network and a VM instance.  Other
+  services may in the future bind to ports (today, this happens within Neutron
+  to bind things like routers and DHCP services in the ML2 world).
 
 * **Interface**
 
