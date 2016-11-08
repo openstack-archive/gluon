@@ -145,7 +145,7 @@ class APIGenerator(object):
         if model_type == 'uuid':
             return types.uuid
         if model_type == 'string':
-            return unicode
+            return six.text_type
         if model_type == 'enum':
             return types.create_enum_type(*values)
         if model_type == 'integer':
