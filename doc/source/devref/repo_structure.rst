@@ -20,9 +20,9 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-
+==========================
 Gluon Repository Structure
-====================================
+==========================
 This document describes the repository structure that was used in the initial
 development of Gluon and a proposed structure going forward.
 
