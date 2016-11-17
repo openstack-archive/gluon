@@ -18,7 +18,8 @@ from gluon.sync_etcd.thread import SyncData
 
 def logupdate(f):
     def decorate(self, *args):
-        record = {"table": self.__name__,
+        record = {"table": self.__tname__,
+                  "service": self._service_name,
                   "key": self.__getattribute__(self._primary_key),
                   "operation": "update"}
         f(self, *args)
@@ -29,7 +30,8 @@ def logupdate(f):
 
 def logdelete(f):
     def decorate(self, *args):
-        record = {"table": self.__name__,
+        record = {"table": self.__tname__,
+                  "service": self._service_name,
                   "key": self.__getattribute__(self._primary_key),
                   "operation": "delete"}
         f(self, *args)

@@ -20,7 +20,7 @@ import os
 from oslo_log import helpers as log_helpers
 from oslo_log import log
 
-from gluon.backends.backend_base import Manager
+from gluon.backends.backend_base import BackendLoader
 from neutron.plugins.ml2.plugin import Ml2Plugin
 
 
@@ -41,7 +41,7 @@ class GluonPlugin(Ml2Plugin):
 
     def __init__(self):
         super(GluonPlugin, self).__init__()
-        self.backend_manager = Manager()
+        self.backend_manager = BackendLoader()
         self.gluon_network = None
         self.gluon_subnet = None
         self.etcd_client = etcd.Client(host=PluginData.etcd_host,
@@ -92,6 +92,9 @@ class GluonPlugin(Ml2Plugin):
         current_service = None
         driver = None
         for keydata in directory.children:
+            if keydata.dir:
+                LOG.debug("Skipping directory")
+                continue
             id = os.path.basename(keydata.key)
             LOG.debug("id = %s" % id)
             meta = json.loads(keydata.value)

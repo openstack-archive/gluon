@@ -20,7 +20,7 @@ from wsme import types as wtypes
 import wsmeext.pecan as wsme_pecan
 
 from gluon.api.baseObject import APIBase
-from gluon.api.controller.v1.base import API as v1
+from gluon.api.proton_controller import ProtonController
 from gluon.api import link
 
 
@@ -69,13 +69,13 @@ class Root(APIBase):
 
 class RootController(rest.RestController):
 
-    _versions = ['v1']
+    _versions = ['proton']
     """All supported API versions"""
 
-    _default_version = 'v1'
+    _default_version = 'proton'
     """The default API version"""
 
-    v1 = v1()
+    proton = ProtonController()
 
     @wsme_pecan.wsexpose(Root)
     def get(self):
