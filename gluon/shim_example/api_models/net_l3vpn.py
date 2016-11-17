@@ -54,7 +54,7 @@ class ApiNetL3VPN(ApiModelBase):
         self.resync_mode = False
 
     def bind_attributes_changed(self, attributes):
-        return ("host_id" in attributes and "device_id" in attributes)
+        return "host_id" in attributes and "device_id" in attributes
 
     def is_bind_request(self, attributes):
         host_id = attributes.get("host_id", None)
@@ -63,7 +63,7 @@ class ApiNetL3VPN(ApiModelBase):
         device_id = attributes.get("device_id", None)
         if device_id == "":
             device_id = None
-        return (host_id is not None and device_id is not None)
+        return host_id is not None and device_id is not None
 
     def get_etcd_bound_data(self, shim_data, key):
         etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format("controller", self.name,
@@ -102,7 +102,7 @@ class ApiNetL3VPN(ApiModelBase):
             prev_port = self.model.ports[key]
             changes = self.model.ports[key].update_attrs(attributes)
             if self.bind_attributes_changed(changes.new):
-                if self.model.ports[key]["__state"] == "Bound":
+                if self.model.ports[key].get("__state") == "Bound":
                     if self.is_bind_request(changes.new):  # already bound?
                         LOG.error("Bind request on bound port?")
                     else:  # Unbind
@@ -112,7 +112,7 @@ class ApiNetL3VPN(ApiModelBase):
                             self.model.ports[key][vif_key] = ""
                         self.update_etcd_unbound(shim_data, key)
                         self.model.ports[key]["__state"] = "Unbound"
-                elif self.model.ports[key]["__state"] == "Unbound":
+                elif self.model.ports[key].get("__state") == "Unbound":
                     if self.is_bind_request(changes.new):
                         if changes.new["host_id"] in \
                                 shim_data.host_list:  # On one of my hosts
@@ -131,13 +131,13 @@ class ApiNetL3VPN(ApiModelBase):
                                 "InUse"  # Bound by another controller
                     else:
                         pass
-                elif self.model.ports[key]["__state"] == "InUse":
+                elif self.model.ports[key].get("__state") == "InUse":
                     if self.is_bind_request(changes.new):  # already bound?
                         LOG.error("Bind request on InUse port: %s" % key)
                     else:
                         self.model.ports[key]["__state"] = "Unbound"
             else:
-                if self.model.ports[key]["__state"] == "Bound":
+                if self.model.ports[key].get("__state") == "Bound":
                     self.backend.modify_port(key, self.model, changes)
         else:
             port = Model.Port(key, attributes)
@@ -157,7 +157,7 @@ class ApiNetL3VPN(ApiModelBase):
                 if vpn_port["vpn_instance"] == key:
                     port = self.model.ports.get(vpn_port["id"])
             changes = self.model.vpn_instances[key].update_attrs(attributes)
-            if port and port["__state"] == "Bound":
+            if port and port.get("__state") == "Bound":
                 self.backend.modify_service(key, self.model, changes)
         else:
             obj = Model.DataObj(key, attributes)
@@ -165,18 +165,21 @@ class ApiNetL3VPN(ApiModelBase):
 
     def handle_vpn_port_change(self, key, attributes, shim_data):
         port = self.model.ports.get(key)
+        if not port:
+            LOG.error("Port not found: %s" % key)
+            return
         if key in self.model.vpn_ports:
             prev_binding = \
                 {"id": self.model.vpn_ports[key].id,
                  "vpn_instance": self.model.vpn_ports[key].vpn_instance}
             self.model.vpn_ports[key].update_attrs(attributes)
-            if not self.resync_mode and port["__state"] == "Bound":
+            if not self.resync_mode and port.get("__state") == "Bound":
                 self.backend.modify_service_binding(key, self.model,
                                                     prev_binding)
         else:
             obj = Model.DataObj(key, attributes)
             self.model.vpn_ports[key] = obj
-            if not self.resync_mode and port["__state"] == "Bound":
+            if not self.resync_mode and port.get("__state") == "Bound":
                 self.backend.modify_service_binding(key, self.model, {})
 
     def handle_vpnafconfig_change(self, key, attributes, shim_data):
@@ -193,7 +196,7 @@ class ApiNetL3VPN(ApiModelBase):
                     for vpn_port in self.model.vpn_ports.itervalues():
                         if vpn_port["vpn_instance"] == vpn_instance["id"]:
                             port = self.model.ports.get(vpn_port["id"])
-                    if port and port["__state"] == "Bound":
+                    if port and port.get("__state") == "Bound":
                         self.backend.modify_service(vpn_instance["id"],
                                                     self.model, changes)
         else:
@@ -226,7 +229,7 @@ class ApiNetL3VPN(ApiModelBase):
                 if vpn_port["vpn_instance"] == key:
                     port = self.model.ports.get(vpn_port["id"])
             del self.model.vpn_instances[key]
-            if port and port["__state"] == "Bound":
+            if port and port.get("__state") == "Bound":
                 self.backend.delete_service(key, self.model, deleted_obj)
 
     def handle_vpn_port_delete(self, key, shim_data):
@@ -234,7 +237,7 @@ class ApiNetL3VPN(ApiModelBase):
             port = self.model.ports.get(key)
             deleted_obj = self.model.vpn_ports[key]
             del self.model.vpn_ports[key]
-            if port and port["__state"] == "Bound":
+            if port and port.get("__state") == "Bound":
                 self.backend.delete_service_binding(self.model, deleted_obj)
 
     def handle_vpnafconfig_delete(self, key, shim_data):
@@ -255,7 +258,7 @@ class ApiNetL3VPN(ApiModelBase):
                     for vpn_port in self.model.vpn_ports.itervalues():
                         if vpn_port["vpn_instance"] == vpn_instance["id"]:
                             port = self.model.ports.get(vpn_port["id"])
-                    if port and port["__state"] == "Bound":
+                    if port and port.get("__state") == "Bound":
                         self.backend.modify_service(vpn_instance["id"],
                                                     self.model, changes)
 

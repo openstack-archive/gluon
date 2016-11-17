@@ -22,7 +22,7 @@ class ChangeData(object):
         self.prev = dict()
 
     def __str__(self):
-        '''returns simple dict representation of the mapping'''
+        """returns simple dict representation of the mapping"""
         return "new = " + str(self.new) + ", prev = " + str(self.prev)
 
 
@@ -36,8 +36,8 @@ class ObjBase(collections.MutableMapping):
     """
     # ``__init__`` method required to create instance from class.
     def __init__(self, attributes=None):
-        '''Use the object dict'''
-        if (attributes is not None):
+        """Use the object dict"""
+        if attributes is not None:
             self.__dict__.update(attributes)
     # The next five methods are requirements of the ABC.
 
@@ -57,11 +57,11 @@ class ObjBase(collections.MutableMapping):
         return len(self.__dict__)
 
     def __str__(self):
-        '''returns simple dict representation of the mapping'''
+        """returns simple dict representation of the mapping"""
         return str(self.__dict__)
 
     def __repr__(self):
-        '''echoes class, id, & reproducible representation in the REPL'''
+        """echoes class, id, & reproducible representation in the REPL"""
         return '{}, {}'.format(super(ObjBase, self).__repr__(), self.__dict__)
 
     def update_attrs(self, new_attributes):

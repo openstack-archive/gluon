@@ -19,7 +19,6 @@ from __future__ import print_function
 import re
 import six
 import sys
-import yaml
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
@@ -28,20 +27,24 @@ from sqlalchemy.ext.declarative import declarative_base
 class DataBaseModelProcessor(object):
 
     def __init__(self):
-        self.db_models = {}
+        self.db_models = dict()
+        self.data = None
+
+    def get_db_models(self, api_name):
+        return self.db_models.get(api_name)
 
     def add_model(self, model):
         self.data = model
 
-    def get_table_class(self, table_name):
+    def get_table_class(self, api_name, table_name):
         try:
-            return self.db_models[table_name]
+            return self.db_models.get(api_name)[table_name]
         except ValueError:
             raise Exception('Unknown table name %s' % table_name)
 
-    def build_sqla_models(self, base=None):
+    def build_sqla_models(self, api_name, base=None):
         """Make SQLAlchemy classes for each of the elements in the data read"""
-
+        self.db_models[api_name] = dict()
         if not base:
             base = declarative_base()
         if not self.data:
@@ -49,7 +52,8 @@ class DataBaseModelProcessor(object):
 
         def de_camel(s):
             s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
-            return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+            ret_str = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1)
+            return ret_str.lower().replace("-", "_")
 
         # Make a model class that we've never thought of before
         for table_name, table_data in six.iteritems(self.data):
@@ -89,7 +93,8 @@ class DataBaseModelProcessor(object):
                             # Set the SQLA col option to make clear what's
                             # going on
                             args.append(sa.ForeignKey('%s.%s' %
-                                                      (de_camel(tgt_name),
+                                                      (de_camel(api_name + "_"
+                                                                + tgt_name),
                                                        primary_col)))
 
                             # The col creation code will now duplicate the FK
@@ -139,10 +144,14 @@ class DataBaseModelProcessor(object):
                 if '_primary_key' not in attrs:
                     raise Exception("One and only one primary key has to "
                                     "be given to each column")
-                attrs['__tablename__'] = de_camel(table_name)
-                attrs['__name__'] = table_name
+                attrs['__tablename__'] = de_camel(api_name + "_" + table_name)
+                class_name = str(api_name + '_' + table_name).replace("-","_")
+                attrs['__name__'] = class_name
+                attrs['__tname__'] = table_name
+                attrs['_service_name'] = api_name
 
-                self.db_models[table_name] = type(table_name, (base,), attrs)
+                self.db_models[api_name][table_name] = type(class_name,
+                                                            (base,), attrs)
             except Exception:
                 print('During processing of table ', table_name,
                       file=sys.stderr)

@@ -57,7 +57,6 @@ class ApiModelBase(object):
 
         :param object: name of the etcd object that changed
         :param key: key of the object
-        :param host_list: list of hosts managed by this shim layer server
         :param shim_data: Shim public data (name, client, host_list, etc)
         :returns: None
         """
@@ -105,7 +104,6 @@ class HandlerBase(object):
 
         :param uuid: UUID of Port
         :param model: Model object
-        :param changes: dictionary of changed attributes
         :returns: None
         """
 

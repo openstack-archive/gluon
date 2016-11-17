@@ -23,13 +23,13 @@ PATH_OPTS = [
     cfg.StrOpt('pybasedir',
                default=os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                     '../')),
-               help='Directory where cloudpulse python module is installed.'),
+               help='Directory where gluon python module is installed.'),
     cfg.StrOpt('bindir',
                default='$pybasedir/bin',
-               help='Directory where cloudpulse binaries are installed.'),
+               help='Directory where gluon binaries are installed.'),
     cfg.StrOpt('state_path',
                default='$pybasedir',
-               help="Top-level directory for maintaining cloudpulse's state."),
+               help="Top-level directory for maintaining gluon's state."),
 ]
 
 CONF = cfg.CONF

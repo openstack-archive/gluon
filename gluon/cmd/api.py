@@ -17,19 +17,14 @@ import os
 import sys
 from wsgiref import simple_server
 
-from oslo_config import cfg
-from oslo_log._i18n import _LI
-from oslo_log import log as logging
-
 from gluon.api import app as api_app
-import gluon.cmd.config
-from gluon.cmd.manager import ProtonManager
-from gluon.common.particleGenerator import generator as particle_generator
-from gluon.common.particleGenerator.generator import set_package
 from gluon.common import service
-from gluon.core.manager import register_api_manager
-from gluon.db.sqlalchemy import models as sql_models
+import gluon.cmd.config
+from gluon.particleGenerator import generator as particle_generator
 from gluon.sync_etcd.thread import start_sync_thread
+from oslo_config import cfg
+from oslo_log import log as logging
+from oslo_log._i18n import _LI
 
 LOG = logging.getLogger(__name__)
 #
@@ -47,10 +42,14 @@ def main():
     service.prepare_service(sys.argv)
     cfg.CONF.log_opt_values(LOG, logging.DEBUG)
     # Set source of model files
-    set_package("gluon", "models/proton/net-l3vpn")
+    services = str(cfg.CONF.api.service_list).split(',')
+    service_list = list()
+    for api_name in services:
+        service_list.append(api_name.strip())
+    LOG.info("Service List: %s" % service_list)
     LOG.info("Generating DB Classes")
-    particle_generator.build_sql_models(sql_models.Base)
-    register_api_manager(ProtonManager())
+    particle_generator.build_sql_models(service_list)
+
     # API is generated during the setup_app phase.
     LOG.info("Generating API Classes")
     app = api_app.setup_app()
@@ -69,7 +68,6 @@ def main():
     else:
         LOG.info(_LI('serving on http://%(host)s:%(port)s') %
                  dict(host=host, port=port))
-    start_sync_thread(service_name=cfg.CONF.api.service_name,
-                      etcd_host=cfg.CONF.api.etcd_host,
+    start_sync_thread(etcd_host=cfg.CONF.api.etcd_host,
                       etcd_port=cfg.CONF.api.etcd_port)
     srv.serve_forever()

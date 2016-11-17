@@ -17,13 +17,10 @@
 #    under the License.
 
 import six
-import wsme
 from wsme import types as wtypes
 
-from gluon.common import exception
 from oslo_log._i18n import _
 from oslo_utils import strutils
-from oslo_utils import uuidutils
 
 
 class DynamicDict(wtypes.DynamicBase):
@@ -43,7 +40,7 @@ class NameType(wtypes.UserType):
     @staticmethod
     def validate(value):
         if not value:
-            raise exception.InvalidName(name=value)
+            raise ValueError(value)
         return value
 
     @staticmethod
@@ -53,7 +50,7 @@ class NameType(wtypes.UserType):
         return NameType.validate(value)
 
 
-class UuidType(wtypes.UserType):
+class UuidType(wtypes.UuidType):
     """A simple UUID type."""
 
     basetype = wtypes.text
@@ -62,11 +59,9 @@ class UuidType(wtypes.UserType):
     @staticmethod
     def validate(value):
         if value == '':
-            value = wtypes.Unset
             return value
-        if not uuidutils.is_uuid_like(value):
-            raise exception.InvalidUUID(uuid=value)
-        return value
+        if wtypes.UuidType.validate(value):
+            return value
 
     @staticmethod
     def frombasetype(value):
@@ -85,9 +80,9 @@ class BooleanType(wtypes.UserType):
     def validate(value):
         try:
             return strutils.bool_from_string(value, strict=True)
-        except ValueError as e:
+        except ValueError:
             # raise Invalid to return 400 (BadRequest) in the API
-            raise exception.Invalid(e)
+            raise ValueError("Invalid boolean value: %s" % value)
 
     @staticmethod
     def frombasetype(value):
@@ -116,7 +111,7 @@ class MultiType(wtypes.UserType):
         for t in self.types:
             try:
                 return wtypes.validate_value(t, value)
-            except (exception.InvalidUUID, ValueError):
+            except ValueError:
                 pass
         else:
             raise ValueError(_("Expected '%(type)s', got '%(value)s'")

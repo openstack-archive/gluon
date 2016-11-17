@@ -16,27 +16,26 @@
 import json
 
 from gluon.backends import backend_base
-from gluon.backends.backends.proton_client import Client
-from oslo_config import cfg
+
+from oslo_log import log as logging
+
+LOG = logging.getLogger(__name__)
+logger = LOG
 
 
-API_SERVICE_OPTS = [
-    cfg.StrOpt('ports_name',
-               default='baseports',
-               help='URL to get ports'),
-]
+class MyData(object):
+    pass
 
-CONF = cfg.CONF
-opt_group = cfg.OptGroup(name='gluon',
-                         title='Options for the gluon')
-CONF.register_group(opt_group)
-CONF.register_opts(API_SERVICE_OPTS, opt_group)
+DriverData = MyData()
+DriverData.service = u'net-l3vpn'
+DriverData.proton_base = 'proton'
+DriverData.ports_name = 'baseports'
 
 
 class Provider(backend_base.ProviderBase):
 
     def driver_for(self, backend, dummy_net, dummy_subnet):
-        if backend['service'] == u'net-l3vpn':
+        if backend['service'] == DriverData.service:
             return Driver(backend, dummy_net, dummy_subnet)
         else:
             return None
@@ -45,46 +44,18 @@ class Provider(backend_base.ProviderBase):
 class Driver(backend_base.Driver):
 
     def __init__(self, backend, dummy_net, dummy_subnet):
-        self._client = Client(backend)
-        self._port_url = backend["url"] + "/v1/" + cfg.CONF.gluon.ports_name
-        self._dummy_net = dummy_net
-        self._dummy_subnet = dummy_subnet
-
-    def bind(self, port_id, device_owner, zone, device_id, host_id,
-             binding_profile):
-        args = {}
-        args["device_owner"] = device_owner
-        args["device_id"] = device_id
-        args["host_id"] = host_id
-        if binding_profile is not None:
-            args["profile"] = json.dumps(binding_profile, indent=0)
-        args["zone"] = zone
-        url = self._port_url + "/" + port_id + "/update"
-        return self._convert_port_data(self._client.do_put(url, args))
-
-    def unbind(self, port_id):
-        args = {}
-        args["device_owner"] = ''
-        args["device_id"] = ''
-        args["host_id"] = ''
-        args["profile"] = ''
-        args["zone"] = ''
-        url = self._port_url + "/" + port_id + "/update"
-        return self._convert_port_data(self._client.do_put(url, args))
-
-    def port(self, port_id):
-        url = self._port_url + "/" + port_id
-        return self._convert_port_data(self._client.json_get(url))
-
-    def ports(self):
-        port_list = self._client.json_get(self._port_url)
-        ret_port_list = []
-        for port in port_list:
-            ret_port_list.append(self._convert_port_data(port))
-        return ret_port_list
+        super(Driver, self).__init__(backend, dummy_net, dummy_subnet)
+        self._port_url = \
+            "{0:s}/{1:s}/{2:s}/{3:s}".format(backend["url"],
+                                             DriverData.proton_base,
+                                             DriverData.service,
+                                             DriverData.ports_name)
 
     def _convert_port_data(self, port_data):
+        LOG.debug("proton port_data = %s" % port_data)
         ret_port_data = {}
+        ret_port_data["created_at"] = port_data["created_at"]
+        ret_port_data["updated_at"] = port_data["updated_at"]
         ret_port_data["id"] = port_data["id"]
         ret_port_data["devname"] = 'tap%s' % port_data['id'][:11]
         ret_port_data["name"] = port_data.get("name")
@@ -102,12 +73,18 @@ class Driver(backend_base.Driver):
               "subnet_id": self._dummy_subnet}]
         ret_port_data["security_groups"] = []
         ret_port_data["binding:host_id"] = port_data.get("host_id", '')
-        ret_port_data["binding:vif_details"] = \
-            json.loads(port_data.get("vif_details", '{}'))
+        vif_details = port_data.get("vif_details")
+        if vif_details is None:
+            vif_details = '{}'
+        ret_port_data["binding:vif_details"] = json.loads(vif_details)
         ret_port_data["binding:vif_type"] = port_data.get("vif_type", '')
         ret_port_data["binding:vnic_type"] = \
             port_data.get("vnic_type", 'normal')
-        if port_data.get("profile", '') != '':
-            ret_port_data["binding:profile"] = \
-                json.loads(port_data.get("profile", '{}'))
+        profile = port_data.get("profile", '{}')
+        if profile is None or profile == '':
+            profile = '{}'
+        ret_port_data["binding:profile"] = json.loads(profile)
+        for k in ret_port_data:
+            if ret_port_data[k] is None:
+                ret_port_data[k] = ''
         return ret_port_data
