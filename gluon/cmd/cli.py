@@ -13,11 +13,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import click
 import sys
 import types
 
-from gluon.common.particleGenerator.cli import proc_model
+import click
+
+from gluon.particleGenerator.cli import get_api_model
+from gluon.particleGenerator.cli import get_model_list
+from gluon.particleGenerator.cli import proc_model
+
 
 sys.tracebacklimit = 0
 
@@ -29,9 +33,13 @@ def dummy():
 def main():
     cli = types.FunctionType(dummy.func_code, {})
     cli = click.group()(cli)
+    model_list = get_model_list(package_name="gluon",
+                                model_dir="models/proton")
+    model = get_api_model(sys.argv, model_list)
     proc_model(cli,
                package_name="gluon",
-               model_dir="models/proton/net-l3vpn",
+               model_dir="models/proton",
+               api_model=model,
                hostenv="OS_PROTON_HOST",
                portenv="OS_PROTON_PORT",
                hostdefault="127.0.0.1",

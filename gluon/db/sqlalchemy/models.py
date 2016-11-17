@@ -12,10 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-import six.moves.urllib.parse as urlparse
-from sqlalchemy import schema
-from sqlalchemy import (Column, Integer, String)
+
 from sqlalchemy.ext.declarative import declarative_base
 
 from oslo_config import cfg
@@ -42,9 +39,11 @@ db_options.set_defaults(cfg.CONF, _DEFAULT_SQL_CONNECTION, 'gluon.sqlite')
 
 
 class GluonBase(models.TimestampMixin, models.ModelBase):
+    _primary_key = None
+    __table__ = None
 
     @classmethod
-    def get_primary_key_type(cls):
+    def get_primary_key(cls):
         return cls._primary_key
 
     def as_dict(self):

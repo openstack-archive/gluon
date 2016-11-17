@@ -69,7 +69,7 @@ def _paginate_query(model, limit=None, marker=None, sort_key=None,
                     sort_dir=None, query=None):
     if not query:
         query = model_query(model)
-    sort_keys = [model.get_primary_key_type()]
+    sort_keys = [model.get_primary_key()]
     if sort_key and sort_key not in sort_keys:
         sort_keys.insert(0, sort_key)
     query = db_utils.paginate_query(query, model, limit, sort_keys,
@@ -131,7 +131,7 @@ class Connection(api.Connection):
             raise exception.NotFound(cls=model.__name__, key=uuid)
 
     def get_by_primary_key(self, model, key):
-        pk_type = model.get_primary_key_type()
+        pk_type = model.get_primary_key()
         query = model_query(model)
         filter = {pk_type: key}
         query = query.filter_by(**filter)

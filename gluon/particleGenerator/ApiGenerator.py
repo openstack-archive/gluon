@@ -13,31 +13,60 @@
 #    under the License.
 
 import six
-import sys
-import yaml
 
-from oslo_versionedobjects import fields
+from pecan import rest
+from wsme import types as wtypes
+import wsmeext.pecan as wsme_pecan
 
+from gluon.api.baseObject import APIBase
 from gluon.api.baseObject import APIBaseObject
 from gluon.api.baseObject import RootObjectController
-from gluon.api.baseObject import SubObjectController
 from gluon.api import types
-from gluon.common.particleGenerator.DataBaseModelGenerator \
+# from gluon.api.baseObject import SubObjectController
+from gluon.particleGenerator.DataBaseModelGenerator \
     import DataBaseModelProcessor
-from gluon.core.manager import get_api_manager
-from gluon.objects import base as obj_base
+
+
+class ServiceRoot(APIBase):
+    """The root service URL"""
+    id = wtypes.text
+
+    @staticmethod
+    def convert(api_name):
+        root = ServiceRoot()
+        root.id = api_name
+        return root
+
+
+class ServiceController(rest.RestController):
+    """Version 1 API controller root."""
+
+    def __init__(self, api_name):
+        self.api_name = api_name
+
+    @wsme_pecan.wsexpose(ServiceRoot)
+    def get(self):
+        return ServiceRoot.convert(self.api_name)
 
 
 class APIGenerator(object):
 
-    def __init__(self, db_models):
-        self.db_models = db_models
-        self.objects = []
+    def __init__(self):
+        self.data = None
+        self.api_name = None
+        self.db_models = None
 
     def add_model(self, model):
         self.data = model
 
-    def create_api(self, root):
+    def create_controller(self, service_name, root):
+        controller = ServiceController(service_name)
+        setattr(root, service_name, controller)
+        return controller
+
+    def create_api(self, root, service_name, db_models):
+        self.db_models = db_models
+        self.service_name = service_name
         controllers = {}
         if not self.data:
             raise Exception('Cannot create API from empty model.')
@@ -46,27 +75,16 @@ class APIGenerator(object):
                 # For every entry build a (sub_)api_controller
                 # an APIObject, an APIObject and an APIListObject
                 # and a RealObject is created
-                real_object_fields = {}
                 api_object_fields = {}
                 for attribute, attr_value in \
                         six.iteritems(table_data['attributes']):
                     api_type = self.translate_model_to_api_type(
                         attr_value['type'], attr_value.get('values'))
                     api_object_fields[attribute] = api_type
-                    real_object_fields[attribute] = \
-                        self.translate_model_to_real_obj_type(
-                            attr_value['type'], attr_value.get('values'))
-
-                # Real object
-                object_class = obj_base.GluonObject.class_builder(
-                    table_name, self.db_models[table_name], real_object_fields)
-
-                # register in the API Manager instance
-                get_api_manager().gluon_objects[table_name] = object_class
 
                 # API object
                 api_object_class = APIBaseObject.class_builder(
-                    table_name, object_class, api_object_fields)
+                    table_name, self.db_models[table_name], api_object_fields)
 
                 # api_name
                 api_name = table_data['api']['name']
@@ -81,12 +99,14 @@ class APIGenerator(object):
                     parent_identifier_type = self.data[parent]['api']['name']
                     parent_attribute_name =\
                         table_data['api']['parent']['attribute']
-                    new_controller_class = SubObjectController.class_builder(
-                        api_name, api_object_class, primary_key_type,
-                        parent_identifier_type, parent_attribute_name)
+                    # TODO(hambtw) SubObjectController is not working!!
+                    # new_controller_class = SubObjectController.class_builder(
+                    #     api_name, api_object_class, primary_key_type,
+                    #     parent_identifier_type, parent_attribute_name)
                 else:
                     new_controller_class = RootObjectController.class_builder(
-                        api_name, api_object_class, primary_key_type)
+                        api_name, api_object_class, primary_key_type,
+                        self.service_name)
 
                 # The childs have to be instantized before the
                 # parents so lets make a dict
@@ -115,25 +135,6 @@ class APIGenerator(object):
         primary_key = DataBaseModelProcessor.get_primary_key(
             table_data)
         return table_data['attributes'][primary_key]['type']
-
-    def translate_model_to_real_obj_type(self, model_type, values):
-        # first make sure it is not a foreign key
-        if model_type in self.data:
-            # if it is we point to the primary key type type of this key
-            model_type = self.get_primary_key_type(
-                self.data[model_type])
-
-        if model_type == 'uuid':
-            return fields.UUIDField(nullable=False)
-        if model_type == 'string':
-            return fields.StringField()
-        if model_type == 'enum':
-            return fields.EnumField(values)
-        if model_type == 'integer':
-            return fields.IntegerField()
-        if model_type == 'boolean':
-            return fields.BooleanField()
-        raise Exception("Type %s not known." % model_type)
 
     def translate_model_to_api_type(self, model_type, values):
         # first make sure it is not a foreign key

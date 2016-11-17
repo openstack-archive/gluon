@@ -18,13 +18,7 @@ test_gluon
 
 Tests for `gluon` module.
 """
-
-from gluon.common import exception
-from gluon.common.particleGenerator.generator import set_package
-set_package("gluon", "models/proton/net-l3vpn")
-
 from gluon.tests.objects import base as objbase
-from gluon.tests.objects import utils
 
 
 class TestPort(objbase.ObjectTestCase):

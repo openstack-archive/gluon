@@ -19,10 +19,15 @@ import wsmeext.pecan as wsme_pecan
 
 from gluon.api.baseObject import APIBase
 from gluon.api import link
-from gluon.common.particleGenerator import generator as particle_generator
+from gluon.particleGenerator import generator as particle_generator
+from oslo_config import cfg
+from oslo_log import log as logging
 
 
-class V1(APIBase):
+LOG = logging.getLogger(__name__)
+
+
+class ProtonRoot(APIBase):
     """The representation of the version 1 of the API."""
 
     id = wtypes.text
@@ -32,26 +37,26 @@ class V1(APIBase):
 
     @staticmethod
     def convert():
-        v1 = V1()
-        v1.id = "v1"
-        v1.links = [link.Link.make_link('self', pecan.request.host_url,
-                                        'v1', '', bookmark=True),
-                    ]
-        return v1
+        root = ProtonRoot()
+        root.id = "proton"
+        root.links = [link.Link.make_link('self', pecan.request.host_url,
+                                          'proton', '', bookmark=True), ]
+        return root
 
 
-class API(rest.RestController):
+class ProtonController(rest.RestController):
     """Version 1 API controller root."""
 
     def __init__(self):
-        particle_generator.build_api(self)
+        services = str(cfg.CONF.api.service_list).split(',')
+        service_list = list()
+        for api_name in services:
+            service_list.append(api_name.strip())
+        particle_generator.build_api(self, service_list)
 
-    @wsme_pecan.wsexpose(V1)
+    @wsme_pecan.wsexpose(ProtonRoot)
     def get(self):
         # NOTE: The reason why convert() is being called for every
         #       request is because we need to get the host url from
         #       the request object to make the links.
-        return V1.convert()
-
-# Breaks autodocs
-# __all__ = (API)
+        return ProtonRoot.convert()

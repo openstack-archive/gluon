@@ -64,7 +64,7 @@ class DummyNetL3VPN(HandlerBase):
 
         for afconfig_name in afconfig_name_list:
             afconfig = model.vpn_afconfigs.get(afconfig_name, None)
-            if (afconfig):
+            if afconfig:
                 afconfig_list.append(afconfig)
                 LOG.info("  afconfig(%s): %s" % (afconfig_name, afconfig))
         LOG.info(changes)
@@ -105,7 +105,6 @@ class DummyNetL3VPN(HandlerBase):
 
         :param uuid: UUID of Port
         :param model: Model object
-        :param changes: dictionary of changed attributes
         :returns: None
         """
         pass

@@ -14,9 +14,11 @@
 #    under the License.
 
 import abc
+import json
 import six
 import stevedore
 
+from gluon.backends.proton_client import Client
 from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
@@ -37,25 +39,50 @@ class ProviderBase(object):
 @six.add_metaclass(abc.ABCMeta)
 class Driver(object):
 
-    @abc.abstractmethod
+    def __init__(self, backend, dummy_net, dummy_subnet):
+        self._client = Client(backend)
+        self._dummy_net = dummy_net
+        self._dummy_subnet = dummy_subnet
+
     def bind(self, port_id, device_owner, zone, device_id, host_id,
              binding_profile):
-        pass
+        args = {}
+        args["device_owner"] = device_owner
+        args["device_id"] = device_id
+        args["host_id"] = host_id
+        if binding_profile is not None:
+            args["profile"] = json.dumps(binding_profile, indent=0)
+        args["zone"] = zone
+        url = self._port_url + "/" + port_id
+        return self._convert_port_data(self._client.do_put(url, args))
 
-    @abc.abstractmethod
-    def unbind(self, port):
-        pass
+    def unbind(self, port_id):
+        args = {}
+        args["device_owner"] = ''
+        args["device_id"] = ''
+        args["host_id"] = ''
+        args["profile"] = ''
+        args["zone"] = ''
+        url = self._port_url + "/" + port_id
+        return self._convert_port_data(self._client.do_put(url, args))
 
-    @abc.abstractmethod
     def port(self, port_id):
-        pass
+        url = self._port_url + "/" + port_id
+        return self._convert_port_data(self._client.json_get(url))
+
+    def ports(self):
+        port_list = self._client.json_get(self._port_url)
+        ret_port_list = []
+        for port in port_list:
+            ret_port_list.append(self._convert_port_data(port))
+        return ret_port_list
 
     @abc.abstractmethod
-    def ports(self):
+    def _convert_port_data(self, port_data):
         pass
 
 
-class Manager(object):
+class BackendLoader(object):
     """Class used to manage backend drivers in Gluon.
 
     Drivers know how to talk to particular network services.  It

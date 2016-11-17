@@ -18,15 +18,13 @@ import six
 from six.moves import queue
 import threading
 
+import etcd
+
+from gluon.db import api as dbapi
 from oslo_log._i18n import _LE
 from oslo_log._i18n import _LI
 from oslo_log._i18n import _LW
 from oslo_log import log as logging
-
-import etcd
-
-from gluon.common.particleGenerator.generator import get_db_gen
-from gluon.db import api as dbapi
 
 LOG = logging.getLogger(__name__)
 
@@ -40,7 +38,6 @@ SyncData.sync_queue = queue.Queue()
 SyncData.etcd_port = 2379
 SyncData.etcd_host = '127.0.0.1'
 SyncData.source = "proton"
-SyncData.service = "net-l3vpn"
 
 
 class SyncThread(threading.Thread):
@@ -55,30 +52,37 @@ class SyncThread(threading.Thread):
         LOG.info("SyncThread starting")
 
     def proc_sync_msg(self, msg):
+        from gluon.particleGenerator import generator as particle_generator
         try:
             if msg["operation"] == "update":
                 obj_key = "_".join(msg["key"].split())  # Get rid of spaces
                 etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(
-                    SyncData.source, SyncData.service, msg["table"], obj_key)
-                table_class = get_db_gen().get_table_class(msg["table"])
+                    SyncData.source, msg["service"], msg["table"], obj_key)
+                db_gen = particle_generator.get_db_gen()
+                table_class = db_gen.get_table_class(msg["service"],
+                                                     msg["table"])
                 data = self.db_instance.get_by_primary_key(
                     table_class, msg["key"])
                 values = data.as_dict()
                 d = {}
                 for key in six.iterkeys(values):
-                    d[key] = str(values[key])
+                    if values[key] is None:
+                        d[key] = values[key]
+                    else:
+                        d[key] = str(values[key])
                 json_str = json.dumps(d)
                 self.etcd_client.write(etcd_key, json_str)
             elif msg["operation"] == "delete":
                 obj_key = "_".join(msg["key"].split())  # Get rid of spaces
                 etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format(
-                    SyncData.source, SyncData.service, msg["table"], obj_key)
+                    SyncData.source, msg["service"], msg["table"], obj_key)
                 self.etcd_client.delete(etcd_key)
             elif msg["operation"] == "register":
                 obj_key = "_".join(msg["port_id"].split())  # Get rid of spaces
                 port_key = "/gluon/port/{0:s}".format(obj_key)
                 d = {"tenant_id": msg["tenant_id"],
-                     "service": msg["service"], "url": msg["url"]}
+                     "service": msg["service"],
+                     "url": msg["url"]}
                 json_str = json.dumps(d)
                 self.etcd_client.write(port_key, json_str)
             elif msg["operation"] == "deregister":
@@ -118,9 +122,7 @@ def start_sync_thread(**kwargs):
 
     if not SyncData.sync_thread_running:
         for key, value in six.iteritems(kwargs):
-            if key == "service_name":
-                SyncData.service = value
-            elif key == "etcd_host":
+            if key == "etcd_host":
                 SyncData.etcd_host = value
             elif key == "etcd_port":
                 SyncData.etcd_port = value
