@@ -1,0 +1,5 @@
+enable_service gluon-server
+
+GLUON_DIR="$DEST/gluon"
+GLUON_BIN_DIR=$(get_python_exec_prefix)
+GLUON_BINARY="$GLUON_BIN_DIR/gluon"
