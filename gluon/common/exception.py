@@ -21,9 +21,11 @@ Includes decorator for re-raising Cloudpulse-type exceptions.
 import six
 
 from oslo_config import cfg
+
+from oslo_log import log as logging
+
 from oslo_log._i18n import _
 from oslo_log._i18n import _LE
-from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -157,3 +159,22 @@ class MalformedResponseBody(GluonClientException):
 
 class InvalidContentType(GluonClientException):
     message = _("Invalid content type %(content_type)s.")
+
+
+class InvalidConfigurationOption(GluonClientException):
+    """An error due to an invalid configuration option value."""
+
+    message = _("An invalid value for configuration option %(opt_name): "
+                "%(opt_value)")
+
+
+class PolicyInitError(GluonClientException):
+    """An error due to policy initialization failure."""
+
+    message = _("Failed to initialize policy %(policy)s because %(reason)s.")
+
+
+class PolicyCheckError(GluonClientException):
+    """An error due to a policy check failure."""
+
+    message = _("Failed to check policy %(policy)s because %(reason)s.")
