@@ -20,3 +20,4 @@ PyYAML>=3.1.0 # MIT
 pytz>=2013.6 # MIT
 click>=6.6
 python-etcd>=0.4.3
+keystone
