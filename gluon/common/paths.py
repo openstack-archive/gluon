@@ -27,9 +27,9 @@ PATH_OPTS = [
     cfg.StrOpt('bindir',
                default='$pybasedir/bin',
                help='Directory where gluon binaries are installed.'),
-    cfg.StrOpt('state_path',
-               default='$pybasedir',
-               help="Top-level directory for maintaining gluon's state."),
+    # cfg.StrOpt('state_path',
+    #            default='$pybasedir',
+    #            help="Top-level directory for maintaining gluon's state."),
 ]
 
 CONF = cfg.CONF
