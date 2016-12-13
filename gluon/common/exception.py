@@ -157,3 +157,33 @@ class MalformedResponseBody(GluonClientException):
 
 class InvalidContentType(GluonClientException):
     message = _("Invalid content type %(content_type)s.")
+
+class InvalidConfigurationOption(GluonClientException):
+    """An error due to an invalid configuration option value.
+    :param opt_name: The name of configuration option which has an invalid
+    value
+    :param opt_value: The value of the configuration option, which is invalid
+    """
+    message = _("An invalid value for configuration option %(opt_name): "
+                "%(opt_value)")
+
+class PolicyInitError(GluonClientException):
+    """An error due to policy initialization failure.
+
+    :param policy: The policy that failed to initialize.
+    :param reason: Details on why the policy failed to initialize.
+    """
+    message = _("Failed to initialize policy %(policy)s because %(reason)s.")
+
+
+class PolicyCheckError(GluonClientException):
+    """An error due to a policy check failure.
+
+    :param policy: The policy that failed to check.
+    :param reason: Additional details on the failure.
+    """
+    message = _("Failed to check policy %(policy)s because %(reason)s.")
+
+class NotFound(GluonClientException):
+    """A generic not found exception."""
+    pass
