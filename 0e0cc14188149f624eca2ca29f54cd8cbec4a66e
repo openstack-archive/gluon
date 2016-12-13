@@ -1,0 +1,10 @@
+Code-Review+2: ijw-ubuntu <iawells@cisco.com>
+Workflow+1: ijw-ubuntu <iawells@cisco.com>
+Code-Review+2: Thomas Hambleton <tomhambleton@gmail.com>
+Workflow+1: Thomas Hambleton <tomhambleton@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 13 Dec 2016 19:26:22 +0000
+Reviewed-on: https://review.openstack.org/395031
+Project: openstack/gluon
+Branch: refs/heads/master
