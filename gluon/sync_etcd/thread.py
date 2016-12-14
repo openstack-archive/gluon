@@ -96,10 +96,10 @@ class SyncThread(threading.Thread):
             LOG.warn(_LW("Unknown key %s") % obj_key)
         except Exception as e:
             print(e.__doc__)
-            print(e.message)
+            print(e.args[0])
             LOG.error(
                 _LE("Error writing to etcd {doc}, {msg}").format(
-                    doc=e.__doc__, msg=e.message))
+                    doc=e.__doc__, msg=e.args[0]))
             raise ValueError
 
     def run(self):

@@ -41,7 +41,7 @@ class Client(object):
         try:
             rv = json.loads(resp.content)
         except Exception as e:
-            msg = "JSON unreadable: %s on %s" % (e.message, resp.content)
+            msg = "JSON unreadable: %s on %s" % (e.args[0], resp.content)
             raise exc.MalformedResponseBody(reason=msg)
         return rv
 
@@ -62,7 +62,7 @@ class Client(object):
             rv = json.loads(resp.content)
         except Exception as e:
             raise exc.MalformedResponseBody(reason="JSON unreadable: %s on %s"
-                                                   % (e.message, resp.content))
+                                                   % (e.args[0], resp.content))
         return rv
 
     def do_put(self, url, values):
@@ -75,5 +75,5 @@ class Client(object):
             rv = json.loads(resp.content)
         except Exception as e:
             raise exc.MalformedResponseBody(reason="JSON unreadable: %s on %s"
-                                                   % (e.message, resp.content))
+                                                   % (e.args[0], resp.content))
         return rv
