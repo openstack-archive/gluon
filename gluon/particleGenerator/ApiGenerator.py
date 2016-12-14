@@ -96,7 +96,7 @@ class APIGenerator(object):
                 # parent_identifier_type
                 parent = table_data['api']['parent']['type']
                 if parent != 'root':
-                    parent_identifier_type = self.data[parent]['api']['name']
+                    # parent_identifier_type = self.data[parent]['api']['name']
                     parent_attribute_name =\
                         table_data['api']['parent']['attribute']
                     # TODO(hambtw) SubObjectController is not working!!
