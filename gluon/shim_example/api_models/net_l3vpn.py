@@ -100,19 +100,19 @@ class ApiNetL3VPN(ApiModelBase):
     def handle_port_change(self, key, attributes, shim_data):
         if key in self.model.ports:
             prev_port = self.model.ports[key]
-            changes = self.model.ports[key].update_attrs(attributes)
+            changes = prev_port.update_attrs(attributes)
             if self.bind_attributes_changed(changes.new):
-                if self.model.ports[key].get("__state") == "Bound":
+                if prev_port.get("__state") == "Bound":
                     if self.is_bind_request(changes.new):  # already bound?
                         LOG.error("Bind request on bound port?")
                     else:  # Unbind
                         self.backend.unbind_port(key, self.model, changes)
                         vif_dict = self.get_etcd_bound_data(shim_data, key)
                         for vif_key in vif_dict:
-                            self.model.ports[key][vif_key] = ""
+                            prev_port[vif_key] = ""
                         self.update_etcd_unbound(shim_data, key)
-                        self.model.ports[key]["__state"] = "Unbound"
-                elif self.model.ports[key].get("__state") == "Unbound":
+                        prev_port["__state"] = "Unbound"
+                elif prev_port.get("__state") == "Unbound":
                     if self.is_bind_request(changes.new):
                         if changes.new["host_id"] in \
                                 shim_data.host_list:  # On one of my hosts
@@ -120,35 +120,35 @@ class ApiNetL3VPN(ApiModelBase):
                                                               self.model,
                                                               changes)
                             if len(vif_dict) > 0:  # Bind success
-                                self.model.ports[key].update_attrs(vif_dict)
-                                self.model.ports[key]["__state"] = "Bound"
+                                prev_port.update_attrs(vif_dict)
+                                prev_port["__state"] = "Bound"
                                 self.update_etcd_bound(shim_data, key,
                                                        vif_dict)
                             else:
                                 LOG.info("Bind request rejected")
                         else:
-                            self.model.ports[key]["__state"] = \
+                            prev_port["__state"] = \
                                 "InUse"  # Bound by another controller
                     else:
                         pass
-                elif self.model.ports[key].get("__state") == "InUse":
+                elif prev_port.get("__state") == "InUse":
                     if self.is_bind_request(changes.new):  # already bound?
                         LOG.error("Bind request on InUse port: %s" % key)
                     else:
-                        self.model.ports[key]["__state"] = "Unbound"
+                        prev_port["__state"] = "Unbound"
             else:
-                if self.model.ports[key].get("__state") == "Bound":
+                if prev_port.get("__state") == "Bound":
                     self.backend.modify_port(key, self.model, changes)
         else:
             port = Model.Port(key, attributes)
-            self.model.ports[key] = port
+            prev_port = port
             vif_dict = self.get_etcd_bound_data(shim_data, key)
             if len(vif_dict) > 0:  # Bound
                 if vif_dict.get("controller") == \
                         shim_data.name:  # Bound by me
-                    self.model.ports[key]["__state"] = "Bound"
+                    prev_port["__state"] = "Bound"
                 else:
-                    self.model.ports[key]["__state"] = "InUse"
+                    prev_port["__state"] = "InUse"
 
     def handle_vpn_instance_change(self, key, attributes, shim_data):
         if key in self.model.vpn_instances:
