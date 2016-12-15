@@ -13,6 +13,7 @@
 #    under the License.
 
 import datetime
+import six
 
 from pecan import rest
 import wsme
