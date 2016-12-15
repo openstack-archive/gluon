@@ -26,8 +26,9 @@ import etcd
 from oslo_config import cfg
 from oslo_log import log as logging
 
-from gluon.shim_example.api_models.net_l3vpn import ApiNetL3VPN
-from gluon.shim_example.backends.dummy_net_l3vpn import DummyNetL3VPN
+from gluon.shim.api_models.net_l3vpn import ApiNetL3VPN
+from gluon.shim.backends.opendaylight.odl_net_l3vpn import OdlNetL3VPN
+from gluon.shim.utils import pretty_print_message
 
 
 class MyData(object):
@@ -62,8 +63,7 @@ def process_queue(messages_queue):
 
 
 def process_message(message):
-
-    LOG.info("msg =  %s" % message)
+    LOG.info("msg =  %s" % pretty_print_message(message))
     # LOG.info("msg.key =  %s" % message.key)
     # LOG.info("msg.value =  %s" % message.value)
     # LOG.info("msg.action =  %s" % message.action)
@@ -100,14 +100,14 @@ def setup_app():
     # This should be config file driven to define the
     # APIs that are handled and the backend to handle each API
     #
-    backend = DummyNetL3VPN()
+    backend = OdlNetL3VPN()
     handler = ApiNetL3VPN(backend)
     ShimData.api_handlers[handler.name] = handler
     handler.load_model(ShimData)
 
 
 def prepare_service(argv=()):
-    cfg.CONF(argv[1:], project='shim')
+    cfg.CONF(argv[1:])
     logging.setup(cfg.CONF, 'shim')
 
 
@@ -120,7 +120,7 @@ def main():
                    default=2379,
                    help='etcd port'),
         cfg.StrOpt('host_list',
-                   default='compute1, compute2, lubuntu-VirtualBox',
+                   default='*',
                    help='Comma separated list of hostnames managed by '
                         'this server'),
     ]
