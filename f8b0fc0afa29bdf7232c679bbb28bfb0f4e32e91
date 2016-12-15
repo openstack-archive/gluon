@@ -1,0 +1,9 @@
+Code-Review+2: Bin Hu <bh526r@att.com>
+Code-Review+2: Thomas Hambleton <tomhambleton@gmail.com>
+Workflow+1: Thomas Hambleton <tomhambleton@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Thu, 15 Dec 2016 18:37:50 +0000
+Reviewed-on: https://review.openstack.org/393935
+Project: openstack/gluon
+Branch: refs/heads/master
