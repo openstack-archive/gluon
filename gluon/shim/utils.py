@@ -14,6 +14,7 @@
 #    under the License.
 
 import netaddr
+import pprint
 
 
 def compute_network_addr(ip, prefix):
@@ -33,3 +34,8 @@ def compute_netmask(prefix):
     addr = netaddr.IPNetwork("0.0.0.0")
     addr.prefixlen = int(prefix)
     return str(addr.netmask)
+
+
+def pretty_print_message(message):
+    pp = pprint.PrettyPrinter()
+    return pp.pformat(vars(message))

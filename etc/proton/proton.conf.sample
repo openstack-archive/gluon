@@ -1,0 +1,13 @@
+[DEFAULT]
+state_path = /tmp
+
+[shim]
+etcd_host = 127.0.0.1
+etcd_port = 2379
+host_list = *
+
+[shim_odl]
+odl_host = 192.0.2.8
+odl_port = 8080
+odl_user = admin
+odl_passwd = admin
