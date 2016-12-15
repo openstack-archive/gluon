@@ -146,6 +146,7 @@ def make_list_func(api_model, tablename):
         url = make_url(kwargs["host"], kwargs["port"], api_model, tablename)
         result = json_get(url)
         print(json.dumps(result, indent=4))
+        return result
 
     return list_func
 
@@ -156,6 +157,7 @@ def make_show_func(api_model, tablename, primary_key):
                        kwargs[primary_key])
         result = json_get(url)
         print(json.dumps(result, indent=4))
+        return result
 
     return show_func
 
