@@ -27,7 +27,7 @@ delete_port
 modify_service
 delete_service
 modify_service_binding
-delete_servcie_binding
+delete_service_binding
 
 The dummy_net_l3vpn class just prints out logging information when the callbacks
 are called.  The idea is that a vendor could copy/paste the dummy_net_l3vpn class and
@@ -61,18 +61,34 @@ database object with the vif_type and vif_details. So, when Nova subsequently re
 information  during the VM creation it will have the correct vif_type and vif_details to give to
 the VIF driver.
 
+
 INSTALLATION:
 
-The shimserver script is installed in /usr/local/bin when the gluon package is installed.
+The proton-shim-server script is installed in /usr/local/bin when the gluon package is installed.
 The only thing that has to be configured is the host_list.  The shim server will only
-respond to bind requests for a host_id that is in this list.  Look at the shim.conf file
-in this directory for an example.  You should query nova for the hypervisor list and populate
-the host_list with the proper values.
+respond to bind requests for a host_id that is in this list.  Look at the proton-shim.conf file
+in the etc directory for an example.  You should query nova for the hypervisor list and populate
+the host_list with the proper values or use * as a wildcard matching all hosts.
 
-To run the shimserver:
+To run the shim server:
 
-/usr/local/bin/shimserver --cofig-file=/<path>/shim.conf
+/usr/local/bin/proton-shim-server --config-file=/<path>/proton-shim.conf
 
 Logging goes to stdout by default.
 
+Currently, the OpenDaylight backend is selected by default in the code.  To select a different
+backend, this line in main.py needs to modified:
 
+ 103: backend = OdlNetL3VPN()
+
+A configuration option for selecting a particular backend is future work.
+
+
+OPENDAYLIGHT BACKEND:
+
+There a few OpenDaylight specific configuration options in the proton-shim.conf file in a dedicated
+"shim_odl" section.  The odl_host option typically always needs to be changed whereas the remaining
+configuration options use defaults that should work out-of-the-box.
+
+In order to use this backend and the L3VPN service, OpenDaylight should be up and running and the
+features "odl-netvirt-openstack" and "odl-netvirt-ui" must be installed.

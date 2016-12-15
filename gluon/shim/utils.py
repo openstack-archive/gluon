@@ -14,6 +14,7 @@
 #    under the License.
 
 import netaddr
+import pprint
 
 
 def compute_network_addr(ip, prefix):
@@ -33,3 +34,32 @@ def compute_netmask(prefix):
     addr = netaddr.IPNetwork("0.0.0.0")
     addr.prefixlen = int(prefix)
     return str(addr.netmask)
+
+
+def compute_gateway(network, prefix):
+    """compute the default gateway IP of a network
+
+    :param network: the network IP
+    :param prefix: the prefix of the network
+    :return: a string representation of the gateway IP
+    """
+    addr = netaddr.IPNetwork(network)
+    addr.prefixlen = prefix
+    return str(addr[1])
+
+
+def compute_hostip_range(network, prefix):
+    """compute the IP range of a network
+
+    :param network: the network IP
+    :param prefix: the prefix of the network
+    :return: a tupel with the first and last host IP in the network
+    """
+    addr = netaddr.IPNetwork(network)
+    addr.prefixlen = prefix
+    return (addr[2], addr[-2])
+
+
+def pretty_print_message(message):
+    pp = pprint.PrettyPrinter()
+    return pp.pformat(vars(message))

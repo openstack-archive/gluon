@@ -15,7 +15,7 @@
 
 from oslo_log import log as logging
 
-from gluon.shim_example.base import HandlerBase
+from gluon.shim.base import HandlerBase
 
 
 LOG = logging.getLogger(__name__)
