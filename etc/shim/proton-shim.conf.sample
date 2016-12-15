@@ -1,0 +1,26 @@
+[shim]
+# IP of the etcd server
+etcd_host = 127.0.0.1
+
+# Port of the etcd server
+etcd_port = 2379
+
+# The shim server only handles bind requests for ports on specific compute hosts. This
+# configuration option allows to specify a list of compute hosts or '*' as wildcard
+# matching all hosts
+# host_list = host1,host2,host3
+host_list = *
+
+
+[shim_odl]
+# IP of the OpenDaylight RESTconf interface. Typically needs to be changed after installation.
+odl_host = 192.0.2.8
+
+# Default port of the RESTconf interface.
+odl_port = 8181
+
+# Default user for accessing the OpenDaylight RESTconf interface
+odl_user = admin
+
+# Default password of the default user for accessing the OpenDaylight RESTconf interface
+odl_passwd = admin

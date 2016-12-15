@@ -17,7 +17,7 @@
 import abc
 import six
 
-from gluon.shim_example.model import Model
+from gluon.shim.model import Model
 
 
 class ApiModelBase(object):
