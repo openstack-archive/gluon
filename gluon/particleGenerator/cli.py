@@ -94,7 +94,7 @@ def json_get(url):
         rv = json.loads(resp.content)
     except Exception as e:
         raise exc.MalformedResponseBody(reason="JSON unreadable: %s on %s"
-                                               % (e.message, resp.content))
+                                               % (e.args[0], resp.content))
     return rv
 
 
@@ -116,7 +116,7 @@ def do_post(url, values):
         rv = json.loads(resp.content)
     except Exception as e:
         raise exc.MalformedResponseBody(reason="JSON unreadable: %s on %s"
-                                               % (e.message, resp.content))
+                                               % (e.args[0], resp.content))
     return rv
 
 
@@ -130,7 +130,7 @@ def do_put(url, values):
         rv = json.loads(resp.content)
     except Exception as e:
         raise exc.MalformedResponseBody(reason="JSON unreadable: %s on %s"
-                                               % (e.message, resp.content))
+                                               % (e.args[0], resp.content))
     return rv
 
 
