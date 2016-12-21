@@ -88,36 +88,44 @@ class GluonPlugin(Ml2Plugin):
     @log_helpers.log_method_call
     def append_gluon_ports(self, context, filters, result):
         LOG.debug("Context.tenant_id = %s" % context.tenant_id)
-        directory = self.etcd_client.read(PluginData.gluon_base)
-        current_service = None
-        driver = None
-        for keydata in directory.children:
-            if keydata.dir:
-                LOG.debug("Skipping directory")
-                continue
-            id = os.path.basename(keydata.key)
-            LOG.debug("id = %s" % id)
-            meta = json.loads(keydata.value)
-            if current_service != meta['service']:
-                current_service = meta['service']
-                driver = self.backend_manager.get_backend_driver(
-                    meta, self.gluon_network, self.gluon_subnet)
-            port = driver.port(id)
-            LOG.debug("port = %s" % port)
-            if filters is not None:
-                found = True
-                for field, values in filters.items():
-                    testval = port.get(field, '')
-                    LOG.debug("field = %s" % field)
-                    LOG.debug("testval = %s" % testval)
-                    LOG.debug("values = %s" % values)
-                    found = testval in values
-                    if not found:
-                        break
-                if found:
+        try:
+            directory = self.etcd_client.read(PluginData.gluon_base)
+            current_service = None
+            driver = None
+            for keydata in directory.children:
+                if keydata.dir:
+                    LOG.debug("Skipping directory")
+                    continue
+                id = os.path.basename(keydata.key)
+                LOG.debug("id = %s" % id)
+                meta = json.loads(keydata.value)
+                if current_service != meta['service']:
+                    current_service = meta['service']
+                    driver = self.backend_manager.get_backend_driver(
+                        meta, self.gluon_network, self.gluon_subnet)
+                port = driver.port(id)
+                LOG.debug("port = %s" % port)
+                if filters is not None:
+                    found = True
+                    for field, values in filters.items():
+                        testval = port.get(field, '')
+                        LOG.debug("field = %s" % field)
+                        LOG.debug("testval = %s" % testval)
+                        LOG.debug("values = %s" % values)
+                        found = testval in values
+                        if not found:
+                            break
+                    if found:
+                        result.append(port)
+                else:
                     result.append(port)
-            else:
-                result.append(port)
+        except etcd.EtcdKeyNotFound:
+            LOG.info("Cannot read /gluon directory, not created yet?")
+        except etcd.EtcdException:
+            LOG.error(
+                "Cannot connect to etcd, make sure that etcd is running.")
+        except Exception as e:
+            LOG.error("Unkown exception:", e)
 
     @log_helpers.log_method_call
     def update_gluon_port(self, backend, id, port):
