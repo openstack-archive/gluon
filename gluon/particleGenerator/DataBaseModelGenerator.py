@@ -39,7 +39,7 @@ class DataBaseModelProcessor(object):
     def get_table_class(self, api_name, table_name):
         try:
             return self.db_models.get(api_name)[table_name]
-        except ValueError:
+        except(TypeError, KeyError):
             raise Exception('Unknown table name %s' % table_name)
 
     def build_sqla_models(self, api_name, base=None):
