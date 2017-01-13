@@ -106,7 +106,6 @@ class Connection(api.Connection):
     def _add_filters(self, query, filters):
         if filters is None:
             filters = {}
-
         for (key, value) in six.iteritems(filters):
             query = query.filter_by(**{key: value})
 
