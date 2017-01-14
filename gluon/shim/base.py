@@ -22,7 +22,7 @@ from gluon.shim.model import Model
 
 class ApiModelBase(object):
 
-    def __init__(self, _name, _backend):
+    def __init__(self, _name):
         """Init Method.
 
         :param _name: name of the API Servce (e.g. net-l3vpn)
@@ -30,8 +30,10 @@ class ApiModelBase(object):
         :returns: None
         """
         self.model = Model()      # Internal Model for the API Service
-        self.backend = _backend   # ControllerModelBase
         self.name = _name
+
+    def init(self, backend):
+        self.backend = backend    # ControllerModelBase
 
     def handle_object_change(self, object, key, attributes, shim_data):
         """Called to update model based on changes to etcd database.

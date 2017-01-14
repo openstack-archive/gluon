@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import etcd
 import json
 import os
 import sys
@@ -21,13 +22,11 @@ import time
 from Queue import Queue
 from threading import Thread
 
-import etcd
-
 from oslo_config import cfg
 from oslo_log import log as logging
 
-from gluon.shim.api_models.net_l3vpn import ApiNetL3VPN
-from gluon.shim.backends.opendaylight.odl_net_l3vpn import OdlNetL3VPN
+from stevedore import extension
+
 from gluon.shim.utils import pretty_print_message
 
 
@@ -96,14 +95,40 @@ def process_message(message):
 
 
 def setup_app():
-    #
-    # This should be config file driven to define the
-    # APIs that are handled and the backend to handle each API
-    #
-    backend = OdlNetL3VPN()
-    handler = ApiNetL3VPN(backend)
-    ShimData.api_handlers[handler.name] = handler
-    handler.load_model(ShimData)
+    api_models = extension.ExtensionManager(
+        namespace='gluon.shim.models',
+        invoke_on_load=True
+    )
+
+    backends = extension.ExtensionManager(
+        namespace='gluon.shim.backends',
+        invoke_on_load=True
+    )
+
+    def init_model(model, backends):
+        if model.obj.name in CONF.shim.handlers:
+            backend_name = CONF.shim.handlers[model.obj.name]
+            if backend_name in backends:
+                backend = backends[backend_name]
+                model.obj.init(backend.obj)
+                LOG.info('Loaded handler "%s" with backend "%s"' %
+                         (model.obj.name, backend_name))
+                return model.obj
+            else:
+                LOG.error('Cannot load backend for handler "%s": '
+                          'Selected backend "%s" not found.' %
+                          (model.obj.name, backend_name))
+        else:
+            LOG.info('Handler "%s" not selected in config file. '
+                     'Skipping initialization.' %
+                     model.obj.name)
+
+    handlers = api_models.map(init_model, backends)
+
+    for handler in handlers:
+        if handler is not None:
+            ShimData.api_handlers[handler.name] = handler
+            handler.load_model(ShimData)
 
 
 def prepare_service(argv=()):
@@ -123,6 +148,10 @@ def main():
                    default='*',
                    help='Comma separated list of hostnames managed by '
                         'this server'),
+        cfg.DictOpt('handlers',
+                    default={'net-l3vpn': 'net-l3vpn-odl'},
+                    help='Dict for selecting the handlers '
+                         'and their corresponding backend.')
     ]
     opt_group = cfg.OptGroup(name='shim',
                              title='Options for the sample shim service')

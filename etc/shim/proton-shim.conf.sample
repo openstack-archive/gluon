@@ -11,6 +11,11 @@ etcd_port = 2379
 # host_list = host1,host2,host3
 host_list = *
 
+# Select the model to load with the corresponding backend. This config option is a dict
+# where the key represents the name of the model and the value the name of the backend
+# which is to be used for this model.
+handlers = net-l3vpn:net-l3vpn-odl
+
 
 [shim_odl]
 # IP of the OpenDaylight RESTconf interface. Typically needs to be changed after installation.
