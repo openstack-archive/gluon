@@ -27,8 +27,8 @@ LOG = logging.getLogger(__name__)
 
 class ApiNetL3VPN(ApiModelBase):
 
-    def __init__(self, backend):
-        super(self.__class__, self).__init__("net-l3vpn", backend)
+    def __init__(self):
+        super(self.__class__, self).__init__("net-l3vpn")
         self.resync_mode = False
         self.model.vpn_instances = dict()
         self.model.vpn_ports = dict()
