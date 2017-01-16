@@ -14,18 +14,19 @@
 
 import datetime
 import six
-
-from pecan import rest
 import wsme
-from wsme import types as wtypes
 import wsmeext.pecan as wsme_pecan
+
+from pecan import expose
+from pecan import rest
+
+from wsme import types as wtypes
 
 from gluon.db import api as dbapi
 from gluon.managers.manager_base import get_api_manager
 
 
 class APIBase(wtypes.Base):
-
     # TBD
     created_at = wsme.wsattr(datetime.datetime, readonly=True)
     """The time in UTC at which the object is created"""
@@ -59,7 +60,6 @@ class APIBase(wtypes.Base):
 
 
 class APIBaseObject(APIBase):
-
     @classmethod
     def class_builder(base_cls, name, _db_model, attributes):
         new_cls = type(name, (base_cls,), attributes)
@@ -107,7 +107,6 @@ class APIBaseObject(APIBase):
 
 
 class APIBaseList(APIBase):
-
     @classmethod
     def class_builder(base_cls, name, list_name, api_object_class):
         new_cls = type(name, (base_cls,), {list_name: [api_object_class]})
@@ -133,6 +132,7 @@ class RootObjectController(rest.RestController):
     def class_builder(base_cls, name, api_obj_class, primary_key_type,
                       api_name):
         new_cls = type(name, (base_cls,), {})
+        new_cls.resource_name = name
         new_cls.list_object_class = APIBaseList.class_builder(name + 'List',
                                                               name,
                                                               api_obj_class)
@@ -143,6 +143,7 @@ class RootObjectController(rest.RestController):
         @wsme_pecan.wsexpose(new_cls.list_object_class, template='json')
         def get_all(self):
             return self.list_object_class.build()
+
         new_cls.get_all = classmethod(get_all)
 
         @wsme_pecan.wsexpose(new_cls.api_object_class,
@@ -150,6 +151,7 @@ class RootObjectController(rest.RestController):
                              template='json')
         def get_one(self, key):
             return self.api_object_class.get_from_db(key)
+
         new_cls.get_one = classmethod(get_one)
 
         @wsme_pecan.wsexpose(new_cls.api_object_class,
@@ -157,6 +159,7 @@ class RootObjectController(rest.RestController):
                              status_code=201)
         def post(self, body):
             return self.api_mgr.handle_create(self, body.as_dict())
+
         new_cls.post = classmethod(post)
 
         @wsme_pecan.wsexpose(new_cls.api_object_class,
@@ -164,14 +167,28 @@ class RootObjectController(rest.RestController):
                              body=new_cls.api_object_class, template='json')
         def put(self, key, body):
             return self.api_mgr.handle_update(self, key, body.as_dict())
+
         new_cls.put = classmethod(put)
 
         @wsme_pecan.wsexpose(None, new_cls.primary_key_type, template='json')
         def delete(self, key):
             return self.api_mgr.handle_delete(self, key)
+
         new_cls.delete = classmethod(delete)
 
         return new_cls
+
+    @expose()
+    def _route(self, args, request):
+        result = super(RootObjectController, self)._route(args, request)
+        request.context['resource'] = result[0].im_self.resource_name
+        return result
+    # @expose()
+    # def _lookup(self, collection, *remainder):
+    #   #Set resource_action in the context to denote that
+    #   #this is a show operation and not list
+    #     request.context['resource_action'] = 'show'
+    #     return self
 
 # TODO(hambtw)  Needs to be reworked
 # class SubObjectController(RootObjectController):

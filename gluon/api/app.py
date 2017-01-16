@@ -1,4 +1,5 @@
 #    Copyright 2016, Ericsson AB
+#    Copyright 2017, Nokia
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -12,17 +13,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from keystonemiddleware import auth_token
 import pecan
 
-from keystonemiddleware import auth_token
 from oslo_config import cfg
 from oslo_log import log as logging
-
 from oslo_middleware import cors
 from oslo_middleware import http_proxy_to_wsgi
 from oslo_middleware import request_id
 
+from gluon.api import hooks
 from gluon.common import exception as g_exc
+
 
 # TODO(enikher)
 # from gluon.api import middleware
@@ -44,16 +46,16 @@ app_dic = {'root': 'gluon.api.root.RootController',
 
 
 def setup_app(config=None):
-    # app_hooks = [
-    #     hooks.PolicyHook(),
-    #     hooks.ContextHook()
-    # ]
+    app_hooks = [
+        hooks.ContextHook(),
+        hooks.PolicyHook()
+    ]
 
     app = pecan.make_app(
         app_dic.pop('root'),
         logging=getattr(config, 'logging', {}),
-        # wrap_app=_wrap_app,
-        # hooks=app_hooks,
+        wrap_app=_wrap_app,
+        hooks=app_hooks,
         # TODO(enikher)
         # wrap_app=middleware.ParsableErrorMiddleware,
         **app_dic
@@ -73,9 +75,9 @@ def setup_app(config=None):
 def _wrap_app(app):
     app = request_id.RequestId(app)
 
-    if CONF.auth_strategy == 'noauth':
+    if CONF.api.auth_strategy == 'noauth':
         pass
-    elif CONF.auth_strategy == 'keystone':
+    elif CONF.api.auth_strategy == 'keystone':
         app = auth_token.AuthProtocol(app, {})
         LOG.info("Keystone authentication is enabled")
     else:
