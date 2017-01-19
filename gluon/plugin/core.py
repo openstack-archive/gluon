@@ -65,7 +65,7 @@ class GluonPlugin(Ml2Plugin):
             LOG.error(
                 "Cannot connect to etcd, make sure that etcd is running.")
         except Exception as e:
-            LOG.error("Unkown exception:", e)
+            LOG.error("Unkown exception:", str(e))
         return None
 
     @log_helpers.log_method_call
@@ -124,8 +124,6 @@ class GluonPlugin(Ml2Plugin):
         except etcd.EtcdException:
             LOG.error(
                 "Cannot connect to etcd, make sure that etcd is running.")
-        except Exception as e:
-            LOG.error("Unkown exception:", e)
 
     @log_helpers.log_method_call
     def update_gluon_port(self, backend, id, port):

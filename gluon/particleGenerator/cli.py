@@ -24,10 +24,9 @@ from requests import delete
 from requests import get
 from requests import post
 from requests import put
-import yaml
-
 
 from gluon.common import exception as exc
+from gluon.particleGenerator.generator import load_model
 
 
 def print_basic_usage(argv, model_list):
@@ -70,18 +69,10 @@ def get_api_model(argv, model_list):
 def get_model_list(package_name, model_dir):
     model_list = list()
     for f in pkg_resources.resource_listdir(package_name, model_dir):
+        if f == 'base':
+            continue
         model_list.append(f)
     return model_list
-
-
-def load_model(package_name, model_dir, model_name):
-    model_dir = model_dir + "/" + model_name
-    model = {}
-    for f in pkg_resources.resource_listdir(package_name, model_dir):
-        f = model_dir + '/' + f
-        with pkg_resources.resource_stream(package_name, f) as fd:
-            model.update(yaml.safe_load(fd))
-    return model
 
 
 def get_token():
@@ -261,6 +252,8 @@ def set_type(kwargs, col_desc):
         pass
     elif col_desc['type'] == 'integer':
         kwargs["type"] = int
+    elif col_desc['type'] == 'number':
+        kwargs["type"] = float
     elif col_desc['type'] == 'boolean':
         kwargs["type"] = bool
     elif col_desc['type'] == 'enum':
@@ -278,19 +271,19 @@ def proc_model(cli, package_name="unknown",
                portdefault=0):
     # print("loading model")
     model = load_model(package_name, model_dir, api_model)
-    for table_name, table_data in six.iteritems(model):
+    for table_name, table_data in six.iteritems(model['api_objects']):
         get_primary_key(table_data)
-    for table_name, table_data in six.iteritems(model):
+    for table_name, table_data in six.iteritems(model['api_objects']):
         try:
             attrs = {}
             for col_name, col_desc in six.iteritems(table_data['attributes']):
                 try:
                     # Step 1: deal with object xrefs
-                    if col_desc['type'] in model:
+                    if col_desc['type'] in model['api_objects']:
                         # If referencing another object,
                         # get the type of its primary key
                         tgt_name = col_desc['type']
-                        tgt_data = model[tgt_name]
+                        tgt_data = model['api_objects'][tgt_name]
                         primary_col = tgt_data['primary']
                         table_data["attributes"][col_name]['type'] = \
                             tgt_data["attributes"][primary_col]["type"]
@@ -308,12 +301,12 @@ def proc_model(cli, package_name="unknown",
             if '_primary_key' not in attrs:
                 raise Exception("One and only one primary key has to "
                                 "be given to each column")
-            attrs['__tablename__'] = table_data['api']['name']
+            attrs['__tablename__'] = table_data['api']['plural_name']
 
             # chop off training 's'
-            attrs['__objname__'] = table_data['api']['name'][:-1]
+            attrs['__objname__'] = table_data['api']['name']
             #
-            # Create CDUD commands for the table
+            # Create CRUD commands for the table
             #
             hosthelp = "Host of endpoint (%s) " % hostenv
             porthelp = "Port of endpoint (%s) " % portenv

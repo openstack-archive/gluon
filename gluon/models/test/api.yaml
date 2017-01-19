@@ -1,0 +1,67 @@
+file_version: "1.0"
+imports: base/base.yaml
+info:
+  name: test_api
+  version: 1.0
+  description: "Test API Specification"
+  author:
+    name: "Gluon Team"
+    url: https://wiki.openstack.org/wiki/Gluon
+    email: bh526r@att.com
+objects:
+  Port:
+    api:
+      name: port
+      plural_name: ports
+    extends: BasePort
+  Interface:
+    api:
+      name: interface
+      plural_name: interfaces
+      parent: Port
+      parent_key: port_id
+    extends: BaseInterface
+    attributes:
+      port_id:
+        type: Port
+  TestService:
+    api:
+      name: test
+      plural_name: tests
+    extends: BaseService
+    attributes:
+      email:
+        type: string
+        length: 255
+        description: "Test Email"
+        format: email
+      uri:
+        type: string
+        length: 255
+        description: "Test URI"
+        format: uri
+      datetime:
+        type: string
+        length: 255
+        description: "Test date-time"
+        format: date-time
+      json:
+        type: string
+        length: 255
+        description: "Test JSON"
+        format: json
+      float_num:
+        type: number
+        description: "Test Float"
+      int_num:
+        type: integer
+        description: "Test Integer"
+        min: 1
+        max: 10
+      enum:
+        type: enum
+        description: "Test Enum"
+        values:
+          - one
+          - two
+          - three

@@ -92,46 +92,6 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
         self.assertEqual(expected, observed)
 
     """
-    test load_model
-    """
-    def test_load_model(self):
-        observed = cli.load_model("gluon.tests.particleGenerator",
-                                  "",
-                                  "models")
-        expected = {'GluonInternalPort':
-                    {'api':
-                     {'name': 'ports',
-                      'parent': {'type': 'root'}
-                      },
-                     'attributes':
-                     {'device_id':
-                      {'description': 'UUID of bound VM',
-                       'type': 'uuid'
-                       },
-                      'device_owner':
-                      {'description':
-                       'Name of compute or network service (if bound)',
-                       'length': 128,
-                       'type': 'string'
-                       },
-                      'id':
-                      {'description': 'UUID of port',
-                       'primary': True,
-                       'required': True,
-                       'type': 'uuid'
-                       },
-                      'owner':
-                      {'description':
-                       'Pointer to backend service instance (name)',
-                       'required': True,
-                       'type': 'string'
-                       }
-                      }
-                     }
-                    }
-        self.assertEqual(expected, observed)
-
-    """
     test json_get
     """
     # Bad return status
@@ -352,7 +312,7 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
     """
     def test_get_primary_key(self):
         model = self.load_testing_model()
-        table_data = model['GluonInternalPort']
+        table_data = model['api_objects']['Port']
         observed = cli.get_primary_key(table_data)
         expected = 'id'
         self.assertEqual(expected, observed)

@@ -21,7 +21,11 @@ import etcd
 import stevedore
 
 from gluon.api import types
+from gluon.common import exception as exc
+from gluon.particleGenerator.ApiGenerator import get_controller
 from gluon.sync_etcd.thread import SyncData
+
+
 from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils.uuidutils import generate_uuid
@@ -64,7 +68,7 @@ class ApiManager(object):
 
     def setup_bind_key(self, key):
         etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format("controller", self.service,
-                                                    "ProtonBasePort", key)
+                                                    "Port", key)
         #
         # If key does not exists, create it so we can wait on it to change.
         #
@@ -81,7 +85,7 @@ class ApiManager(object):
 
     def wait_for_bind(self, key):
         etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format("controller", self.service,
-                                                    "ProtonBasePort", key)
+                                                    "Port", key)
         retry = 4
         ret_val = dict()
         while retry > 0:
@@ -106,7 +110,7 @@ class ApiManager(object):
                 retry -= 1
         return ret_val
 
-    def create_baseports(self, api_class, values):
+    def create_ports(self, api_class, values):
         ret_obj = api_class.create_in_db(values)
         #
         # Register port in Gluon
@@ -117,9 +121,24 @@ class ApiManager(object):
                "url": self.url,
                "operation": "register"}
         SyncData.sync_queue.put(msg)
+        #
+        # Create default Interface object for Port
+        #
+        controller = get_controller(self.service, 'Interface')
+        if controller:
+            if 'name' in values:
+                name = values.get('name') + '_default'
+            else:
+                name = 'default'
+            data = {'id': values.get('id'),
+                    'port_id': values.get('id'),
+                    'name': name,
+                    'segmentation_type': 'none',
+                    'segmentation_id': 0}
+            controller.api_object_class.create_in_db(data)
         return ret_obj
 
-    def update_baseports(self, api_class, key, new_values):
+    def update_ports(self, api_class, key, new_values):
         has_bind_attrs = (new_values.get("host_id") is not None and
                           new_values.get("device_id") is not None)
         is_bind_request = (has_bind_attrs and
@@ -150,7 +169,7 @@ class ApiManager(object):
             ret_obj = api_class.update_in_db(key, vif_dict)
         return ret_obj
 
-    def delete_baseports(self, api_class, key):
+    def delete_ports(self, api_class, key):
         #
         # Remove port from Gluon
         #
@@ -158,7 +177,17 @@ class ApiManager(object):
                "service": self.service,
                "operation": "deregister"}
         SyncData.sync_queue.put(msg)
-        return api_class.delete_from_db(key)
+        retval = api_class.delete_from_db(key)
+        #
+        # Delete default Interface object for Port
+        #
+        controller = get_controller(self.service, 'Interface')
+        if controller:
+            try:
+                controller.api_object_class.delete_from_db(key)
+            except exc.NotFound:
+                LOG.info("Default Inteface object not found: %s: " % key)
+        return retval
 
     def handle_create(self, root_class, values):
         api_class = root_class.api_object_class
@@ -171,22 +200,22 @@ class ApiManager(object):
             key_value = values.get(primary_key)
             if not key_value or (key_value and key_value == ""):
                 values[primary_key] = generate_uuid()
-        if root_class.__name__ == 'baseports':
-            return self.create_baseports(root_class.api_object_class, values)
+        if root_class.__name__ == 'ports':
+            return self.create_ports(root_class.api_object_class, values)
         else:
             return api_class.create_in_db(values)
 
     def handle_update(self, root_class, key, new_values):
         api_class = root_class.api_object_class
-        if root_class.__name__ == 'baseports':
-            return self.update_baseports(api_class, key, new_values)
+        if root_class.__name__ == 'ports':
+            return self.update_ports(api_class, key, new_values)
         else:
             return api_class.update_in_db(key, new_values)
 
     def handle_delete(self, root_class, key):
         api_class = root_class.api_object_class
-        if root_class.__name__ == 'baseports':
-            return self.delete_baseports(api_class, key)
+        if root_class.__name__ == 'ports':
+            return self.delete_ports(api_class, key)
         else:
             return api_class.delete_from_db(key)
 

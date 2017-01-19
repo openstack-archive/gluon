@@ -1,0 +1,119 @@
+file_version: "1.0"
+objects:
+  BaseObject:
+    attributes:
+      id:
+        type: uuid
+        primary: true
+        description: "UUID of Object"
+      name:
+        type: string
+        length: 64
+        description: "Descriptive name of Object"
+  BasePort:
+    extends: BaseObject
+    attributes:
+      tenant_id:
+        type: uuid
+        required: true
+        description: "UUID of Tenant owning this Port"
+      mac_address:
+        type: string
+        length: 18
+        required: true
+        format: mac
+        description: "MAC address for Port"
+      admin_state_up:
+        type: boolean
+        required: true
+        description: "Admin state of Port"
+      status:
+        type: enum
+        required: true
+        description: "Operational status of Port"
+        values:
+          - 'ACTIVE'
+          - 'DOWN'
+      vnic_type:
+        type: enum
+        required: true
+        description: "Port should be attached to this VNIC type"
+        values:
+           - 'normal'
+           - 'virtual'
+           - 'direct'
+           - 'macvtap'
+           - 'sriov'
+           - 'whole-dev'
+      mtu:
+        type: integer
+        description: "MTU"
+        required: true
+      vlan_transparency:
+        type: boolean
+        description: "Allow VLAN tagged traffic on Port"
+        required: true
+      profile:
+        type: string # JSON Format
+        length: 128
+        description: "JSON string for binding profile dictionary"
+        format: json
+      device_id:
+        type: uuid
+        description: "UUID of bound VM"
+      device_owner:
+        type: string
+        length: 128
+        description: "Name of compute or network service (if bound)"
+      host_id:
+        type: string
+        length: 64
+        description: "binding:host_id: Name of bound host"
+      vif_details:
+        type: string # JSON Format
+        length: 128
+        description: "binding:vif_details: JSON string for VIF details"
+        format: json
+      vif_type:
+        type: string
+        length: 32
+        description: "binding:vif_type: binding type for VIF"
+  BaseInterface:
+    extends: BaseObject
+    attributes:
+      port_id:
+        type: uuid
+        required: true
+        description: "Pointer to Port instance"
+      segmentation_type:
+        type: enum
+        required: true
+        description: "Type of segmentation for this interface"
+        values:
+          - 'none'
+          - 'vlan'
+          - 'tunnel_vxlan'
+          - 'tunnel_gre'
+          - 'mpls'
+      segmentation_id:
+        type: integer
+        required: true
+        description: "Segmentation identifier"
+  BaseService:
+    extends: BaseObject
+    attributes:
+      description:
+        type: string
+        length: 256
+        description: "Description of Service"
+  BaseServiceBinding:
+    attributes:
+      interface_id:
+        type: uuid
+        required: true
+        primary: true
+        description: "Pointer to Interface instance"
+      service_id:
+        type: uuid
+        required: true
+        description: "Pointer to Service instance"

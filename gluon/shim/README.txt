@@ -7,9 +7,10 @@ configure the underlying SDN controller.
 The shim layer server recursively watches for changes to keys in the /proton directory.
 It will receive changes to keys in the following directories:
 
-/proton/net-l3vpn/ProtonBasePort
-/proton/net-l3vpn/VPNPort
-/proton/net-l3vpn/VpnInstance
+/proton/net-l3vpn/Port
+/proton/net-l3vpn/Interface
+/proton/net-l3vpn/VpnBinding
+/proton/net-l3vpn/VpnService
 /proton/net-l3vpn/VpnAfConfig
 
 NOTE: This is a change from the previous implementation where it watched for changes in
@@ -34,7 +35,7 @@ are called.  The idea is that a vendor could copy/paste the dummy_net_l3vpn clas
 add the code to configure their SDN controller based on the callback and model data.
 
 The bind_port() callback shows how to pass back vif_type and vif_details to be updated in
-the ProtonBasePort instance.  This is done by the following protocol:
+the Port instance.  This is done by the following protocol:
 
 The bind_port() callback will return a dict containing the vif_tpe and vif_details.
 
@@ -46,7 +47,7 @@ for the controller name that handled the bind request.
 
 The etcd key will be of the form:
 
-/controller/net-l3vpn/ProtonBasePort/<uuid>
+/controller/net-l3vpn/Port/<uuid>
 
 The data will look like:
 

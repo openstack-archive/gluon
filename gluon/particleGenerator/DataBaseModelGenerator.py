@@ -56,10 +56,10 @@ class DataBaseModelProcessor(object):
             return ret_str.lower().replace("-", "_")
 
         # Make a model class that we've never thought of before
-        for table_name, table_data in six.iteritems(self.data):
+        for table_name, table_data in six.iteritems(self.data['api_objects']):
             self.get_primary_key(table_data)
 
-        for table_name, table_data in six.iteritems(self.data):
+        for table_name, table_data in six.iteritems(self.data['api_objects']):
             try:
                 attrs = {}
                 for col_name, col_desc in six.iteritems(
@@ -70,12 +70,12 @@ class DataBaseModelProcessor(object):
                         args = []
 
                         # Step 1: deal with object xrefs
-                        if col_desc['type'] in self.data:
+                        if col_desc['type'] in self.data['api_objects']:
                             # This is a foreign key reference.  Make the column
                             # like the FK, but drop the primary from it and
                             # use the local one.
                             tgt_name = col_desc['type']
-                            tgt_data = self.data[tgt_name]
+                            tgt_data = self.data['api_objects'][tgt_name]
 
                             primary_col = tgt_data['primary']
                             repl_col_desc = \
@@ -126,6 +126,9 @@ class DataBaseModelProcessor(object):
                                 col_desc['length']), *args, **options)
                         elif col_desc['type'] == 'integer':
                             attrs[col_name] = sa.Column(sa.Integer(), *args,
+                                                        **options)
+                        elif col_desc['type'] == 'number':
+                            attrs[col_name] = sa.Column(sa.Float(), *args,
                                                         **options)
                         elif col_desc['type'] == 'boolean':
                             attrs[col_name] = sa.Column(sa.Boolean(), *args,

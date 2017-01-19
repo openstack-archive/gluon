@@ -26,7 +26,6 @@ class ApiModelBase(object):
         """Init Method.
 
         :param _name: name of the API Servce (e.g. net-l3vpn)
-        :param _backend: instance of ControllerBase
         :returns: None
         """
         self.model = Model()      # Internal Model for the API Service
@@ -106,6 +105,30 @@ class HandlerBase(object):
 
         :param uuid: UUID of Port
         :param model: Model object
+        :returns: None
+        """
+
+        pass
+
+    @abc.abstractmethod
+    def modify_interface(self, uuid, model, changes):
+        """Called when attribute of an interface changes.
+
+        :param uuid: UUID of Interface
+        :param model: Model Object
+        :param changes: dictionary of changed attributes
+        :returns: None
+        """
+
+        pass
+
+    @abc.abstractmethod
+    def delete_interface(self, uuid, model, changes):
+        """Called when an interface is deleted
+
+        :param uuid: UUID of Interface
+        :param model: Model Object
+        :param changes: dictionary of changed attributes
         :returns: None
         """
 

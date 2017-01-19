@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Cisco Systems, Inc.
+# Copyright (c) 2017 Nokia, Inc.
 # All Rights Reserved
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,14 +14,12 @@
 #    under the License.
 
 import sys
-import types
 
 import click
 
-from gluon.particleGenerator.cli import get_api_model
 from gluon.particleGenerator.cli import get_model_list
-from gluon.particleGenerator.cli import proc_model
-
+from gluon.particleGenerator.generator import load_model
+from gluon.particleGenerator.generator import verify_model
 
 sys.tracebacklimit = 0
 
@@ -30,18 +28,34 @@ def dummy():
     pass
 
 
+@click.group()
+def cli():
+    pass
+
+
+@click.command()
+def list():
+    model_list = get_model_list(package_name="gluon", model_dir="models")
+    for api in model_list:
+        click.echo(api)
+
+
+@click.command()
+@click.argument('api')
+def check(api):
+    model_list = get_model_list(package_name="gluon", model_dir="models")
+    if api not in model_list:
+        print("Invalid API name!\n")
+        sys.exit(-1)
+    click.echo('Check API for ' + api)
+    model = load_model('gluon', 'models', api)
+    verify_model(model)
+    print(model)
+
+
+cli.add_command(list)
+cli.add_command(check)
+
+
 def main():
-    cli = types.FunctionType(dummy.func_code, {})
-    cli = click.group()(cli)
-    model_list = get_model_list(package_name="gluon",
-                                model_dir="models")
-    model = get_api_model(sys.argv, model_list)
-    proc_model(cli,
-               package_name="gluon",
-               model_dir="models",
-               api_model=model,
-               hostenv="OS_PROTON_HOST",
-               portenv="OS_PROTON_PORT",
-               hostdefault="127.0.0.1",
-               portdefault=2705)
     cli()
