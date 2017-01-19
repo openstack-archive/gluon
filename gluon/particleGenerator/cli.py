@@ -31,7 +31,7 @@ from gluon.common import exception as exc
 
 
 def print_basic_usage(argv, model_list):
-    print ("Usage: %s --api <api_name> [OPTIONS] COMMAND[ARGS]..." %
+    print("Usage: %s --api <api_name> [OPTIONS] COMMAND[ARGS]..." %
            os.path.basename(argv[0]))
     print("\nOptions:")
     print("--api TEXT      Name of API, one of %s" % model_list)
