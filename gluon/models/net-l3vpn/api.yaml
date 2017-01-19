@@ -1,0 +1,97 @@
+file_version: "1.0"
+imports: base/base.yaml
+info:
+  name: net-l3vpn
+  version: 1.0
+  description: "L3VPN API Specification"
+  author:
+    name: "Gluon Team"
+    url: https://wiki.openstack.org/wiki/Gluon
+    email: bh526r@att.com
+objects:
+  Port:
+    api:
+      name: port
+      plural_name: ports
+    extends: BasePort
+  Interface:
+    api:
+      name: interface
+      plural_name: interfaces
+      parent: Port
+      parent_key: port_id
+    extends: BaseInterface
+    attributes:
+      port_id:
+        type: Port   # Override from base object for specific Service type
+  VpnService:
+    api:
+      name: vpn
+      plural_name: vpns
+    extends: BaseService
+    attributes:
+      ipv4_family:
+        type: string
+        length: 255
+        description: "Comma separated list of route target strings"
+      ipv6_family:
+        type: string
+        length: 255
+        description: "Comma separated list of route target strings"
+      route_distinguishers:
+        type: string
+        length: 32
+        description: "Route distinguisher for this VPN"
+  VpnBinding:
+    extends: BaseServiceBinding
+    api:
+      name: vpnbinding
+      plural_name: vpnbindings
+    attributes:
+      service_id:    # Override from base object for specific Service type
+        type: VpnService
+      interface_id:   # Override from base object for specific Inteface type
+        type: Interface
+      ipaddress:
+        type: string
+        length: 16
+        description: "IP Address of port"
+        format: ipv4
+      subnet_prefix:
+        type: integer
+        description: "Subnet mask"
+        format: int32
+        min: 1
+        max: 31
+      gateway:
+        type: string
+        length: 16
+        description: "Default gateway"
+        format: ipv4
+  VpnAfConfig:
+    api:
+      name: vpnafconfig
+      plural_name: vpnafconfigs
+    attributes:
+      vrf_rt_value:
+        required: true
+        type: string
+        length: 32
+        primary: true
+        description: "Route target string"
+      vrf_rt_type:
+        type: enum
+        required: true
+        description: "Route target type"
+        values:
+          - export_extcommunity
+          - import_extcommunity
+          - both
+      import_route_policy:
+        type: string
+        length: 32
+        description: "Route target import policy"
+      export_route_policy:
+        type: string
+        length: 32
+        description: "Route target export policy"

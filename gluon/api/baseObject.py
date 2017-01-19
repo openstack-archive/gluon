@@ -13,17 +13,15 @@
 #    under the License.
 
 import datetime
-import six
-import wsme
-import wsmeext.pecan as wsme_pecan
 
 from pecan import expose
 from pecan import rest
-
+from webob import exc
+import wsme
 from wsme import types as wtypes
+import wsmeext.pecan as wsme_pecan
 
 from gluon.db import api as dbapi
-from gluon.managers.manager_base import get_api_manager
 
 
 class APIBase(wtypes.Base):
@@ -124,13 +122,31 @@ class APIBaseList(APIBase):
                  for db_obj in db_obj_list])
         return obj
 
+    @classmethod
+    def build_filtered(cls, filter):
+        db = dbapi.get_instance()
+        db_obj_list = db.get_list(cls.api_object_class.db_model,
+                                  filters=filter)
+        obj = cls()
+        setattr(obj, cls.list_name,
+                [cls.api_object_class.build(db_obj)
+                 for db_obj in db_obj_list])
+        return obj
+
 
 class RootObjectController(rest.RestController):
     """Root Objects are Objects of the API which  do not have a parent"""
 
+    @expose()
+    def _route(self, args, request=None):
+        result = super(RootObjectController, self)._route(args, request)
+        request.context['resource'] = result[0].im_self.resource_name
+        return result
+
     @classmethod
     def class_builder(base_cls, name, api_obj_class, primary_key_type,
                       api_name):
+        from gluon.managers.manager_base import get_api_manager
         new_cls = type(name, (base_cls,), {})
         new_cls.resource_name = name
         new_cls.list_object_class = APIBaseList.class_builder(name + 'List',
@@ -178,11 +194,14 @@ class RootObjectController(rest.RestController):
 
         return new_cls
 
+
+class SubObjectController(rest.RestController):
     @expose()
-    def _route(self, args, request):
-        result = super(RootObjectController, self)._route(args, request)
+    def _route(self, args, request=None):
+        result = super(SubObjectController, self)._route(args, request)
         request.context['resource'] = result[0].im_self.resource_name
         return result
+
     # @expose()
     # def _lookup(self, collection, *remainder):
     #   #Set resource_action in the context to denote that
@@ -190,53 +209,87 @@ class RootObjectController(rest.RestController):
     #     request.context['resource_action'] = 'show'
     #     return self
 
-# TODO(hambtw)  Needs to be reworked
-# class SubObjectController(RootObjectController):
-#
-#     @classmethod
-#     def class_builder(base_cls, name, object_class, primary_key_type,
-#                       parent_identifier_type,
-#                       parent_attribute_name):
-#         new_cls = super(SubObjectController, base_cls).class_builder(
-#             name, object_class, primary_key_type)
-#         new_cls._parent_id_type = parent_identifier_type
-#         new_cls._parent_attribute_name = parent_attribute_name
-#
-#         @wsme_pecan.wsexpose(new_cls._list_object_class,
-#                              new_cls.parent_id_type,
-#                              template='json')
-#         def get_all(self, _parent_identifier):
-#             filters = {self._parent_attribute_name: _parent_identifier}
-#             return self._list_object_class.build(
-#                 self._list_object_class.get_object_class().list(
-#                     filters=filters))
-#         new_cls.get_all = classmethod(get_all)
-#
-#         @wsme_pecan.wsexpose(new_cls.api_object_class,
-#                              new_cls._parent_identifier_type,
-#                              new_cls.primary_key_type,
-#                              template='json')
-#         def get_one(self, parent_identifier, key):
-#             filters = {self._parent_attribute_name: parent_identifier}
-#             return self.api_object_class.build(
-#                 self.api_object_class.get_object_class(
-#                 ).get_by_primary_key(key, filters))
-#         new_cls.get_one = classmethod(get_one)
-#
-#         @wsme_pecan.wsexpose(new_cls.api_object_class,
-#                              new_cls._parent_id_type,
-#                              body=new_cls.api_object_class, template='json',
-#                              status_code=201)
-#         def post(self, parent_identifier, body):
-#             call_func = getattr(get_api_manager(),
-#                                 'create_%s' % self.__name__,
-#                                 None)
-#             if not call_func:
-#                 raise Exception('create_%s is not implemented' %
-#                                 self.__name__)
-#             return self.api_object_class.build(call_func(
-#                                                parent_identifier,
-#                                                body.to_db_object()))
-#         new_cls.post = classmethod(post)
-#
-#         return new_cls
+    @classmethod
+    def class_builder(base_cls, name, object_class,
+                      primary_key_type,
+                      parent_identifier_type,
+                      parent_table,
+                      parent_attribute_name,
+                      api_name):
+        from gluon.managers.manager_base import get_api_manager
+        new_cls = type(name, (base_cls,), {})
+        new_cls.resource_name = name
+        new_cls.api_object_class = object_class
+        new_cls.primary_key_type = primary_key_type
+        new_cls.parent_id_type = parent_identifier_type
+        new_cls.parent_table = parent_table
+        new_cls.parent_attribute_name = parent_attribute_name
+        new_cls.api_name = api_name
+        new_cls.api_mgr = get_api_manager(api_name)
+        new_cls.list_object_class = APIBaseList.class_builder(name + 'SubList',
+                                                              name,
+                                                              object_class)
+
+        @wsme_pecan.wsexpose(new_cls.list_object_class,
+                             new_cls.parent_id_type,
+                             template='json')
+        def get_all(self, parent_identifier):
+            filters = {self.parent_attribute_name: parent_identifier}
+            return self.list_object_class.build_filtered(filters)
+
+        new_cls.get_all = classmethod(get_all)
+
+        @wsme_pecan.wsexpose(new_cls.api_object_class,
+                             new_cls.parent_id_type,
+                             new_cls.primary_key_type,
+                             template='json')
+        def get_one(self, parent_identifier, key):
+            return self.api_object_class.get_from_db(key)
+
+        new_cls.get_one = classmethod(get_one)
+
+        @wsme_pecan.wsexpose(new_cls.api_object_class,
+                             new_cls.parent_id_type,
+                             body=new_cls.api_object_class, template='json',
+                             status_code=201)
+        def post(self, parent_identifier, body):
+            body_dict = body.as_dict()
+            parent_attr = body_dict.get(new_cls.parent_attribute_name)
+            if parent_attr is None:
+                body_dict[self.parent_attribute_name] = parent_identifier
+            elif parent_attr != parent_identifier:
+                raise exc.HTTPClientError(
+                    'API parent identifier(%s): %s does not match parent '
+                    'key value: %s' % (self.parent_attribute_name,
+                                       parent_attr,
+                                       parent_identifier))
+            return self.api_mgr.handle_create(self, body_dict)
+
+        new_cls.post = classmethod(post)
+
+        @wsme_pecan.wsexpose(new_cls.api_object_class,
+                             new_cls.parent_id_type,
+                             new_cls.primary_key_type,
+                             body=new_cls.api_object_class, template='json')
+        def put(self, parent_identifier, key, body):
+            body_dict = body.as_dict()
+            parent_attr = body_dict.get(new_cls.parent_attribute_name)
+            if parent_attr is not None and parent_attr != parent_identifier:
+                raise exc.HTTPClientError(
+                    'API parent identifier(%s): %s does not match parent '
+                    'key value: %s' % (self.parent_attribute_name,
+                                       parent_attr,
+                                       parent_identifier))
+            return self.api_mgr.handle_update(self, key, body.as_dict())
+
+        new_cls.put = classmethod(put)
+
+        @wsme_pecan.wsexpose(None,
+                             new_cls.parent_id_type,
+                             new_cls.primary_key_type, template='json')
+        def delete(self, parent_identifier, key):
+            return self.api_mgr.handle_delete(self, key)
+
+        new_cls.delete = classmethod(delete)
+
+        return new_cls

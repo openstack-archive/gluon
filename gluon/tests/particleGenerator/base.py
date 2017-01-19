@@ -11,7 +11,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-from gluon.particleGenerator.cli import load_model
+from gluon.particleGenerator.generator import load_model
 from gluon.tests import base
 
 
@@ -22,7 +22,7 @@ class ParticleGeneratorTestCase(base.TestCase):
         pass
 
     def load_testing_model(self):
-        testing_model = load_model("gluon.tests.particleGenerator",
-                                   "",
-                                   "models")
+        testing_model = load_model("gluon",
+                                   "models",
+                                   "test")
         return testing_model

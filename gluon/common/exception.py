@@ -32,7 +32,6 @@ CONF = cfg.CONF
 
 
 class GluonException(Exception):
-
     """Base Gluon Exception
 
     To correctly use this class, inherit from it and define
@@ -178,3 +177,8 @@ class PolicyCheckError(GluonClientException):
     """An error due to a policy check failure."""
 
     message = _("Failed to check policy %(policy)s because %(reason)s.")
+
+
+class InvalidFileFormat(GluonClientException):
+    """An error due to a invalid API specification file."""
+    message = _("Invalid file format")

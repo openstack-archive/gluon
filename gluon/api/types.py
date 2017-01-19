@@ -16,6 +16,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import dateutil.parser
+import json
+import netaddr
+import re
+from rfc3986 import is_valid_uri
 import six
 from wsme import types as wtypes
 
@@ -91,6 +96,28 @@ class BooleanType(wtypes.UserType):
         return BooleanType.validate(value)
 
 
+class FloatType(wtypes.UserType):
+    """A simple float type. """
+
+    basetype = float
+    name = "float"
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def frombasetype(value):
+        return float(value) if value is not None else None
+
+    def validate(self, value):
+        try:
+            float(value)
+            return value
+        except Exception:
+            error = 'Invalid float value: %s' % value
+            raise ValueError(error)
+
+
 class MultiType(wtypes.UserType):
     """A complex type that represents one or more types.
 
@@ -122,11 +149,104 @@ class Text(wtypes.UserType):
     basetype = six.text_type
     name = 'text'
 
+    #    @staticmethod
+    def validate(value):
+        if isinstance(value, six.string_types):
+            return value
+        raise ValueError(_("Expected String, got '%s'") % value)
+
+
+class DateTime(wtypes.UserType):
+    basetype = six.text_type
+    name = 'date-time'
+
     @staticmethod
     def validate(value):
         if isinstance(value, six.string_types):
-            return
+            try:
+                dateutil.parser.parse(value)
+                return value
+            except Exception:
+                raise ValueError(_("Invalid Date string: '%s'") % value)
+            return value
         raise ValueError(_("Expected String, got '%s'") % value)
+
+
+class JsonString(wtypes.UserType):
+    basetype = six.text_type
+    name = 'json-string'
+
+    @staticmethod
+    def validate(value):
+        if isinstance(value, six.string_types):
+            try:
+                if len(value) > 0:
+                    json.loads(value)
+                return value
+            except Exception:
+                raise ValueError(_("String not in JSON format: '%s'") % value)
+        raise ValueError(_("Expected String, got '%s'") % value)
+
+
+class Ipv4String(wtypes.UserType):
+    basetype = six.text_type
+    name = 'ipv4-string'
+
+    @staticmethod
+    def validate(value):
+        if isinstance(value, six.string_types) and netaddr.valid_ipv4(value):
+            return value
+        raise ValueError(_("Expected IPv4 string, got '%s'") % value)
+
+
+class Ipv6String(wtypes.UserType):
+    basetype = six.text_type
+    name = 'ipv6-string'
+
+    @staticmethod
+    def validate(value):
+        if isinstance(value, six.string_types) and netaddr.valid_ipv6(value):
+            return value
+        raise ValueError(_("Expected IPv6  String, got '%s'") % value)
+
+
+class MacString(wtypes.UserType):
+    basetype = six.text_type
+    name = 'mac-string'
+
+    @staticmethod
+    def validate(value):
+        if isinstance(value, six.string_types) and netaddr.valid_mac(value):
+            return value
+        raise ValueError(_("Expected MAC String, got '%s'") % value)
+
+
+class UriString(wtypes.UserType):
+    basetype = six.text_type
+    name = 'uri-string'
+
+    @staticmethod
+    def validate(value):
+        if isinstance(value, six.string_types):
+            try:
+                if is_valid_uri(value):
+                    return value
+                else:
+                    raise ValueError(_("Not valid URI format: '%s'") % value)
+            except Exception:
+                raise ValueError(_("Not valid URI format: '%s'") % value)
+        raise ValueError(_("Expected String, got '%s'") % value)
+
+
+class EmailString(wtypes.UserType):
+    basetype = six.text_type
+    name = 'email-string'
+    regex = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+
+    def validate(self, value):
+        if isinstance(value, six.string_types) and re.match(self.regex, value):
+            return value
+        raise ValueError(_("Expected Email String, got '%s'") % value)
 
 
 def create_enum_type(*values):
@@ -138,8 +258,17 @@ def create_enum_type(*values):
         unicode_values.append(v)
     return wtypes.Enum(wtypes.text, *unicode_values)
 
-int_type = wtypes.IntegerType()
+
+int_type = wtypes.IntegerType
+float_type = FloatType()
 uuid = UuidType()
 name = NameType()
 uuid_or_name = MultiType(UuidType, NameType)
 boolean = BooleanType()
+datetime_type = DateTime()
+json_type = JsonString()
+ipv4_type = Ipv4String()
+ipv6_type = Ipv6String()
+mac_type = MacString()
+uri_type = UriString()
+email_type = EmailString()

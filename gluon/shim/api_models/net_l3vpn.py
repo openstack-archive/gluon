@@ -31,12 +31,13 @@ class ApiNetL3VPN(ApiModelBase):
         super(self.__class__, self).__init__("net-l3vpn")
         self.resync_mode = False
         self.model.vpn_instances = dict()
-        self.model.vpn_ports = dict()
+        self.model.vpnbindings = dict()
         self.model.vpn_afconfigs = dict()
 
     def load_model(self, shim_data):
         self.resync_mode = True
-        objects = ["ProtonBasePort", "VpnInstance", "VpnAfConfig", "VPNPort"]
+        objects = ["Port", "Interface", "VpnService",
+                   "VpnAfConfig", "VpnBinding"]
         for obj_name in objects:
             etcd_path = "{0:s}/{1:s}/{2:s}".format("proton", self.name,
                                                    obj_name)
@@ -67,7 +68,7 @@ class ApiNetL3VPN(ApiModelBase):
 
     def get_etcd_bound_data(self, shim_data, key):
         etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format("controller", self.name,
-                                                    "ProtonBasePort", key)
+                                                    "Port", key)
         try:
             vif_dict = json.loads(shim_data.client.get(etcd_key).value)
             if not vif_dict:
@@ -80,7 +81,7 @@ class ApiNetL3VPN(ApiModelBase):
 
     def update_etcd_unbound(self, shim_data, key):
         etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format("controller", self.name,
-                                                    "ProtonBasePort", key)
+                                                    "Port", key)
         try:
             data = {}
             shim_data.client.write(etcd_key, json.dumps(data))
@@ -90,7 +91,7 @@ class ApiNetL3VPN(ApiModelBase):
     def update_etcd_bound(self, shim_data, key, vif_dict):
         vif_dict["controller"] = shim_data.name
         etcd_key = "{0:s}/{1:s}/{2:s}/{3:s}".format("controller", self.name,
-                                                    "ProtonBasePort", key)
+                                                    "Port", key)
         try:
             shim_data.client.write(etcd_key, json.dumps(vif_dict))
         except Exception as e:
@@ -152,6 +153,15 @@ class ApiNetL3VPN(ApiModelBase):
                 else:
                     self.model.ports[key]["__state"] = "InUse"
 
+    def handle_interface_change(self, key, attributes, shim_data):
+        if key in self.model.interfaces:
+            changes = self.model.interfaces[key].update_attrs(attributes)
+            self.backend.modify_interface(key, self.model, changes)
+        else:
+            obj = Model.DataObj(key, attributes)
+            self.model.interfaces[key] = obj
+            self.backend.modify_interface(key, self.model, attributes)
+
     def handle_vpn_instance_change(self, key, attributes, shim_data):
         if key in self.model.vpn_instances:
             changes = self.model.vpn_instances[key].update_attrs(attributes)
@@ -161,16 +171,16 @@ class ApiNetL3VPN(ApiModelBase):
             self.model.vpn_instances[key] = obj
             self.backend.modify_service(key, self.model, attributes)
 
-    def handle_vpn_port_change(self, key, attributes, shim_data):
-        if key in self.model.vpn_ports:
+    def handle_vpn_binding_change(self, key, attributes, shim_data):
+        if key in self.model.vpnbindings:
             prev_binding = \
-                {"id": self.model.vpn_ports[key].id,
-                 "vpn_instance": self.model.vpn_ports[key].vpn_instance}
-            self.model.vpn_ports[key].update_attrs(attributes)
+                {"interface_id": self.model.vpnbindings[key].id,
+                 "service_id": self.model.vpnbindings[key].service_id}
+            self.model.vpnbindings[key].update_attrs(attributes)
             self.backend.modify_service_binding(key, self.model, prev_binding)
         else:
             obj = Model.DataObj(key, attributes)
-            self.model.vpn_ports[key] = obj
+            self.model.vpnbindings[key] = obj
             self.backend.modify_service_binding(key, self.model, {})
 
     def handle_vpnafconfig_change(self, key, attributes, shim_data):
@@ -184,9 +194,10 @@ class ApiNetL3VPN(ApiModelBase):
                     changes.new["ipv6_family"] = vpn_instance["ipv6_family"]
                 if len(changes.new) > 0:
                     port = None
-                    for vpn_port in self.model.vpn_ports.itervalues():
-                        if vpn_port["vpn_instance"] == vpn_instance["id"]:
-                            port = self.model.ports.get(vpn_port["id"])
+                    for vpn_binding in self.model.vpnbindings.itervalues():
+                        if vpn_binding["service_id"] == vpn_instance["id"]:
+                            port = self.model.ports.get(
+                                vpn_binding["interface_id"])
                     if port and port.get("__state") == "Bound":
                         self.backend.modify_service(vpn_instance["id"],
                                                     self.model, changes)
@@ -195,12 +206,14 @@ class ApiNetL3VPN(ApiModelBase):
             self.model.vpn_afconfigs[key] = obj
 
     def handle_object_change(self, object_type, key, attributes, shim_data):
-        if object_type == "ProtonBasePort":
+        if object_type == "Port":
             self.handle_port_change(key, attributes, shim_data)
-        elif object_type == "VpnInstance":
+        elif object_type == "Interface":
+            self.handle_interface_change(key, attributes, shim_data)
+        elif object_type == "VpnService":
             self.handle_vpn_instance_change(key, attributes, shim_data)
-        elif object_type == "VPNPort":
-            self.handle_vpn_port_change(key, attributes, shim_data)
+        elif object_type == "VpnBinding":
+            self.handle_vpn_binding_change(key, attributes, shim_data)
         elif object_type == "VpnAfConfig":
             self.handle_vpnafconfig_change(key, attributes, shim_data)
         else:
@@ -212,16 +225,22 @@ class ApiNetL3VPN(ApiModelBase):
             del self.model.ports[key]
             self.backend.delete_port(key, self.model, deleted_obj)
 
+    def handle_interface_delete(self, key, shim_data):
+        if key in self.model.interfaces:
+            deleted_obj = self.model.interfaces[key]
+            del self.model.interfaces[key]
+            self.backend.delete_interface(key, self.model, deleted_obj)
+
     def handle_vpn_instance_delete(self, key, shim_data):
         if key in self.model.vpn_instances:
             deleted_obj = self.model.vpn_instances[key]
             del self.model.vpn_instances[key]
             self.backend.delete_service(key, self.model, deleted_obj)
 
-    def handle_vpn_port_delete(self, key, shim_data):
-        if key in self.model.vpn_ports:
-            deleted_obj = self.model.vpn_ports[key]
-            del self.model.vpn_ports[key]
+    def handle_vpn_binding_delete(self, key, shim_data):
+        if key in self.model.vpnbindings:
+            deleted_obj = self.model.vpnbindings[key]
+            del self.model.vpnbindings[key]
             self.backend.delete_service_binding(self.model, deleted_obj)
 
     def handle_vpnafconfig_delete(self, key, shim_data):
@@ -239,20 +258,23 @@ class ApiNetL3VPN(ApiModelBase):
                     changes.new["ipv6_family"] = ','.join(l)
                 if len(changes.new) > 0:
                     port = None
-                    for vpn_port in self.model.vpn_ports.itervalues():
-                        if vpn_port["vpn_instance"] == vpn_instance["id"]:
-                            port = self.model.ports.get(vpn_port["id"])
+                    for vpn_binding in self.model.vpnbindings.itervalues():
+                        if vpn_binding["service_id"] == vpn_instance["id"]:
+                            port = self.model.ports.get(
+                                vpn_binding["interface_id"])
                     if port and port.get("__state") == "Bound":
                         self.backend.modify_service(vpn_instance["id"],
                                                     self.model, changes)
 
     def handle_object_delete(self, object_type, key, shim_data):
-        if object_type == "ProtonBasePort":
+        if object_type == "Port":
             self.handle_port_delete(key, shim_data)
-        elif object_type == "VpnInstance":
+        elif object_type == "Interface":
+            self.handle_interface_delete(key, shim_data)
+        elif object_type == "VpnService":
             self.handle_vpn_instance_delete(key, shim_data)
-        elif object_type == "VPNPort":
-            self.handle_vpn_port_delete(key, shim_data)
+        elif object_type == "VpnBinding":
+            self.handle_vpn_binding_delete(key, shim_data)
         elif object_type == "VpnAfConfig":
             self.handle_vpnafconfig_delete(key, shim_data)
         else:

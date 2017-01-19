@@ -64,7 +64,7 @@ register the port in Gluon.  The Shim Layer which is discussed below will pick
 up the information from etcd.  This port (base-port information) is stored in
 the Proton database itself.  By storing the base-port information inside the
 Proton the user is free to “describe” a port however they want.  The
-base-ports can be viewed using the :command:`baseport-list` command.  As
+base-ports can be viewed using the :command:`port-list` command.  As
 previously mentioned, when a bind action happens Gluon uses the net_l3vpn
 driver to bind a baseport to a VM. Currently the base-port model was built
 modeling what Neutron requires to ensure compatibility.  For different
@@ -75,7 +75,7 @@ When a VPN is created through a Proton, the Proton creates the VPN object and
 stores this in its database.  This can viewed using the :command:`vpn-list`
 command. Furthermore, the API of the L3VPN allows for creating service
 bindings between a baseport and a VPN service. These service binding can be
-viewed using the :command:`vpnport-list` command.
+viewed using the :command:`vpnservice-list` command.
 
 All objects (VPNs, Base-ports, and Bindings) are stored into the Proton
 database.  This information is then copied into etcd. The shim layers (see

@@ -13,11 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
+from oslo_log import log as logging
 
 from gluon.backends import backend_base
+from gluon.common import exception as exc
 
-from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 logger = LOG
@@ -29,7 +29,8 @@ class MyData(object):
 DriverData = MyData()
 DriverData.service = u'net-l3vpn'
 DriverData.proton_base = 'proton'
-DriverData.ports_name = 'baseports'
+DriverData.ports_name = 'ports'
+DriverData.binding_name = 'vpnbindings'
 
 
 class Provider(backend_base.ProviderBase):
@@ -50,41 +51,38 @@ class Driver(backend_base.Driver):
                                              DriverData.proton_base,
                                              DriverData.service,
                                              DriverData.ports_name)
+        self._binding_url = \
+            "{0:s}/{1:s}/{2:s}/{3:s}".format(backend["url"],
+                                             DriverData.proton_base,
+                                             DriverData.service,
+                                             DriverData.binding_name)
 
-    def _convert_port_data(self, port_data):
-        LOG.debug("proton port_data = %s" % port_data)
-        ret_port_data = {}
-        ret_port_data["created_at"] = port_data["created_at"]
-        ret_port_data["updated_at"] = port_data["updated_at"]
-        ret_port_data["id"] = port_data["id"]
-        ret_port_data["devname"] = 'tap%s' % port_data['id'][:11]
-        ret_port_data["name"] = port_data.get("name")
-        ret_port_data["status"] = port_data["status"]
-        ret_port_data["admin_state_up"] = port_data["admin_state_up"]
-        ret_port_data["network_id"] = self._dummy_net
-        ret_port_data["tenant_id"] = port_data.get("tenant_id", '')
-        ret_port_data["device_owner"] = port_data.get("device_owner", '')
-        ret_port_data["device_id"] = port_data.get("device_id", '')
-        ret_port_data["mac_address"] = port_data["mac_address"]
-        ret_port_data["extra_dhcp_opts"] = []
-        ret_port_data["allowed_address_pairs"] = []
-        ret_port_data["fixed_ips"] = \
-            [{"ip_address": port_data.get("ipaddress", "0.0.0.0"),
-              "subnet_id": self._dummy_subnet}]
-        ret_port_data["security_groups"] = []
-        ret_port_data["binding:host_id"] = port_data.get("host_id", '')
-        vif_details = port_data.get("vif_details")
-        if vif_details is None:
-            vif_details = '{}'
-        ret_port_data["binding:vif_details"] = json.loads(vif_details)
-        ret_port_data["binding:vif_type"] = port_data.get("vif_type", '')
-        ret_port_data["binding:vnic_type"] = \
-            port_data.get("vnic_type", 'normal')
-        profile = port_data.get("profile", '{}')
-        if profile is None or profile == '':
-            profile = '{}'
-        ret_port_data["binding:profile"] = json.loads(profile)
-        for k in ret_port_data:
-            if ret_port_data[k] is None:
-                ret_port_data[k] = ''
-        return ret_port_data
+    def port(self, port_id):
+        url = self._port_url + "/" + port_id
+        port_data = self._client.json_get(url)
+        #
+        # The untagged interface has the same UUID as the port
+        # First we get the service binding to retrive the ipaddress
+        #
+        url = self._binding_url + "/" + port_id
+        try:
+            svc_bind_data = self._client.json_get(url)
+        except exc.GluonClientException:
+            svc_bind_data = None
+        if svc_bind_data:
+            port_data['ipaddress'] = svc_bind_data.get("ipaddress")
+        return self._convert_port_data(port_data)
+
+    def ports(self):
+        port_list = self._client.json_get(self._port_url)
+        ret_port_list = []
+        for port in port_list:
+            url = self._binding_url + "/" + port.id
+            try:
+                svc_bind_data = self._client.json_get(url)
+            except exc.GluonClientException:
+                svc_bind_data = None
+            if svc_bind_data:
+                port['ipaddress'] = svc_bind_data.get("ipaddress")
+            ret_port_list.append(self._convert_port_data(port))
+        return ret_port_list

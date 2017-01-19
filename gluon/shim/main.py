@@ -149,7 +149,7 @@ def main():
                    help='Comma separated list of hostnames managed by '
                         'this server'),
         cfg.DictOpt('handlers',
-                    default={'net-l3vpn': 'net-l3vpn-odl'},
+                    default={'net-l3vpn': 'net-l3vpn-dummy'},
                     help='Dict for selecting the handlers '
                          'and their corresponding backend.')
     ]

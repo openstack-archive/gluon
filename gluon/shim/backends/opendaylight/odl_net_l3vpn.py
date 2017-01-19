@@ -50,12 +50,12 @@ class OdlNetL3VPN(HandlerBase):
 
         # check if a valid service binding exists already in the model
         # if so, create or update it on the SDN controller
-        service_binding = model.vpn_ports.get(uuid, None)
+        service_binding = model.vpnbindings.get(uuid, None)
         if not service_binding:
             LOG.info("Port not bound to a service yet.")
         else:
             vpn_instance = model.vpn_instances.get(
-                service_binding["vpn_instance"],
+                service_binding["service_id"],
                 None)
             if not vpn_instance:
                 LOG.warn("VPN instance not defined yet.")
@@ -116,6 +116,27 @@ class OdlNetL3VPN(HandlerBase):
         """
         LOG.info("Deleting IETF Interface")
         self.odlclient.delete_ietf_interface(uuid)
+
+    def modify_interface(self, uuid, model, changes):
+        """Called when attributes on an interface
+
+        :param uuid: UUID of Interface
+        :param model: Model Object
+        :param changes: dictionary of changed attributes
+        :returns: None
+        """
+        LOG.info("modify_interface: %s" % uuid)
+        LOG.info(changes)
+
+    def delete_interface(self, uuid, model, changes):
+        """Called when an interface is deleted
+
+        :param uuid: UUID of Interface
+        :param model: Model Object
+        :param changes: dictionary of changed attributes
+        :returns: None
+        """
+        LOG.info("delete_interface: %s" % uuid)
 
     def modify_service(self, uuid, model, changes):
         """Called when attributes change on a bound port's service
@@ -178,7 +199,7 @@ class OdlNetL3VPN(HandlerBase):
         LOG.info("modify_service_binding: %s" % uuid)
         LOG.info(prev_binding)
 
-        vpn_instance = model.vpn_ports[uuid].vpn_instance
+        vpn_instance = model.vpnbindings[uuid].vpn_instance
         port = model.ports.get(uuid)
         ip_address = port.ipaddress
         prefix = int(port.subnet_prefix)
@@ -227,8 +248,8 @@ class OdlNetL3VPN(HandlerBase):
         subnet = utils.compute_network_addr(port.ipaddress, port.subnet_prefix)
 
         found_another_port = False
-        for k in model.vpn_ports:
-            vpnport = model.vpn_ports[k]
+        for k in model.vpnbindings:
+            vpnport = model.vpnbindings[k]
             p = model.ports.get(vpnport.id)
             sn = utils.compute_network_addr(p.ipaddress, p.subnet_prefix)
             if subnet == sn:

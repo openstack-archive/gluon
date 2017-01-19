@@ -18,6 +18,7 @@ six>=1.9.0 # MIT
 WSME>=0.8 # MIT
 pecan>=1.0.0 # BSD
 requests!=2.9.0,>=2.8.1 # Apache-2.0
+rfc3986>=0.3.1 # Apache-2.0
 PyYAML>=3.1.0 # MIT
 pytz>=2013.6 # MIT
 click>=6.6

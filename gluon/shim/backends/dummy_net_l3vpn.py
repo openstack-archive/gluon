@@ -17,7 +17,6 @@ from oslo_log import log as logging
 
 from gluon.shim.base import HandlerBase
 
-
 LOG = logging.getLogger(__name__)
 
 
@@ -37,11 +36,11 @@ class DummyNetL3VPN(HandlerBase):
         if not port:
             LOG.error("Cannot find port")
             return dict()
-        service_binding = model.vpn_ports.get(uuid, None)
+        service_binding = model.vpnbindings.get(uuid, None)
         if not service_binding:
             LOG.error("Cannot bind port, not bound to a servcie")
             return dict()
-        vpn_instance = model.vpn_instances.get(service_binding["vpn_instance"],
+        vpn_instance = model.vpn_instances.get(service_binding["service_id"],
                                                None)
         if not vpn_instance:
             LOG.error("VPN instance not available!")
@@ -105,6 +104,28 @@ class DummyNetL3VPN(HandlerBase):
 
         :param uuid: UUID of Port
         :param model: Model object
+        :returns: None
+        """
+        pass
+
+    def modify_interface(self, uuid, model, changes):
+        """Called when attributes on an interface
+
+        :param uuid: UUID of Interface
+        :param model: Model Object
+        :param changes: dictionary of changed attributes
+        :returns: None
+        """
+        LOG.info("modify_interface: %s" % uuid)
+        LOG.info(changes)
+        pass
+
+    def delete_interface(self, uuid, model, changes):
+        """Called when an interface is deleted
+
+        :param uuid: UUID of Interface
+        :param model: Model Object
+        :param changes: dictionary of changed attributes
         :returns: None
         """
         pass

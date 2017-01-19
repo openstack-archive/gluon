@@ -97,3 +97,4 @@ class Model(object):
 
     def __init__(self):
         self.ports = dict()      # Port objects
+        self.interfaces = dict()
