@@ -84,8 +84,40 @@ def load_model(package_name, model_dir, model_name):
     return model
 
 
+def get_token():
+    auth_url = os.environ.get('OS_AUTH_URL')
+    tenant = os.environ.get('OS_TENANT_NAME')
+    user = os.environ.get('OS_USERNAME')
+    password = os.environ.get('OS_PASSWORD')
+
+    if not auth_url or not tenant or not user or not password:
+        return None
+
+    auth_info = {'auth': {
+        'tenantName': tenant,
+        'passwordCredentials':
+            {'username': user, 'password': password}
+    }}
+
+    headers = {'Accept': 'application/json',
+               'Content-Type': 'application/json'}
+
+    resp = post(auth_url + '/v2.0/tokens', json=auth_info, headers=headers)
+
+    if resp.status_code != 200 and resp.status_code != 201:
+        raise exc.GluonClientException('Bad return status %d'
+                                       % resp.status_code,
+                                       status_code=resp.status_code)
+
+    json_resp = resp.json()
+
+    return json_resp.get('access').get('token').get('id')
+
+
 def json_get(url):
-    resp = get(url)
+    headers = {'X-Auth-Token': get_token()}
+    resp = get(url, headers=headers)
+
     if resp.status_code != 200:
         raise exc.GluonClientException('Bad return status %d'
                                        % resp.status_code,
@@ -99,7 +131,9 @@ def json_get(url):
 
 
 def do_delete(url):
-    resp = delete(url)
+    headers = {'X-Auth-Token': get_token()}
+    resp = delete(url, headers=headers)
+
     if resp.status_code != 200 and resp.status_code != 204:
         raise exc.GluonClientException('Bad return status %d'
                                        % resp.status_code,
@@ -107,7 +141,9 @@ def do_delete(url):
 
 
 def do_post(url, values):
-    resp = post(url, json=values)
+    headers = {'X-Auth-Token': get_token()}
+    resp = post(url, json=values, headers=headers)
+
     if resp.status_code != 200 and resp.status_code != 201:
         raise exc.GluonClientException('Bad return status %d'
                                        % resp.status_code,
@@ -121,7 +157,9 @@ def do_post(url, values):
 
 
 def do_put(url, values):
-    resp = put(url, json=values)
+    headers = {'X-Auth-Token': get_token()}
+    resp = put(url, json=values, headers=headers)
+
     if resp.status_code != 200:
         raise exc.GluonClientException('Bad return status %d'
                                        % resp.status_code,
