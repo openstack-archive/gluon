@@ -29,7 +29,10 @@ API_SERVICE_OPTS = [
                help='etcd host'),
     cfg.IntOpt('etcd_port',
                default=2379,
-               help='etcd port')
+               help='etcd port'),
+    cfg.StrOpt('auth_strategy',
+               default='noauth',
+               help='the type of authentication to use')
 ]
 
 CONF = cfg.CONF
