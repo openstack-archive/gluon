@@ -30,8 +30,8 @@ from gluon.particleGenerator.generator import load_model
 
 
 def print_basic_usage(argv, model_list):
-    print ("Usage: %s --api <api_name> [OPTIONS] COMMAND[ARGS]..." %
-           os.path.basename(argv[0]))
+    print("Usage: %s --api <api_name> [OPTIONS] COMMAND[ARGS]..." %
+          os.path.basename(argv[0]))
     print("\nOptions:")
     print("--api TEXT      Name of API, one of %s" % model_list)
     print("--port INTEGER  Port of endpoint (OS_PROTON_PORT)")
