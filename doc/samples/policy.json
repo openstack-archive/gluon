@@ -1,0 +1,35 @@
+{
+	"owner": "tenant_id:%(tenant_id)s",
+ 	"admin_or_owner": "rule:context_is_admin or rule:owner",
+	"context_is_advsvc":  "role:advsvc",
+ 	"admin_or_network_owner": "rule:context_is_admin or tenant_id:%(network:tenant_id)s",
+	"admin_owner_or_network_owner": "rule:owner or rule:admin_or_network_owner",
+	"admin_only": "rule:context_is_admin",
+	"regular_user": "",
+	"default": "rule:admin_or_owner",
+
+	"create_ports": "rule:admin_or_network_owner",
+	"get_ports": "rule:admin_or_owner",
+	"update_ports": "rule:admin_or_network_owner",
+	"delete_ports": "rule:admin_or_network_owner",
+
+	"create_interfaces": "rule:admin_or_network_owner",
+	"get_interfaces": "rule:admin_or_owner",
+	"update_interfaces": "rule:admin_or_network_owner",
+	"delete_interfaces": "rule:admin_or_network_owner",
+
+	"create_vpns": "rule:admin_or_network_owner",
+ 	"get_vpns": "rule:admin_or_owner",
+ 	"update_vpns": "rule:admin_or_network_owner",
+	"delete_vpns": "rule:admin_or_network_owner",
+
+	"create_vpnbindings": "rule:admin_or_network_owner",
+ 	"get_vpnbindings": "rule:admin_or_owner",
+ 	"update_vpnbindings": "rule:admin_or_network_owner",
+	"delete_vpnbindings": "rule:admin_or_network_owner",
+
+	"create_vpnafconfigs": "rule:admin_or_network_owner",
+ 	"get_vpnafconfigs": "rule:admin_or_owner",
+ 	"update_vpnafconfigs": "rule:admin_or_network_owner",
+	"delete_vpnafconfigs": "rule:admin_or_network_owner",
+}
