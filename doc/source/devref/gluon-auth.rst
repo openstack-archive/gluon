@@ -133,26 +133,30 @@ to /etc/gluon/policy.json file. This file will have the following format.
         "regular_user": "",
         "default": "rule:admin_or_owner",
 
-        "create_baseport": "rule:admin_or_network_owner",
-        "get_baseport": "rule:admin_or_owner",
-        "update_baseport": "rule:admin_or_network_owner",
-        "delete_baseport": "rule:admin_or_network_owner",
+        "create_ports": "rule:admin_or_network_owner",
+        "get_ports": "rule:admin_or_owner",
+        "update_ports": "rule:admin_or_network_owner",
+        "delete_ports": "rule:admin_or_network_owner",
 
-        "create_service": "rule:admin_or_network_owner",
-        "get_service": "rule:admin_or_owner",
-        "update_service": "rule:admin_or_network_owner",
-        "delete_service": "rule:admin_or_network_owner",
+        "create_interfaces": "rule:admin_or_network_owner",
+        "get_interfaces": "rule:admin_or_owner",
+        "update_interfaces": "rule:admin_or_network_owner",
+        "delete_interfaces": "rule:admin_or_network_owner",
 
-        "create_function": "rule:admin_or_network_owner",
-        "get_function": "rule:admin_or_owner",
-        "update_function": "rule:admin_or_network_owner",
-        "delete_function": "rule:admin_or_network_owner",
+        "create_vpns": "rule:admin_or_network_owner",
+        "get_vpns": "rule:admin_or_owner",
+        "update_vpns": "rule:admin_or_network_owner",
+        "delete_vpns": "rule:admin_or_network_owner",
 
-        "create_service_binding": "rule:admin_or_network_owner",
-        "delete_service_binding": "rule:admin_or_network_owner",
+        "create_vpnbindings": "rule:admin_or_network_owner",
+        "get_vpnbindings": "rule:admin_or_owner",
+        "update_vpnbindings": "rule:admin_or_network_owner",
+        "delete_vpnbindings": "rule:admin_or_network_owner",
 
-        "create_function_binding": "rule:admin_or_network_owner",
-        "delete_function_binding": "rule:admin_or_network_owner",
+        "create_vpnafconfigs": "rule:admin_or_network_owner",
+        "get_vpnafconfigs": "rule:admin_or_owner",
+        "update_vpnafconfigs": "rule:admin_or_network_owner",
+        "delete_vpnafconfigs": "rule:admin_or_network_owner",
     }
 
 
@@ -175,6 +179,27 @@ and oslo.policy(http://docs.openstack.org/developer/oslo.policy/) modules will b
 with Gluon to add keystone authentication and enforce RBAC policies defined in the JSON.policy file.
 
 The pecan-wsgi service in the Neutron will be used as a reference code for Gluon implementation
+
+Configuration 
+~~~~~~~~~~~~~
+The /etc/proton/proton.conf file can be used to configure the authentication details. A sample
+configuration is shown below. 
+
+	[api]
+	auth_strategy = keystone
+
+	[keystone_authentication]
+	auth_uri = http://127.0.0.1/identity
+	project_domain_name = Default
+	project_name = service
+	user_domain_name = Default
+	password = welcome
+	username = gluon
+	auth_url = http://127.0.0.1/identity_admin
+	auth_type = password
+
+	[oslo_policy]
+	policy_file = /etc/proton/policy.json
 
 Appendix
 --------
