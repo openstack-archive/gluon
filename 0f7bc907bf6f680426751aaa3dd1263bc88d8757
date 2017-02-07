@@ -1,0 +1,8 @@
+Code-Review+2: Bin Hu <bh526r@att.com>
+Workflow+1: Bin Hu <bh526r@att.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 07 Feb 2017 22:10:52 +0000
+Reviewed-on: https://review.openstack.org/422338
+Project: openstack/gluon
+Branch: refs/heads/master
