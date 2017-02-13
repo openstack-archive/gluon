@@ -16,6 +16,7 @@ from gluon.shim import utils
 import json
 from oslo_config import cfg
 import requests
+import uuid as UUID
 try:
     from neutron.openstack.common import jsonutils
 except ImportError:
@@ -134,6 +135,51 @@ class RestConfClient(ODL_Client):
         output = self.sendjson('get', urlpath)
         return output
 
+    def get_l3vpn_ports(self):
+        return self.get('neutron:neutron/ports')
+
+    def get_l3vpn_port(self, uuid):
+        return self.get('neutron:neutron/ports/port/' + uuid)
+
+    def update_l3vpn_port(self, network_id, subnet_id, port, vpn_binding):
+        l3vpn_port = \
+            {
+                "uuid": port.id,
+                "device-owner": "compute:None",
+                "name": "",
+                "fixed-ips": [
+                    {
+                        "subnet-id": subnet_id,
+                        "ip-address": vpn_binding.ipaddress
+                    }
+                ],
+                "network-id": network_id,
+                "admin-state-up": "true",
+                "neutron-binding:vnic-type": "normal",
+                "neutron-binding:host-id": port.host_id,
+                "neutron-binding:vif-details": [
+                    {
+                        "details-key": "port_filter",
+                        "value": "true"
+                    }
+                ],
+                "neutron-binding:vif-type": "ovs",
+                "tenant-id": UUID.UUID(port.tenant_id),
+                "mac-address": port.mac_address,
+                "neutron-portsecurity:port-security-enabled": "false"
+            }
+        # "device-id": "c6ba1b66-6149-4b7a-ad20-05072058ea3b",
+        # "security-groups": [
+        #    "e08d477a-1b78-47cd-b502-591e3f3a6213"
+        # ],
+        self._update(l3vpn_port,
+                     'neutron:neutron/ports',
+                     'uuid',
+                     'port')
+
+    def delete_l3vpn_port(self, uuid):
+        self.delete('neutron:neutron/ports/port', id=uuid)
+
     def get_l3vpn_networks(self):
         return self.get('neutron:neutron/networks')
 
@@ -182,7 +228,8 @@ class RestConfClient(ODL_Client):
                 'cidr': network + "/" + str(prefix),
                 'enable-dhcp': 'true',
                 'tenant-id': tenant_id,
-                'allocation-pools': allocation_pool
+                'allocation-pools': allocation_pool,
+                'dns-nameservers': ['8.8.8.8']
             }
         self._update(subnet,
                      'neutron:neutron/subnets/',
@@ -229,9 +276,9 @@ class RestConfClient(ODL_Client):
     def get_vpn_interfaces(self):
         return self.get('l3vpn:vpn-interfaces')
 
-    def update_vpn_interface(self, name, vpn_instance_name, adjacency):
+    def update_vpn_interface(self, name, vpn_instance, adjacency):
         vpn_interface = {'name': name,
-                         'vpn-instance-name': vpn_instance_name,
+                         'vpn-instance-name': vpn_instance.id,
                          "odl-l3vpn:adjacency": adjacency}
         self._update(vpn_interface,
                      'l3vpn:vpn-interfaces',

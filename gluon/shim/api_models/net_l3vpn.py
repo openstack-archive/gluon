@@ -45,10 +45,13 @@ class ApiNetL3VPN(ApiModelBase):
                 statuses = shim_data.client.read(etcd_path)
                 if statuses:
                     for status in statuses.children:
-                        attributes = json.loads(status.value)
-                        self.handle_object_change(obj_name,
-                                                  os.path.basename(status.key),
-                                                  attributes, shim_data)
+                        if status.value is not None:
+                            attributes = json.loads(status.value)
+                            self.handle_object_change(
+                                obj_name,
+                                os.path.basename(status.key),
+                                attributes,
+                                shim_data)
             except Exception as e:
                 LOG.error("reading %s keys failed: %s" % (obj_name, str(e)))
                 pass

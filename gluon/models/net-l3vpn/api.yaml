@@ -50,7 +50,7 @@ objects:
     attributes:
       service_id:    # Override from base object for specific Service type
         type: VpnService
-      interface_id:   # Override from base object for specific Inteface type
+      interface_id:   # Override from base object for specific Interface type
         type: Interface
       ipaddress:
         type: string
