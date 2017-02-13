@@ -1,100 +1,143 @@
+..
+      Licensed under the Apache License, Version 2.0 (the "License"); you may
+      not use this file except in compliance with the License. You may obtain
+      a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+      WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+      License for the specific language governing permissions and limitations
+      under the License.
+
+      Convention for heading levels in Gluon devref:
+      =======  Heading 0 (reserved for the title in a document)
+      -------  Heading 1
+      ~~~~~~~  Heading 2
+      +++++++  Heading 3
+      '''''''  Heading 4
+      (Avoid deeper levels because they do not render well.)
+
 =================
 High Level Design
 =================
 
-
 Summary
 -------
 
-Gluon brings a Networking Service Framework that enables Telecom Service
-Providers to provide their customers with networking services on-demand. Gluon
-uses a model-driven approach to generate Networking Service APIs (including
-objects, database schema, and RESTful API endpoints) from a YAML file which
-models the Networking Service. When a Telecom Service Provider needs to launch
-a new Networking Service, it only needs to model the new service in a YAML
-file. The Gluon framework generates the APIs accordingly. Thus Gluon helps
-Telecom Service Providers accelerate the time-to-market and achieve business
-agility through its extensibility and scalability in generating APIs for new
-use-cases and services.
-
-
-Nova
-----
-
-Gluon currently integrates in Nova by means of a Nova network service plugin
-mechanism. This replaces the traditional Neutron or Nova-Networking plugins.
-The Gluon plugin uses (imports) the Gluon Client (gluonlib Module). The Gluon
-Client enables Nova to perform bind and unbind operations between ports and
-VMs.  To this end, the Gluon Client uses the Gluon REST API model for
-communications between Nova and Gluon.
-
-In the Mitaka release this “plugin mechanism” has been removed allowing Nova
-only to communicate to Neutron. This issue will have to be addressed with the
-Nova team.
-
+**Gluon** brings a Networking Service Framework that enables Telecom Service
+Providers to provide their customers with networking services on-demand.
+**Gluon** uses a model-driven approach to generate Networking Service APIs
+(including objects, database schema, and RESTful API endpoints) from a YAML
+file which models the Networking Service. When a Telecom Service Provider needs
+to launch a new Networking Service, it only needs to model the new service in a
+YAML file. The **Gluon** framework generates the APIs accordingly. Thus
+**Gluon** helps Telecom Service Providers accelerate the time-to-market and
+achieve business agility through its extensibility and scalability in
+generating APIs for new use-cases and services.
 
 Gluon
 -----
 
-Gluon is the port arbiter that maintains a list of ports and bindings of
-different networking backends. Inside Gluon there is a backend driver used to
-speak to Protons.  Currently this driver for L3VPN is called net_l3vpn. This
-driver in turn updates the “base-port” object which is stored in the Proton
-object database upon the bind and unbind operations.  There is room for
-improvement with the net_l3vpn driver.  A more generic driver should be
-created.  This type of port modeling is currently being driven through the
-NetReady project in OPNFV.
+**Gluon** is the port arbiter that maintains a list of ports and bindings of
+different networking backends. Gluon uses backend drivers to interact with
+**Proton Server** for port binding and other operations. The backend drivers
+are specified in ``setup.cfg``, and loaded at runtime.
 
+For example, the driver for **L3VPN** is named ``net-l3vpn``, and implemented
+in ``gluon.backends.models.net_l3vpn:Provider``. This driver in turn updates
+the ``BasePort`` object which is stored in the **Proton** object database upon
+the ``bind``, ``unbind`` and other operations.
+
+When **Proton Server** receives port binding and other operations requests from
+**Gluon**, it broadcasts those requests to ``etcd``. The **Shim Layers** of
+respective SDN Controllers listen to ``etcd``, and get the notification from
+``etcd``. Based on the type of operations, parameter data, and its own
+deployment and policy configuration, SDN Controllers act upon accordingly. This
+mechanism is similar to Neutron's Hierarchical Port Binding (HPB), and provides
+the flexibility and scalability when a port operation needs to be supported by
+multiple SDN Controllers in collaborative and interoperable way.
+
+Integration with Neutron
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Gluon** currently integrates with Neutron by means of extending Neutron's
+core plugin as a subclass, namely **Extended ML2 Plugin for Gluon** (a.k.a.
+Gluon Wrapper Plugin). This replaces the original Neutron's core plugin in
+``neutron.conf``. The **Gluon Plugin** differentiates **Proton** ports from
+Neutron ports based on Proton's record in ``etcd``, and sends the port binding
+and other operations requests to either **Proton Server** or its superclass
+(i.e. the original Neutron's core plugin).
 
 Proton
 ------
 
-A Proton is a model driven specification for Networking APIs.  A Proton is
-created using a YAML descriptor file fed into the particle generator. As a
-result from the particle generator, the Proton containing the objects,
-database schema, and REST APIs are created.  A Proton uses the Gluon REST API
-to register itself to Gluon.  As a result, the Proton specific drivers would
-be loaded into Gluon.  In the L3VPN case this is the net_l3vpn driver.
-Currently the net_l3vpn driver is created manually.  Automation of this could
+A **Proton** is a set of  APIs of a particular NFV Networking Service.  A
+**Proton** is created by **Particle Generator** based on a YAML file modeled
+for this particular NFV Networking Service. When a **Proton** is created, the
+objects, database schema, and RESTful APIs of this **Proton** are created. Then
+the **Proton** specific driver would be loaded into **Gluon**.  In case of
+L3VPN ``net-l3vpn``, the driver is ``gluon.backends.models.net_l3vpn:Provider``.
+
+Currently the ``net-l3vpn`` driver is created manually. Automation of this could
 be future work.
 
-A port is created using the northbound REST API of the Proton.  The Proton will
-store the port in its database, update etcd and use the Gluon REST API to
-register the port in Gluon.  The Shim Layer which is discussed below will pick
-up the information from etcd.  This port (base-port information) is stored in
-the Proton database itself.  By storing the base-port information inside the
-Proton the user is free to “describe” a port however they want.  The
-base-ports can be viewed using the :command:`port-list` command.  As
-previously mentioned, when a bind action happens Gluon uses the net_l3vpn
-driver to bind a baseport to a VM. Currently the base-port model was built
-modeling what Neutron requires to ensure compatibility.  For different
-use-cases it would be possible to reduce a portion of the base-port model for
-layer 3 use-cases.
+A port, namely ``baseport``, is created when an application uses the northbound
+RESTful API of the **Proton**. The **Proton** will store the port and all
+related information in its database and update the record in ``etcd``. The
+**Shim Layers** of respective SDN Controllers listen to ``etcd``, and get the
+notification from ``etcd``. Then the **Shim Layer** will pick up the
+information from ``etcd``.
 
-When a VPN is created through a Proton, the Proton creates the VPN object and
-stores this in its database.  This can viewed using the :command:`vpn-list`
-command. Furthermore, the API of the L3VPN allows for creating service
-bindings between a baseport and a VPN service. These service binding can be
-viewed using the :command:`vpnservice-list` command.
+The ``baseports`` can be viewed using the command:
 
-All objects (VPNs, Base-ports, and Bindings) are stored into the Proton
-database.  This information is then copied into etcd. The shim layers (see
-below) monitor the etcd data store and take appropriate actions in the
-networking backend upon an update. Currently, the Proton database is not
-redundant, but it can be stored in the same database backend as the other
-OpenStack services, thereby inheriting the same level of redundancy as those
-services.
+.. code-block:: bash
+    protonclient baseport-list
 
+As previously mentioned, when a ``bind`` operation is requested, Gluon uses the
+driver of ``net-l3vpn`` to bind a baseport to a VM.
+
+Proton of L3VPN
+~~~~~~~~~~~~~~~
+
+When an L3VPN is created through a L3VPN **Proton**, the Proton creates a
+``vpn`` object and stores it in its database.  This can be viewed using the
+command:
+
+.. code-block:: bash
+
+    protonclient vpn-list
+
+Furthermore, the API of the L3VPN allows for creating service bindings between
+a ``baseport`` and a ``vpn`` service. This service binding, namely ``vpnport``,
+can be viewed using the command:
+
+.. code-block:: bash
+
+    protonclient vpnport-list
+
+All objects (``vpns``, ``baseports``, and ``vpnports``) are stored into
+Proton's database.  This information is then copied into ``etcd``. The
+**Shim layers** monitor the ``etcd`` data store and take appropriate actions
+in the networking backend upon an update. Currently, **Proton** database is not
+HA, but it can be stored in the same database backend as the other OpenStack
+services, thereby inheriting the same level of HA as those services.
 
 Networking Backends (SDN Controllers)
 -------------------------------------
 
-A Proton is built to enable the API for each networking backend. A networking
-backend can be considered OpenDaylight, Neutron or others.  For a networking
-backend to be able to use the Proton a shim layer has to be created.  The shim
-layer monitors changes in the data model stored in etcd and performs
-appropriate actions in the respective SDN controller backend, for instance
-creating a VPN service or binding a port. In an example of using
-OpenDaylight, if a bind occurs the Shim Layer is responsible for seeing the
-request in the data model and updating the Flow Entries on the OVS of that
-particular compute where the Virtual Machine resides.
+A **Proton** is built to enable the API for each networking backend. A
+networking backend can be considered Open Daylight, or others. A **Shim Layer**
+is created for a networking backend to be able to use the **Proton**. The
+**Shim Layer** monitors changes in the data model stored in ``etcd``, and
+performs appropriate actions in the respective SDN Controller backend, for
+instance creating a VPN service or binding a port. In an example of using Open
+Daylight, if a ``bind`` operation request occurs, the **Shim Layer** is
+responsible for understanding the request in the data model and updating the
+Flow Entries on the OVS of that particular compute where the Virtual Machine
+resides.
+
+The data model of **Shim Layer**, e.g. L3VPN, and respective backend drivers of
+**ShimLayer** for specific SDN Controllers are specified in ``setup.cfg``, and
+loaded at runtime.
