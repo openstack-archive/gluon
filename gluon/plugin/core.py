@@ -17,6 +17,7 @@ import etcd
 import json
 import os
 
+from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log
 
@@ -27,9 +28,14 @@ from neutron.plugins.ml2.plugin import Ml2Plugin
 class MyData(object):
     pass
 
+CONF = cfg.CONF
+
 PluginData = MyData()
 PluginData.etcd_port = 2379
-PluginData.etcd_host = '127.0.0.1'
+if CONF.bind_host == '0.0.0.0':
+    PluginData.etcd_host = '127.0.0.1'
+else:
+    PluginData.etcd_host = CONF.bind_host
 PluginData.gluon_base = "/gluon/port"
 PluginData.proton_port = 2704
 PluginData.proton_host = '127.0.0.1'
@@ -65,7 +71,7 @@ class GluonPlugin(Ml2Plugin):
             LOG.error(
                 "Cannot connect to etcd, make sure that etcd is running.")
         except Exception as e:
-            LOG.error("Unkown exception:", str(e))
+            LOG.error("Unknown exception:", str(e))
         return None
 
     @log_helpers.log_method_call
