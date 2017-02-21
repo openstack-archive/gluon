@@ -57,13 +57,13 @@ class Root(APIBase):
     """A link to the default version of the API"""
 
     @staticmethod
-    def convert():
+    def convert(version='v1'):
         root = Root()
         root.name = "Gluon API"
         root.description = ("OpenStack Gluon acts as a port arbiter between "
                             "Nova and port-provider such as Neutron")
-        root.versions = [Version.convert('v1')]
-        root.default_version = Version.convert('v1')
+        root.versions = [Version.convert(version)]
+        root.default_version = Version.convert(version)
         return root
 
 
@@ -82,7 +82,7 @@ class RootController(rest.RestController):
         # NOTE: The reason why convert() is being called for every
         #       request is because we need to get the host url from
         #       the request object to make the links.
-        return Root.convert()
+        return Root.convert(version=self._default_version)
 
     @pecan.expose()
     def _route(self, args, request=None):
