@@ -60,8 +60,11 @@ class Root(APIBase):
     def convert(version='v1'):
         root = Root()
         root.name = "Gluon API"
-        root.description = ("OpenStack Gluon acts as a port arbiter between "
-                            "Nova and port-provider such as Neutron")
+        root.description = ("OpenStack Gluon is a port arbiter that maintains "
+                            "a list of ports and bindings of different "
+			    "network backends. A Proton Server is the API "
+			    "server that hosts multiple Protons, i.e. "
+			    "multiple sets of APIs.")
         root.versions = [Version.convert(version)]
         root.default_version = Version.convert(version)
         return root
