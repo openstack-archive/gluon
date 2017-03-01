@@ -33,17 +33,7 @@ On Controller
 
 Assume the user logged in with sudo privileges.  On an Ubuntu system:
 
-**STEP-1**: Clone Gluon Repository:
-
-.. code-block:: bash
-
-    $ cd ~
-    $ git clone https://github.com/openstack/gluon.git
-    $ git tag -l
-    # You should see the tag 1.0.0.0
-    $ git checkout tags/1.0.0.0
-
-Or you can clone from ``stable/ocata`` branch:
+**STEP-1**: Clone Gluon Repository ``stable/ocata`` branch:
 
 .. code-block:: bash
 
