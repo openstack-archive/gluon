@@ -17,12 +17,8 @@ import pkg_resources
 import six
 import yaml
 
-from oslo_log import log as logging
-
 from gluon.common import exception as exc
 from gluon.db.sqlalchemy import models as sql_models
-
-LOG = logging.getLogger(__name__)
 
 
 class MyData(object):
