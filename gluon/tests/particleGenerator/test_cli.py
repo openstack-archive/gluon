@@ -14,23 +14,7 @@
 
 import mock
 from mock import patch
-import os
-import six
-from subprocess import call
-import sys
-import types
 
-import click
-from click.testing import CliRunner
-import json
-import pkg_resources
-from requests import delete
-from requests import get
-from requests import post
-from requests import put
-import yaml
-
-from gluon.cmd.cli import dummy
 from gluon.common import exception as exc
 from gluon.particleGenerator import cli
 from gluon.tests.particleGenerator import base as partgen_base

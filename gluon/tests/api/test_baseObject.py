@@ -13,11 +13,9 @@
 #    under the License.
 
 import mock
-from mock import MagicMock
 from mock import patch
 
 import datetime
-import six
 import wsme
 
 from gluon.api import baseObject
