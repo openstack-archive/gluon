@@ -17,9 +17,7 @@ import sqlalchemy.orm.exc
 
 from gluon.common import exception
 from gluon.db.sqlalchemy import api
-from gluon.db.sqlalchemy import models as sql_models
 from gluon.tests import base
-from mock import patch
 from oslo_db import exception as db_exc
 
 

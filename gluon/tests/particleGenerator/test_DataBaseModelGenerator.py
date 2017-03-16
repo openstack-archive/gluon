@@ -13,7 +13,6 @@
 #    under the License.
 
 import mock
-from mock import patch
 import six
 
 from gluon.particleGenerator.DataBaseModelGenerator import\

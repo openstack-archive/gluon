@@ -13,7 +13,6 @@
 #    under the License.
 
 import mock
-from mock import patch
 
 from gluon.db.sqlalchemy import models as sql_models
 from gluon.particleGenerator.ApiGenerator import APIGenerator
