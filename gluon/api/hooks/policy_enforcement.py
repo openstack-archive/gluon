@@ -17,13 +17,13 @@ import webob
 
 from oslo_config import cfg
 from oslo_policy import policy as oslo_policy
-from oslo_utils import excutils
+# from oslo_utils import excutils
 from pecan import hooks
 
 from gluon import constants as gluon_constants
 from gluon import policy
 
-from gluon._i18n import _
+# from gluon._i18n import _
 
 
 class PolicyHook(hooks.PecanHook):
