@@ -13,15 +13,10 @@
 #    under the License.
 
 import mock
-from mock import patch
 import six
 
-import os
 from wsme import types as wtypes
 
-from gluon.api.baseObject import APIBase
-from gluon.api.baseObject import APIBaseObject
-from gluon.api.baseObject import RootObjectController
 from gluon.api import types
 from gluon.managers.manager_base import ManagerData
 from gluon.particleGenerator import ApiGenerator

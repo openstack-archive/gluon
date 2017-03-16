@@ -16,7 +16,6 @@ import mock
 
 from gluon.db.sqlalchemy import api
 from gluon.tests import base
-from mock import patch
 
 
 class ApiTestCase(base.TestCase):
