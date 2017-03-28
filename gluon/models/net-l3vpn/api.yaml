@@ -95,3 +95,47 @@ objects:
         type: string
         length: 32
         description: "Route target export policy"
+  BGPPeering:
+    api:
+      name: bgppeering
+      plural_name: bgppeerings
+    attributes:
+      local_ip_address:
+        required: true
+        type: string
+        format: ipv4
+        description: "Local IP of the SDN controller which is supposed to
+                      create a new BGP peering with a remote SDN controller
+                      or data center gateway. This local IP is used as a
+                      unique identifier to allow the SDN controllers / shim
+                      layers  to determine if a new peering which has been
+                      pushed to etcd is meant for them."
+      peer_ip_address:
+        required: true
+        type: string
+        format: ipv4
+        description: "IP of the BGP neighbor to establish a peering with."
+      as_number:
+        required: true
+        type: integer
+        format: int32
+        description: "Autonomous system number used by the local BGP stack."
+  DataplaneTunnel:
+    api:
+      name: dataplanetunnel
+      plural_name: dataplanetunnels
+    attributes:
+      local_tunnel_endpoint:
+        required: true
+        type: string
+        format: ipv4
+        description: "Local tunnel endpoint IP. This IP is used as a unique
+                      identifier to allow the SDN controller / shim layer to
+                      determine if this dataplane tunnel is supposed to be
+                      handled by them."
+      remote_tunnel_endpoint:
+        required: true
+        type: string
+        format: ipv4
+        description: "Remote tunnel endpoint IP of the virtual switch or data
+                      center gateway."
