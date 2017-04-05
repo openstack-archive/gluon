@@ -22,10 +22,14 @@ import wsmeext.pecan as wsme_pecan
 from gluon.api.baseObject import APIBase
 from gluon.api import link
 from gluon.api.proton_controller import ProtonController
+from gluon.api import types
 
 
 class Version(APIBase):
     """An API version representation."""
+
+    status = types.create_enum_type('CURRENT', 'STABLE', 'DEPRECATED')
+    """Status of the API, which can be CURRENT, STABLE, DEPRECATED"""
 
     id = wtypes.text
     """The ID of the version, also acts as the release number"""
@@ -34,8 +38,9 @@ class Version(APIBase):
     """A Link that point to a specific version of the API"""
 
     @staticmethod
-    def convert(id):
+    def convert(id, status='CURRENT'):
         version = Version()
+        version.status = status
         version.id = id
         version.links = [link.Link.make_link('self', pecan.request.host_url,
                                              id, '', bookmark=True)]
