@@ -17,7 +17,8 @@ from gluon.shim.base import HandlerBase
 from gluon.shim import utils
 from odlc import RestConfClient
 from oslo_log import log as logging
-import uuid as UUID
+#import uuid as UUID
+from oslo_utils import uuidutils
 
 LOG = logging.getLogger(__name__)
 

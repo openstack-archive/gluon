@@ -16,7 +16,8 @@ from gluon.shim import utils
 import json
 from oslo_config import cfg
 import requests
-import uuid as UUID
+#import uuid as UUID
+
 try:
     from neutron.openstack.common import jsonutils
 except ImportError:
@@ -24,6 +25,7 @@ except ImportError:
 from log import for_all_methods
 from log import LOG
 from log import log_enter_exit
+from oslo_utils import uuidutils
 
 ODL_SHIM_OPTS = [
     cfg.StrOpt('odl_host',
