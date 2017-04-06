@@ -51,8 +51,8 @@ Assume the user logged in with sudo privileges.  On an Ubuntu system:
 .. code-block:: bash
 
     $ sudo mkdir /opt/proton
-    $ sudo chown proton /opt/proton
     $ sudo mkdir /etc/proton
+    $ sudo mkdir /var/log/proton
 
 **STEP-4**: Setup ``iptables``
 
@@ -74,24 +74,41 @@ Assume the user logged in with sudo privileges.  On an Ubuntu system:
     state_path = /opt/proton
     EOF
 
-    $ sudo chown -R proton /etc/proton
-    $ sudo chmod -R go+w /etc/proton
+    $ sudo chown -R proton:proton /opt/proton
+    $ sudo chown -R proton:proton /etc/proton
+    $ sudo chown -R proton:proton /var/log/proton
+    $ sudo chmod 750 /etc/proton
+    $ sudo chmod 644 /etc/proton/proton.conf
+    $ sudo chmod 750 /var/log/proton
 
 **STEP-6**: Install Gluon package
 
 .. code-block:: bash
 
     $ cd ~/gluon
+    $ pip install -r requirements.txt
     $ python setup.py build
     $ sudo python setup.py develop
     $ sudo python setup.py install
 
 **STEP-7**: Setup service for ``proton-server``
 
+If you use a Linux distribution which makes use of upstart (e.g. Ubuntu 14.10
+and earlier), you can utilize an upstart script to define a system service for
+the proton-server:
+
 .. code-block:: bash
 
     $ sudo cp ~/gluon/scripts/proton-server.conf /etc/init
     $ sudo start proton-server
+
+For distributions using other startup frameworks, either you need to create a
+framework specific service definition file or start the proton-server manually
+as follows:
+
+.. code-block:: bash
+
+   $ sudo /usr/local/bin/proton-server --config-file /etc/proton/proton.conf --logfile /var/log/proton/api.log
 
 **STEP-8**: Test installation
 
@@ -100,9 +117,11 @@ following command:
 
 .. code-block:: bash
 
-    $ protonclient baseport-list
+    $ protonclient --api net-l3vpn port-list
     # The output should look like:
-    []
+    {
+        "ports": []
+    }
 
 **STEP-9**: Modify ``neutron.conf`` to point to the ``gluon plugin``
 
