@@ -25,7 +25,6 @@ from oslo_config import cfg
 from oslo_log import log as logging
 
 from oslo_log._i18n import _
-from oslo_log._i18n import _LE
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -59,9 +58,9 @@ class GluonException(Exception):
         except Exception as e:
             # kwargs doesn't match a variable in the message
             # log the issue and the kwargs
-            LOG.exception(_LE('Exception in string format operation'))
+            LOG.exception('Exception in string format operation')
             for name, value in six.iteritems(kwargs):
-                LOG.error(_LE("%(name)s: %(value)s") %
+                LOG.error("%(name)s: %(value)s" %
                           {'name': name, 'value': value})
             try:
                 if CONF.fatal_exception_format_errors:

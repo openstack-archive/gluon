@@ -21,9 +21,7 @@ import threading
 import etcd
 
 from gluon.db import api as dbapi
-from oslo_log._i18n import _LE
-from oslo_log._i18n import _LI
-from oslo_log._i18n import _LW
+from oslo_log._i18n import _
 from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
@@ -90,15 +88,15 @@ class SyncThread(threading.Thread):
                 port_key = "/gluon/port/{0:s}".format(obj_key)
                 self.etcd_client.delete(port_key)
             else:
-                LOG.error(_LE("Unkown operation in msg %s") %
+                LOG.error("Unkown operation in msg %s" %
                           (msg["operation"]))
         except etcd.EtcdKeyNotFound:
-            LOG.warn(_LW("Unknown key %s") % obj_key)
+            LOG.warn("Unknown key %s" % obj_key)
         except Exception as e:
             print(e.__doc__)
             print(e.args[0])
             LOG.error(
-                _LE("Error writing to etcd {doc}, {msg}").format(
+                "Error writing to etcd {doc}, {msg}".format(
                     doc=e.__doc__, msg=e.args[0]))
             raise ValueError
 
@@ -106,14 +104,14 @@ class SyncThread(threading.Thread):
         while 1:
             try:
                 msg = self.input_q.get(True, 10.0)
-                LOG.info(_LI("SyncThread: received message %s ") % msg)
+                LOG.info("SyncThread: received message %s " % msg)
                 self.proc_sync_msg(msg)
             except queue.Empty:
                 LOG.debug("SyncThread: Queue timeout")
             except ValueError:
-                LOG.error(_LE("Error processing sync message"))
+                LOG.error("Error processing sync message")
                 break
-        LOG.error(_LE("SyncThread exiting"))
+        LOG.error("SyncThread exiting")
         SyncData.sync_thread_running = False
 
 

@@ -18,7 +18,7 @@ import sys
 from wsgiref import simple_server
 
 from oslo_config import cfg
-from oslo_log._i18n import _LI
+from oslo_log._i18n import _
 from oslo_log import log as logging
 
 from gluon.api import app as api_app
@@ -60,15 +60,15 @@ def main():
     host, port = cfg.CONF.api.host, cfg.CONF.api.port
     srv = simple_server.make_server(host, port, app)
 
-    LOG.info(_LI('Starting server in PID %s') % os.getpid())
+    LOG.info('Starting server in PID %s' % os.getpid())
     LOG.debug("Configuration:")
 
     if host == '0.0.0.0':
-        LOG.info(_LI('serving on 0.0.0.0:%(port)s, '
-                     'view at http://127.0.0.1:%(port)s') %
+        LOG.info(('serving on 0.0.0.0:%(port)s, '
+                  'view at http://127.0.0.1:%(port)s') %
                  dict(port=port))
     else:
-        LOG.info(_LI('serving on http://%(host)s:%(port)s') %
+        LOG.info('serving on http://%(host)s:%(port)s' %
                  dict(host=host, port=port))
     start_sync_thread(etcd_host=cfg.CONF.api.etcd_host,
                       etcd_port=cfg.CONF.api.etcd_port)
