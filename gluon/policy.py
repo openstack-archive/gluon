@@ -27,8 +27,6 @@ from oslo_utils import importutils
 from gluon import constants
 
 from gluon._i18n import _
-from gluon._i18n import _LE
-from gluon._i18n import _LW
 
 from gluon.api import attributes
 from gluon.common import exception as g_exc
@@ -119,8 +117,8 @@ def _build_subattr_match_rule(attr_name, attr, action, target):
     validate = attr['validate']
     key = [k for k in validate.keys() if k.startswith('type:dict')]
     if not key:
-        LOG.warning(_LW("Unable to find data type descriptor "
-                        "for attribute %s"),
+        LOG.warning(("Unable to find data type descriptor "
+                     "for attribute %s"),
                     attr_name)
         return
     data = validate[key[0]]
@@ -278,8 +276,7 @@ class OwnerCheck(policy.Check):
                 raise db_exc.RetryRequest(e)
             except Exception:
                 with excutils.save_and_reraise_exception():
-                    LOG.exception(_LE('Policy check error while calling %s!'),
-                                  f)
+                    LOG.exception('Policy check error while calling %s!', f)
         match = self.match % target
         if self.kind in creds:
             return match == six.text_type(creds[self.kind])
