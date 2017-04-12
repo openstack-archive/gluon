@@ -35,7 +35,7 @@ LOG = logging.getLogger(__name__)
 
 app_dic = {'root': 'gluon.api.root.RootController',
            'modules': ['gluon.api'],
-           'debug': True,
+           'debug': False,
            # TODO(enikher) HOOKS
            # 'hooks': [
            #    hooks.ContextHook(),

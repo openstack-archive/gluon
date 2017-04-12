@@ -40,3 +40,13 @@ opt_group = cfg.OptGroup(name='api',
                          title='Options for the proton-api service')
 CONF.register_group(opt_group)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
+
+# APP_OPTS = [
+#    cfg.BoolOpt('debug',
+#                default=True,
+#                help='debug')
+# ]
+# app_group = cfg.OptGroup(name='app',
+#                         title='constants used in app.py')
+# CONF.register_group(app_group)
+# CONF.register_opts(APP_OPTS, app_group)
