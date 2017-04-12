@@ -24,17 +24,10 @@ from gluon.sync_etcd.log import logdelete
 from gluon.sync_etcd.log import logupdate
 
 
-sql_opts = [
-    cfg.StrOpt('mysql_engine',
-               default='InnoDB',
-               help='MySQL engine to use.'),
-]
-
 # (enikher): for unittests
 _DEFAULT_SQL_CONNECTION = ('sqlite:///' +
                            paths.state_path_def('gluon.sqlite'))
 
-cfg.CONF.register_opts(sql_opts, 'database')
 db_options.set_defaults(
     cfg.CONF, connection=_DEFAULT_SQL_CONNECTION)
 

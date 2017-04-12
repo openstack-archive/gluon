@@ -12,6 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
+
 from oslo_config import cfg
 
 API_SERVICE_OPTS = [
@@ -32,7 +34,29 @@ API_SERVICE_OPTS = [
                help='etcd port'),
     cfg.StrOpt('auth_strategy',
                default='noauth',
-               help='the type of authentication to use')
+               help='the type of authentication to use'),
+    cfg.BoolOpt('debug',
+                default=True,
+                help='debug')
+]
+
+PATH_OPTS = [
+    cfg.StrOpt('pybasedir',
+               default=os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                    '../')),
+               help='Directory where gluon python module is installed.'),
+    cfg.StrOpt('bindir',
+               default='$pybasedir/bin',
+               help='Directory where gluon binaries are installed.'),
+    cfg.StrOpt('state_path',
+               default='$pybasedir',
+               help="Top-level directory for maintaining gluon's state."),
+]
+
+sql_opts = [
+    cfg.StrOpt('mysql_engine',
+               default='InnoDB',
+               help='MySQL engine to use.'),
 ]
 
 CONF = cfg.CONF
@@ -40,3 +64,7 @@ opt_group = cfg.OptGroup(name='api',
                          title='Options for the proton-api service')
 CONF.register_group(opt_group)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
+
+CONF.register_opts(PATH_OPTS)
+
+CONF.register_opts(sql_opts, 'database')
