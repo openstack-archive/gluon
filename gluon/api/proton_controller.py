@@ -44,10 +44,7 @@ class ProtonController(rest.RestController):
     """Version 1 API controller root."""
 
     def __init__(self):
-        services = str(cfg.CONF.api.service_list).split(',')
-        service_list = list()
-        for api_name in services:
-            service_list.append(api_name.strip())
+        service_list = particle_generator.get_service_list()
         particle_generator.build_api(self, service_list)
 
     @wsme_pecan.wsexpose(ProtonRoot)

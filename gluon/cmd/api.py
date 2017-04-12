@@ -44,10 +44,7 @@ def main():
     service.prepare_service(sys.argv)
     cfg.CONF.log_opt_values(LOG, logging.DEBUG)
     # Set source of model files
-    services = str(cfg.CONF.api.service_list).split(',')
-    service_list = list()
-    for api_name in services:
-        service_list.append(api_name.strip())
+    service_list = particle_generator.get_service_list()
     LOG.info("Service List: %s" % service_list)
     LOG.info("Generating DB Classes")
     particle_generator.build_sql_models(service_list)

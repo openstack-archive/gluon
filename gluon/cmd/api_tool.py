@@ -17,7 +17,7 @@ import sys
 
 import click
 
-from gluon.particleGenerator.cli import get_model_list
+from gluon.particleGenerator.generator import get_model_list
 from gluon.particleGenerator.generator import load_model
 from gluon.particleGenerator.generator import verify_model
 
@@ -35,7 +35,7 @@ def cli():
 
 @click.command()
 def list():
-    model_list = get_model_list(package_name="gluon", model_dir="models")
+    model_list = get_model_list()
     for api in model_list:
         click.echo(api)
 
@@ -43,7 +43,7 @@ def list():
 @click.command()
 @click.argument('api')
 def check(api):
-    model_list = get_model_list(package_name="gluon", model_dir="models")
+    model_list = get_model_list()
     if api not in model_list:
         print("Invalid API name!\n")
         sys.exit(-1)

@@ -22,7 +22,7 @@ API_SERVICE_OPTS = [
                default='127.0.0.1',
                help='The listen IP for the proton API server'),
     cfg.StrOpt('service_list',
-               default='net-l3vpn',
+               default='*',
                help='Comma separated list of service models'),
     cfg.StrOpt('etcd_host',
                default='127.0.0.1',
