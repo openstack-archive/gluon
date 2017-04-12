@@ -66,14 +66,6 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
         observed = cli.get_api_model(argv, model_list)
         self.assertEqual(expected, observed)
 
-    """
-    test get_model_list
-    """
-    def test_get_model_list(self):
-        observed = cli.get_model_list("gluon.tests.particleGenerator",
-                                      "models")
-        expected = ['test_model.yaml']
-        self.assertEqual(expected, observed)
 
     """
     test json_get

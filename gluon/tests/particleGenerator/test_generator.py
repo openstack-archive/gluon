@@ -43,6 +43,14 @@ class GeneratorTestCase(partgen_base.ParticleGeneratorTestCase):
         self.assertIn('Interface', service_models['api_objects'])
 
     """
+    test get_model_list
+    """
+    def test_get_model_list(self):
+        observed = generator.get_model_list("gluon.tests.particleGenerator",
+                                            "models")
+        expected = ['test_model.yaml']
+        self.assertEqual(expected, observed)
+    """
     test build_sql_models(service_list)
     """
     @mock.patch('gluon.particleGenerator.generator.load_model')

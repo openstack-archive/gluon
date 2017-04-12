@@ -66,15 +66,6 @@ def get_api_model(argv, model_list):
     return api_name
 
 
-def get_model_list(package_name, model_dir):
-    model_list = list()
-    for f in pkg_resources.resource_listdir(package_name, model_dir):
-        if f == 'base':
-            continue
-        model_list.append(f)
-    return model_list
-
-
 def get_token():
     auth_url = os.environ.get('OS_AUTH_URL')
     tenant = os.environ.get('OS_TENANT_NAME')

@@ -17,6 +17,8 @@ import pkg_resources
 import six
 import yaml
 
+from oslo_config import cfg
+
 from gluon.common import exception as exc
 from gluon.db.sqlalchemy import models as sql_models
 
@@ -330,6 +332,24 @@ def load_model_for_service(service):
                                              service)
     return GenData.models.get(service)
 
+
+def get_model_list(package_name="gluon", model_dir="models"):
+    model_list = list()
+    for f in pkg_resources.resource_listdir(package_name, model_dir):
+        if f == 'base':
+            continue
+        model_list.append(f)
+    return model_list
+
+def get_service_list():
+    service_list = list()
+    services = str(cfg.CONF.api.service_list).split(',')
+    if len(services) == 1 and services[0] == '*':
+        service_list = get_model_list()
+    else:
+        for api_name in services:
+            service_list.append(api_name.strip())
+    return service_list
 
 def build_sql_models(service_list):
     from gluon.particleGenerator.DataBaseModelGenerator \

@@ -19,7 +19,7 @@ import types
 import click
 
 from gluon.particleGenerator.cli import get_api_model
-from gluon.particleGenerator.cli import get_model_list
+from gluon.particleGenerator.generator import get_model_list
 from gluon.particleGenerator.cli import proc_model
 
 
@@ -33,8 +33,7 @@ def dummy():
 def main():
     cli = types.FunctionType(dummy.func_code, {})
     cli = click.group()(cli)
-    model_list = get_model_list(package_name="gluon",
-                                model_dir="models")
+    model_list = get_model_list()
     model = get_api_model(sys.argv, model_list)
     proc_model(cli,
                package_name="gluon",
