@@ -32,7 +32,10 @@ API_SERVICE_OPTS = [
                help='etcd port'),
     cfg.StrOpt('auth_strategy',
                default='noauth',
-               help='the type of authentication to use')
+               help='the type of authentication to use'),
+    cfg.BoolOpt('debug',
+                default=True,
+                help='debug')
 ]
 
 CONF = cfg.CONF
