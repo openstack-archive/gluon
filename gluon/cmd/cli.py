@@ -13,15 +13,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import click
 import sys
 import types
 
-import click
+from oslo_config import cfg
 
+from gluon.cmd import config
 from gluon.particleGenerator.cli import get_api_model
 from gluon.particleGenerator.cli import proc_model
 from gluon.particleGenerator.generator import get_model_list
 
+
+CONF = cfg.CONF
 
 sys.tracebacklimit = 0
 
@@ -42,5 +46,5 @@ def main():
                hostenv="OS_PROTON_HOST",
                portenv="OS_PROTON_PORT",
                hostdefault="127.0.0.1",
-               portdefault=2705)
+               portdefault=CONF.api.port)
     cli()
