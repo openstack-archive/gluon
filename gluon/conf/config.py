@@ -12,9 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
+
 from oslo_config import cfg
 
-API_SERVICE_OPTS = [
+API_OPTS = [
     cfg.IntOpt('port',
                default=2705,
                help='The port for the proton API server'),
@@ -32,11 +34,39 @@ API_SERVICE_OPTS = [
                help='etcd port'),
     cfg.StrOpt('auth_strategy',
                default='noauth',
-               help='the type of authentication to use')
+               help='the type of authentication to use'),
+    cfg.BoolOpt('debug',
+                default=True,
+                help='debug')
 ]
 
-CONF = cfg.CONF
-opt_group = cfg.OptGroup(name='api',
-                         title='Options for the proton-api service')
-CONF.register_group(opt_group)
-CONF.register_opts(API_SERVICE_OPTS, opt_group)
+PATH_OPTS = [
+    cfg.StrOpt('pybasedir',
+               default=os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                    '../')),
+               help='Directory where gluon python module is installed.'),
+    cfg.StrOpt('bindir',
+               default='$pybasedir/bin',
+               help='Directory where gluon binaries are installed.'),
+    cfg.StrOpt('state_path',
+               default='$pybasedir',
+               help="Top-level directory for maintaining gluon's state."),
+]
+
+SQL_OPTS = [
+    cfg.StrOpt('mysql_engine',
+               default='InnoDB',
+               help='MySQL engine to use.'),
+]
+
+
+def register_opts(conf):
+    conf.register_opts(API_OPTS, 'api')
+    conf.register_opts(PATH_OPTS)
+    conf.register_opts(SQL_OPTS, 'database')
+
+
+def list_opts():
+    return {'api': API_OPTS,
+            'path': PATH_OPTS,
+            'database': SQL_OPTS}
