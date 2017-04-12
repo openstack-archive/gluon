@@ -13,6 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import gluon.cmd.config
+from oslo_config import cfg
+
+CONF = cfg.CONF
 
 # Defining a constant to avoid repeating string literal in several modules
 SHARED = 'shared'
