@@ -40,3 +40,54 @@ opt_group = cfg.OptGroup(name='api',
                          title='Options for the proton-api service')
 CONF.register_group(opt_group)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
+
+BASE_URI_OPTS = [
+    cfg.StrOpt('root_name',
+               default='Gluon API',
+               help='value for root.name')
+]
+
+baseuri_group = cfg.OptGroup(name='baseuri',
+                             title='values return by base uri in root.py')
+CONF.register_group(baseuri_group)
+CONF.register_opts(BASE_URI_OPTS, baseuri_group)
+
+APP_OPTS = [
+    cfg.BoolOpt('debug',
+                default=True,
+                help='debug')
+]
+app_group = cfg.OptGroup(name='app',
+                         title='constants used in app.py')
+CONF.register_group(app_group)
+CONF.register_opts(APP_OPTS, app_group)
+
+ATTRIBUTES_OPTS = [
+    cfg.IntOpt('name_max_len',
+               default=225,
+               help="max length for name attribute of a model"),
+
+    cfg.IntOpt('tenant_id_max_len',
+               default=225,
+               help="max length for tenant-id attribute of a model"),
+
+    cfg.IntOpt('description_max_len',
+               default=225,
+               help="max length for description attribute of a model"),
+
+    cfg.IntOpt('long_description_max_len',
+               default=1024,
+               help="max length for long-description attribute of a model"),
+
+    cfg.IntOpt('device_id_max_len',
+               default=225,
+               help="max length for device-id attribute of a model"),
+
+    cfg.IntOpt('device_owner_max_len',
+               default=225,
+               help="max length for device-owner attibute of a model")
+]
+attributes_group = cfg.OptGroup(name='attributes',
+                                title='constants used in app.py')
+CONF.register_group(attributes_group)
+CONF.register_opts(ATTRIBUTES_OPTS, attributes_group)

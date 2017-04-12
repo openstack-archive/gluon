@@ -13,16 +13,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import gluon.cmd.config
+from oslo_config import cfg
+
+CONF = cfg.CONF
 
 # Defining a constant to avoid repeating string literal in several modules
 SHARED = 'shared'
 
-NAME_MAX_LEN = 255
-TENANT_ID_MAX_LEN = 255
-DESCRIPTION_MAX_LEN = 255
-LONG_DESCRIPTION_MAX_LEN = 1024
-DEVICE_ID_MAX_LEN = 255
-DEVICE_OWNER_MAX_LEN = 255
+NAME_MAX_LEN = CONF.attributes.name_max_len
+TENANT_ID_MAX_LEN = CONF.attributes.tenant_id_max_len
+DESCRIPTION_MAX_LEN = CONF.attributes.description_max_len
+LONG_DESCRIPTION_MAX_LEN = CONF.attributes.long_description_max_len
+DEVICE_ID_MAX_LEN = CONF.attributes.device_id_max_len
+DEVICE_OWNER_MAX_LEN = CONF.attributes.device_owner_max_len
 
 # Define constants for base resource name
 BASEPORT = 'baseport'

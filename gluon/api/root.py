@@ -14,6 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 import pecan
 from pecan import rest
 from wsme import types as wtypes
@@ -23,6 +24,8 @@ from gluon.api.baseObject import APIBase
 from gluon.api import link
 from gluon.api.proton_controller import ProtonController
 from gluon.api import types
+
+CONF = cfg.CONF
 
 
 class Version(APIBase):
@@ -64,7 +67,7 @@ class Root(APIBase):
     @staticmethod
     def convert(version='v1'):
         root = Root()
-        root.name = "Gluon API"
+        root.name = CONF.baseuri.root_name
         root.description = ("OpenStack Gluon is a port arbiter that maintains "
                             "a list of ports and bindings of different "
                             "network backends. A Proton Server is the API "
