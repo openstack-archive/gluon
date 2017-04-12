@@ -1,0 +1,400 @@
+# Copyright 2015, Ericsson AB
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+
+# ----------------------------------------------------------------------------
+#
+# This is an initial version of a Gluon API model targeting the IETF Service
+# Function Chaining model.
+#
+#   Note: This is is a simplified version targeting the Gluon demo at the
+#   Boston OpenStack Summit in May 2017. It does NOT fully represent the IETF
+#   Service Function Chaining model.  This model is supposed to be extended in
+#   future releases.
+#
+# ----------------------------------------------------------------------------
+
+file_version: "1.0"
+imports: base/base.yaml
+info:
+  name: ietf-sfc
+  version: 1.0
+  description: "IETF SFC API Specification"
+  author:
+    name: "Gluon Team"
+    url: https://wiki.openstack.org/wiki/Gluon
+    email: bh526r@att.com
+objects:
+  Port:
+    api:
+      name: port
+      plural_name: ports
+    extends: BasePort
+  Interface:
+    api:
+      name: interface
+      plural_name: interfaces
+      parent: Port
+      parent_key: port_id
+    extends: BaseInterface
+    attributes:
+      port_id:
+        type: Port   # Override from base object for specific Service type
+
+
+# ----------------------------------------------------------------------------
+# A function that is responsible for specific treatment of received packets.
+#
+# A Service Function can act at various layers of a protocol stack (e.g., at
+# the network layer or other OSI layers).  A Service Function can be a virtual
+# element or be embedded in a physical network element.  One of multiple Service
+# Functions can be embedded in the same network element.  Multiple occurrences
+# of the Service Function can be enabled in the same administrative domain.
+#
+# One or more Service Functions can be involved in the delivery of added-value
+# services.  A non-exhaustive list of Service Functions includes: firewalls,
+# WAN and application acceleration, Deep Packet Inspection (DPI),a LI (Lawful
+# Intercept) module, server load balancers, NAT44 [RFC3022], NAT64 [RFC6146],
+# NPTv6 [RFC6296], HOST_ID injection, HTTP Header Enrichment functions, TCP
+# optimizer, etc.
+#
+# An SF may be SFC encapsulation aware, that is it receives, and acts on
+# information in the SFC encapsulation, or unaware in which case data forwarded
+# to the service does not contain the SFC encapsulation.
+#
+# When modelling it, it will be based on the Service object definition.
+# ----------------------------------------------------------------------------
+  ServiceFunction:
+    extends: BaseService
+    api:
+      name: servicefunction
+      plural_name: servicefunctions
+    attributes:
+      tenant_id:
+        type: uuid
+        description: "This SF was created for a specific tenant-id"
+      type:
+        type: 'string'
+        length: 64
+        description: "Service function type name."
+      ip_mgmt_address:
+        type: 'string'
+        length: 64
+        description: "The IP used to configure this service-function"
+
+
+
+# ----------------------------------------------------------------------------
+# Service Locators
+#
+# Service locators are used as data plane network destinations for Service
+# Functions, Service Function Forwarders and Service Function Proxies.
+#
+# It follows closely the constructs of
+# http://tools.ietf.org/html/draft-ietf-netmod-interfaces-cfg-12
+#
+# * **Data Plane Locator**
+#
+# The data plane locator is the base object for any service locator. It
+# is based on the basic interface object defined by gluon in the port and 
+# service binding modelling.
+#
+# Those are the different Service Bindings associated to the Data Plane
+# Locators in this model:
+#
+#  i)   SF Data Plane Locator,
+#  ii)  SFF Data Plane Locator,
+# ----------------------------------------------------------------------------
+  SfDataPlaneLocator:
+    api:
+      name: sfdataplanelocator
+      plural_name: sfdataplanelocators
+    extends: BaseServiceBinding
+    attributes:
+      name:
+        type: string
+        length: 255
+        description: "Name of this data plane locator"
+      ip:
+        type: string
+        format: ipv4
+        length: 16
+        description: "Data plane IP address"
+      l4_port:
+        type: integer
+        format: int32
+        min: 1
+        max: 65535
+        description: "Data-plane port number"
+      transport:
+        type: string
+        length: 255
+        description: "Transport encapsulation"
+      service_function_forwarder:
+        type: string
+        length: 255
+        description: "reference to the service function forwarder where this data plane locator exists"
+
+
+
+  SffDataPlaneLocator:
+    api:
+      name: sffdataplanelocator
+      plural_name: sffdataplanelocator
+    extends: BaseServiceBinding
+    attributes:
+       ip:
+         type: string
+         format: ipv4
+         length: 16
+       l4_port:
+         type: integer
+         format: int32
+         min: 1
+         max: 65535
+         description: "Data-plane port number"
+       mac:
+         type: string
+         length: 17
+         description: "MAC address of the data plane locator"
+       transport:
+         type: string
+         length: 255
+         description: "Transport encapsulation"
+
+
+# ----------------------------------------------------------------------------
+# SFF dictionary entries
+# ----------------------------------------------------------------------------
+  SffSfBinding:
+    api:
+      name: sffsfbinding
+      plural_name: sffsfbindings
+    extends: BaseObject
+    attributes:
+      sf_name:
+         type: string
+         length: 255
+         description: "Name of the SF to bind"
+      sff_name:
+         type: string
+         length: 255
+         description: "Reference to the SFF"
+      sff_dpl_name:
+        type: string
+        length: 64
+        primary: true
+        description: "The SFF uses this data plane locator when sending packets to this connected SFF"
+      sf_dpl_name:
+        type: string
+        length: 64
+        primary: true
+        description: "The SF data plane locator to use when sending packets to the associated service function"
+
+
+# ----------------------------------------------------------------------------
+# A service function forwarder is responsible for delivering traffic received
+# from the SFC network forwarder to one or more connected service functions
+# via information carried in the SFC encapsulation
+# ----------------------------------------------------------------------------
+  ServiceFunctionForwarder:
+    extends: BaseService
+    api:
+      name: servicefunctionforwarder
+      plural_name: servicefunctionforwarders
+    attributes:
+      ip_mgmt_address:
+        type: 'string'
+        length: 64
+        description: "The IP used to configure this service-function-forwarder"
+
+
+
+# ----------------------------------------------------------------------------
+# Locally instantiated matching of traffic flows against policy for subsequent
+# application of the required set of network service functions.  The policy may be
+# customer/network/service specific.
+#
+# Classification will determine the Service Chain to be followed and it is executed
+# by the SFC Classifier.
+#
+# The SFC Classifier model is also based on the Gluon port and service binding
+# model, although not following the same approach as data plane locator, but
+# associated to an attachment point which in the end will be an interface.
+#
+# SFC Classifier Function
+# '''''''''''''''''''''''
+#
+# In the SFC model, this function represents the Access Control (ACL) List being
+# applied, attachment point and the chain associated with that ACL.
+#
+# It is modelled as a Gluon Service.
+#
+# * **Access Control List**
+#
+# An ACL is an ordered set of rules that is used to filter traffic on a networking
+# device.  Each rule is represented by an Access Control Entry (ACE).
+#
+# It is modelled based on idraft-ietf-netmod-acl-model
+#
+# * **Access Control Entry**
+#
+# Each Access Control Entry has a list of match criteria and a list of actions,
+# in this case, the forwarding of the packet following a configured Service Chain.
+#
+# It is also modelled based on idraft-ietf-netmod-acl-model
+#------------------------------------------------------------------------------
+  SclSffBinding:
+     extends: BaseObject
+     api:
+       name: sclsffbinding
+       plural_name: sclsffbindings
+     attributes:
+       sff_name:
+         type: 'string'
+         length: 64
+         primary: true
+         description: "Name of the SFF in which the classifier is attached"
+       scl_name:
+         type: 'string'
+         length: 64
+         primary: true
+         description: "Name of the classifier"
+
+
+  ServiceFunctionClassifier:
+    extends: BaseObject
+    api:
+      name: servicefunctionclassifier
+      plural_name: servicefunctionclassifiers
+    attributes:
+      src_ip:
+        type: string
+        format: ipv4
+        length: 16
+        description: "Source IP address"
+      dst_ip:
+        type: string
+        format: ipv4
+        length: 16
+        description: "Destination IP address"
+      src_mac:
+        type: string
+        length: 17
+        description: "Source MAC address"
+      dst_mac:
+        type: string
+        length: 17
+        description: "Destination MAC address"
+      l4_port:
+        type: integer
+        min: 1
+        max: 65535
+      service_function_chain:
+        type: string
+        length: 255
+        description: "Pointer to the SFC to which matching traffic shall be directed"
+
+
+#------------------------------------------------------------------------------
+# A service Function chain defines an abstract set of service functions and their
+# ordering constraints that must be applied to packets and/or frames selected as
+# a result of classification.  The implied order may not be a linear progression as
+# the architecture allows for nodes that copy to more than one branch, and also
+# allows for cases where there is flexibility in the order in which services need
+# to be applied. The term service chain is often used as shorthand for service
+# function chain.
+#------------------------------------------------------------------------------
+  ServiceFunctionChain:
+    api:
+      name: servicefunctionchain
+      plural_name: servicefunctionchains
+    extends: BaseObject
+    attributes:
+      sfc_service_functions:
+         type: 'string'
+         length: 256
+         description: "Ordered list of concatenated Service Function types used in this chain"
+      symmetric:
+         type: boolean
+         description: "If the chain is symmetric we will create two service paths, one ingress and another egress. Packets traverse the egress service path in the reverse order of the ingress path. If present, this value will override the setting in the SF-Type. If not present, if at least one SF is of an SF-Type that sets the bidirectionality flag to true, then the RSP will be symmetric."
+
+
+  ServiceFunctionPath:
+    api:
+      name: servicefunctionpath
+      plural_name: servicefunctionpaths
+    extends: BaseObject
+    attributes:
+      transport_type:
+        type: enum
+        description: "Transport type between SFF"
+        values:
+          - 'mac'
+          - 'vxlan-gpe'
+          - 'gre'
+          - 'mpls'
+      sfc_encapsulation:
+        type: enum
+        description: "The type of encapsulation used in this path for passing SFC information along the chain"
+        values:
+          - 'nsh'
+      symmetric:
+         type: boolean
+         description: "If the chain is symmetric we will create two service paths, one ingress and another egress. Packets traverse the egress service path in the reverse order of the ingress path. If present, this value will override the setting in the SF-Type. If not present, if at least one SF is of an SF-Type that sets the bidirectionality flag to true, then the RSP will be symmetric."
+      tenant_id:
+        type: 'string'
+        length: 64
+        description: "This SFP was created for a specific tenant-id"
+      service_path_hops:
+        type: 'string'
+        length: 256
+        description: "A list of service-path-hops separated by colons"
+      service_chain_name:
+        type: 'string'
+        length: 64
+        description: "The Service Function Chain used as blueprint for this path"
+      starting_index:
+        type: 'integer'
+        description: "Starting service index"
+      path_id:
+        type: 'integer'
+        description: "Identifies a service path. Participating nodes MUST use this identifier for path selection.  An administrator can use the service path value for reporting and troubleshooting packets along a specific path."
+      context_metadata:
+        type: 'string'
+        length: 64
+        description: "The name of the associated context metadata"
+      variable_metadata:
+        type: 'string'
+        length: 64
+        description: "The name of the associated context metadata"
+
+
+  ServicePathHop:
+    api:
+      name: servicepathhop
+      plural_name: servicepathhops
+    extends: BaseObject
+    attributes:
+      hop_id:
+        type: integer
+        description: "ID of the hop in a service chain"
+      sf_name:
+        type: string
+        length: 255
+        description: "Name of the service function on this hop"
+      sff_name:
+        type: string
+        length: 255
+        description: "Name of the service function forwarder on this hop"
