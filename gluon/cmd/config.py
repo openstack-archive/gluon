@@ -40,3 +40,40 @@ opt_group = cfg.OptGroup(name='api',
                          title='Options for the proton-api service')
 CONF.register_group(opt_group)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
+
+BASE_URI_OPTS = [
+    cfg.StrOpt('root_name',
+               default='Gluon API',
+               help='value for root.name'),
+
+    cfg.StrOpt('root_description',
+               default=("OpenStack Gluon is a port arbiter that maintains "
+                        "a list of ports and bindings of different "
+                        "network backends. A Proton Server is the API "
+                        "server that hosts multiple Protons, i.e. "
+                        "multiple sets of APIs."),
+               help='value for root.default')
+]
+
+baseuri_group = cfg.OptGroup(name='baseuri',
+                             title='values return by base uri in root.py')
+CONF.register_group(baseuri_group)
+CONF.register_opts(BASE_URI_OPTS, baseuri_group)
+
+APP_OPTS = [
+    cfg.StrOpt('root_controller',
+               default='gluon.api.root.RootController',
+               help='root controller for app'),
+
+    cfg.ListOpt('modules',
+                default=['gluon.api'],
+                help='list of directories containing modules'),
+
+    cfg.BoolOpt('debug',
+                default=True,
+                help='debug')
+]
+app_group = cfg.OptGroup(name='app',
+                         title='constants used in app.py')
+CONF.register_group(app_group)
+CONF.register_opts(APP_OPTS, app_group)

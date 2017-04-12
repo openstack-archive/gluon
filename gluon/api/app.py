@@ -33,9 +33,9 @@ CONF = cfg.CONF
 
 LOG = logging.getLogger(__name__)
 
-app_dic = {'root': 'gluon.api.root.RootController',
-           'modules': ['gluon.api'],
-           'debug': True,
+app_dic = {'root': CONF.app.root_controller,
+           'modules': CONF.app.modules,
+           'debug': CONF.app.debug,
            # TODO(enikher) HOOKS
            # 'hooks': [
            #    hooks.ContextHook(),
