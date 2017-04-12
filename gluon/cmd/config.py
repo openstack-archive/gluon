@@ -40,3 +40,62 @@ opt_group = cfg.OptGroup(name='api',
                          title='Options for the proton-api service')
 CONF.register_group(opt_group)
 CONF.register_opts(API_SERVICE_OPTS, opt_group)
+
+BASE_URI_OPTS = [
+    cfg.StrOpt('root_name',
+               default='Gluon API',
+               help='value for root.name'),
+
+    cfg.StrOpt('root_description',
+               default=("OpenStack Gluon is a port arbiter that maintains "
+                        "a list of ports and bindings of different "
+                        "network backends. A Proton Server is the API "
+                        "server that hosts multiple Protons, i.e. "
+                        "multiple sets of APIs."),
+               help='value for root.default')
+]
+
+baseuri_group = cfg.OptGroup(name='baseuri',
+                             title='values return by base uri in root.py')
+CONF.register_group(baseuri_group)
+CONF.register_opts(BASE_URI_OPTS, baseuri_group)
+
+APP_OPTS = [
+    cfg.BoolOpt('debug',
+                default=True,
+                help='debug')
+]
+app_group = cfg.OptGroup(name='app',
+                         title='constants used in app.py')
+CONF.register_group(app_group)
+CONF.register_opts(APP_OPTS, app_group)
+
+ATTRIBUTES_OPTS = [
+    cfg.IntOpt('NAME_MAX_LEN',
+               default=225,
+               help="NAME_MAX_LEN"),
+
+    cfg.IntOpt('TENANT_ID_MAX_LEN',
+               default=225,
+               help="TENANT_ID_MAX_LEN"),
+
+    cfg.IntOpt('DESCRIPTION_MAX_LEN',
+               default=225,
+               help="DESCRIPTION_MAX_LEN"),
+
+    cfg.IntOpt('LONG_DESCRIPTION_MAX_LEN',
+               default=1024,
+               help="LONG_DESCRIPTION_MAX_LEN"),
+
+    cfg.IntOpt('DEVICE_ID_MAX_LEN',
+               default=225,
+               help="DEVICE_ID_MAX_LEN"),
+
+    cfg.IntOpt('DEVICE_OWNER_MAX_LEN',
+               default=225,
+               help="DEVICE_OWNER_MAX_LEN")
+]
+attributes_group = cfg.OptGroup(name='attributes',
+                                title='constants used in app.py')
+CONF.register_group(attributes_group)
+CONF.register_opts(ATTRIBUTES_OPTS, attributes_group)
