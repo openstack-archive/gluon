@@ -1,2 +1,56 @@
 [DEFAULT]
 state_path = /var/lib/proton
+
+[api]
+
+#
+# From gluon.conf
+#
+
+# The port for the proton API server (integer value)
+#port = 2705
+
+# The listen IP for the proton API server (string value)
+#host = 127.0.0.1
+
+# Comma separated list of service models (string value)
+#service_list = *
+
+# etcd host (string value)
+#etcd_host = 127.0.0.1
+
+# etcd port (integer value)
+#etcd_port = 2379
+
+# the type of authentication to use (string value)
+#auth_strategy = noauth
+
+# debug (boolean value)
+#debug = true
+
+
+[database]
+
+#
+# From gluon.conf
+#
+
+# MySQL engine to use. (string value)
+#mysql_engine = InnoDB
+
+
+[path]
+
+#
+# From gluon.conf
+#
+
+# Directory where gluon python module is installed. (string value)
+#pybasedir = /home/ubuntu/gluon/gluon
+
+# Directory where gluon binaries are installed. (string value)
+#bindir = $pybasedir/bin
+
+# Top-level directory for maintaining gluon's state. (string value)
+# JinLi: use the one in [default]
+#state_path = $pybasedir

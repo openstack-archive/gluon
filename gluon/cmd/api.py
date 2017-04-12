@@ -21,8 +21,9 @@ from oslo_config import cfg
 from oslo_log._i18n import _
 from oslo_log import log as logging
 
+from gluon.conf import config
+
 from gluon.api import app as api_app
-import gluon.cmd.config
 from gluon.common import service
 from gluon.particleGenerator import generator as particle_generator
 from gluon.sync_etcd.thread import start_sync_thread

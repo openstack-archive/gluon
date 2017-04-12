@@ -16,24 +16,12 @@
 #    under the License.
 
 import os
-
 from oslo_config import cfg
 
-PATH_OPTS = [
-    cfg.StrOpt('pybasedir',
-               default=os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                    '../')),
-               help='Directory where gluon python module is installed.'),
-    cfg.StrOpt('bindir',
-               default='$pybasedir/bin',
-               help='Directory where gluon binaries are installed.'),
-    cfg.StrOpt('state_path',
-               default='$pybasedir',
-               help="Top-level directory for maintaining gluon's state."),
-]
+from gluon.conf import config
+
 
 CONF = cfg.CONF
-CONF.register_opts(PATH_OPTS)
 
 
 def basedir_def(*args):
