@@ -23,6 +23,8 @@ from gluon.particleGenerator.cli import proc_model
 from gluon.particleGenerator.generator import get_model_list
 
 
+CONF = cfg.CONF
+
 sys.tracebacklimit = 0
 
 
