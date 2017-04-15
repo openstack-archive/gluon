@@ -17,7 +17,6 @@
 from __future__ import print_function
 
 import re
-import six
 import sys
 
 import sqlalchemy as sa
@@ -56,14 +55,13 @@ class DataBaseModelProcessor(object):
             return ret_str.lower().replace("-", "_")
 
         # Make a model class that we've never thought of before
-        for table_name, table_data in six.iteritems(self.data['api_objects']):
+        for table_name, table_data in self.data['api_objects'].items():
             self.get_primary_key(table_data)
 
-        for table_name, table_data in six.iteritems(self.data['api_objects']):
+        for table_name, table_data in self.data['api_objects'].items():
             try:
                 attrs = {}
-                for col_name, col_desc in six.iteritems(
-                        table_data['attributes']):
+                for col_name, col_desc in table_data['attributes'].items():
                     try:
 
                         options = {}
@@ -164,7 +162,7 @@ class DataBaseModelProcessor(object):
     @classmethod
     def get_primary_key(cls, table_data):
         primary = []
-        for k, v in six.iteritems(table_data['attributes']):
+        for k, v in table_data['attributes'].items():
             if 'primary' in v:
                 primary = k
                 break

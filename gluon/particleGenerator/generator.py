@@ -51,13 +51,13 @@ def validate_attributes(obj_name, obj, model):
     formats = ['date-time', 'json', 'ipv4', 'ipv6', 'mac', 'uri', 'email']
     int_formats = ['int32', 'int64']
 
-    for attr_name, attr_val in six.iteritems(obj.get('attributes')):
+    for attr_name, attr_val in obj.get('attributes').items():
         if 'type' not in attr_val:
             raise_obj_error(obj_name,
                             'A type property is not specified for '
                             'attribute: %s, ',
                             (attr_name))
-        for prop_name, prop_val in six.iteritems(attr_val):
+        for prop_name, prop_val in attr_val.items():
             if prop_name in props:
                 if prop_name == 'type':
                     if prop_val not in types and \
@@ -165,7 +165,7 @@ def verify_model(model):
     baseport_found = False
     baseinterface_found = False
     baseservice_found = False
-    for obj_name, obj_val in six.iteritems(model['api_objects']):
+    for obj_name, obj_val in model['api_objects'].items():
         if obj_val.get('extends') == 'BasePort':
             if baseport_found:
                 raise_format_error(
@@ -205,23 +205,23 @@ def extend_object(obj, obj_dict):
     obj['policies'] = dict()
     if 'attributes' in ext_obj:
         for attr_name, attr_val in \
-                six.iteritems(ext_obj.get('attributes')):
+                ext_obj.get('attributes').items():
             if attr_name not in obj['attributes']:
                 obj['attributes'].__setitem__(attr_name, attr_val)
             else:
                 obj['attributes'][attr_name].update(attr_val)
-    for attr_name, attr_val in six.iteritems(orig_attrs):
+    for attr_name, attr_val in orig_attrs.items():
         if attr_name not in obj['attributes']:
             obj['attributes'].__setitem__(attr_name, attr_val)
         else:
             obj['attributes'][attr_name].update(attr_val)
     if 'policies' in ext_obj:
-        for rule_name, rule_val in six.iteritems(ext_obj.get('policies')):
+        for rule_name, rule_val in ext_obj.get('policies').items():
             if rule_name not in obj['policies']:
                 obj['policies'].__setitem__(rule_name, rule_val)
             else:
                 obj['policies'][rule_name].update(rule_val)
-    for rule_name, rule_val in six.iteritems(orig_policies):
+    for rule_name, rule_val in orig_policies.items():
         if rule_name not in obj['policies']:
             obj['policies'].__setitem__(rule_name, rule_val)
         else:
@@ -231,7 +231,7 @@ def extend_object(obj, obj_dict):
 
 def proc_object_extensions(dicta, dictb):
     moved_list = list()
-    for obj_name, obj_val in six.iteritems(dicta):
+    for obj_name, obj_val in dicta.items():
         if obj_val.get('extends') in dictb:
             dictb[obj_name] = extend_object(obj_val, dictb)
             moved_list.append(obj_name)
@@ -243,14 +243,14 @@ def proc_object_extensions(dicta, dictb):
 
 def extend_base_objects(model):
     # First we move non-extended objects to new list
-    for obj_name, obj_val in six.iteritems(model.get('base_objects')):
+    for obj_name, obj_val in model.get('base_objects').items():
         if 'extends' in obj_val:
             if obj_val.get('extends') not in model.get('base_objects'):
                 raise_format_error('extends references unkown object: %s',
                                    (obj_val.get('extends')))
     new_dict = dict()
     moved_list = list()
-    for obj_name, obj_val in six.iteritems(model.get('base_objects')):
+    for obj_name, obj_val in model.get('base_objects').items():
         if 'extends' not in obj_val:
             moved_list.append(obj_name)
             new_dict.__setitem__(obj_name, obj_val)
@@ -263,7 +263,7 @@ def extend_base_objects(model):
 
 def extend_api_objects(model):
     new_dict = dict()
-    for obj_name, obj_val in six.iteritems(model.get('api_objects')):
+    for obj_name, obj_val in model.get('api_objects').items():
         if 'extends' in obj_val:
             if obj_val.get('extends') not in model.get('base_objects'):
                 raise_obj_error(obj_name,
@@ -297,7 +297,7 @@ def append_model(model, yaml_dict):
         model['api_objects'] = dict()
     if 'base_objects' not in model:
         model['base_objects'] = dict()
-    for obj_name, obj_val in six.iteritems(yaml_dict.get('objects')):
+    for obj_name, obj_val in yaml_dict.get('objects').items():
         if 'api' in obj_val:
             if 'plural_name' not in obj_val['api']:
                 obj_val['api']['plural_name'] = \

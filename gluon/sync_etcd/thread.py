@@ -119,7 +119,7 @@ def start_sync_thread(**kwargs):
     """Start the SyncThread.  This should be called in the main function."""
 
     if not SyncData.sync_thread_running:
-        for key, value in six.iteritems(kwargs):
+        for key, value in kwargs.items():
             if key == "etcd_host":
                 SyncData.etcd_host = value
             elif key == "etcd_port":
