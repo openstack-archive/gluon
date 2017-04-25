@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import pecan
 from pecan import rest
 import six
 from wsme import types as wtypes
@@ -21,6 +22,7 @@ from gluon.api.baseObject import APIBase
 from gluon.api.baseObject import APIBaseObject
 from gluon.api.baseObject import RootObjectController
 from gluon.api.baseObject import SubObjectController
+from gluon.api import link
 from gluon.api import types
 from gluon.particleGenerator.DataBaseModelGenerator \
     import DataBaseModelProcessor
@@ -34,26 +36,134 @@ ApiGenData = MyData()
 ApiGenData.svc_controllers = {}
 
 
-class ServiceRoot(APIBase):
-    """The root service URL"""
-    id = wtypes.text
+class ProtonVersion(APIBase):
+    """The root of proton service URL"""
+
+    proton_service = wtypes.text
+    """Name of proton service"""
+
+    version_id = wtypes.text
+    """Version id of proton service, e.g. v1, v2..."""
+
+    status = types.create_enum_type('CURRENT', 'STABLE', 'DEPRECATED')
+    """Status of the API, which can be CURRENT, STABLE or DEPRECATED"""
+
+    links = [link.Link]
+    """A Link that point to a specific version of the API"""
 
     @staticmethod
-    def convert(api_name):
+    def convert(service, version_id, status='CURRENT'):
+        version = ProtonVersion()
+        version.proton_service = service
+        version.version_id = version_id
+        version.status = status
+        resource_args = service + '/' + version_id
+        version.links = [link.Link.make_link('self',
+                                             pecan.request.host_url,
+                                             'proton',
+                                             resource_args,
+                                             bookmark=True)]
+        return version
+
+
+class Resource(APIBase):
+    """Resource under a specific version of proton service"""
+
+    proton_service = wtypes.text
+    """Name of proton service"""
+
+    version_id = wtypes.text
+    """Version id of proton service, e.g. v1, v2..."""
+
+    status = types.create_enum_type('CURRENT', 'STABLE', 'DEPRECATED')
+    """Status of the API, which can be CURRENT, STABLE or DEPRECATED"""
+
+    resource_name = wtypes.text
+    """The resource name"""
+
+    links = [link.Link]
+    """A Link that point to a specific version of the API"""
+
+    @staticmethod
+    def convert(service, version_id, resource_name, status='CURRENT'):
+        resource = Resource()
+        resource.proton_service = service
+        resource.version_id = version_id
+        resource.status = status
+        resource.resource_name = resource_name
+        resource_args = service + '/' + version_id + '/' + resource_name
+        resource.links = [link.Link.make_link('self',
+                                              pecan.request.host_url,
+                                              'proton',
+                                              resource_args,
+                                              bookmark=True)]
+        return resource
+
+
+class ServiceRoot(APIBase):
+    """The root service URL of a proton"""
+
+    default_version = ProtonVersion
+    """Default version of a service"""
+
+    versions = [ProtonVersion]
+    """Supported versions of a service"""
+
+    # TODO(JinLi) need to handle multiple versions of a proton service.
+    # for now we only have one version, so we put it in
+    # both default_version and versions.
+    @staticmethod
+    def convert(service, version_id):
+        version = ProtonVersion.convert(service, version_id)
         root = ServiceRoot()
-        root.id = api_name
+        root.default_version = version
+        root.versions = [version]
+        return root
+
+
+class ServiceVersionRoot(APIBase):
+    """The root service URL of a specific version of a proton"""
+
+    resources = [Resource]
+    """Resources available for a specific version of a proton service"""
+
+    @staticmethod
+    def convert(service_name, version_id):
+        from gluon.particleGenerator.generator import load_model_for_service
+        model = load_model_for_service(service_name)
+        root = ServiceVersionRoot()
+        root.resources = list()
+        for table_name, table_data in six.iteritems(model['api_objects']):
+            resource_name = table_data['api']['plural_name']
+            resource = Resource.convert(service_name,
+                                        version_id,
+                                        resource_name)
+            root.resources.append(resource)
         return root
 
 
 class ServiceController(rest.RestController):
     """Version 1 API controller root."""
 
-    def __init__(self, api_name):
+    def __init__(self, api_name, version_id):
         self.api_name = api_name
+        self.version_id = version_id
 
     @wsme_pecan.wsexpose(ServiceRoot)
     def get(self):
-        return ServiceRoot.convert(self.api_name)
+        return ServiceRoot.convert(self.api_name, self.version_id)
+
+
+class ServiceVersionController(rest.RestController):
+    """Version 1 API controller root."""
+
+    def __init__(self, api_name, version_id):
+        self.api_name = api_name
+        self.version_id = version_id
+
+    @wsme_pecan.wsexpose(ServiceVersionRoot)
+    def get(self):
+        return ServiceVersionRoot.convert(self.api_name, self.version_id)
 
 
 class APIGenerator(object):
@@ -65,9 +175,14 @@ class APIGenerator(object):
     def add_model(self, model):
         self.data = model
 
-    def create_controller(self, service_name, root):
-        controller = ServiceController(service_name)
+    def create_controller(self, service_name, version_id, root):
+        controller = ServiceController(service_name, version_id)
         setattr(root, service_name, controller)
+        return controller
+
+    def create_version_controller(self, service_name, version_id, root):
+        controller = ServiceVersionController(service_name, version_id)
+        setattr(root, version_id, controller)
         return controller
 
     def create_api(self, root, service_name, db_models):
