@@ -19,24 +19,50 @@ import wsmeext.pecan as wsme_pecan
 
 from gluon.api.baseObject import APIBase
 from gluon.api import link
+from gluon.api import types
 from gluon.particleGenerator import generator as particle_generator
 from oslo_config import cfg
 
 
-class ProtonRoot(APIBase):
-    """The representation of the version 1 of the API."""
 
-    id = wtypes.text
-    """The ID of the version, also acts as the release number"""
+class Proton(APIBase):
+
+    status = types.create_enum_type('CURRENT', 'STABLE', 'DEPRECATED')
+    """Status of the API, which can be CURRENT, STABLE, DEPRECATED"""
+
+    proton_service = wtypes.text
+    """The name of Proton service"""
 
     links = [link.Link]
+    """A Link that point to the root of proton"""
+
+    @staticmethod
+    def convert(service, status='CURRENT'):
+        proton = Proton()
+        proton.status = status
+        proton.proton_service = service
+        proton.links = [link.Link.make_link('self',
+                                            pecan.request.host_url,
+                                            'proton',
+                                            service,
+                                            bookmark=True)]
+        return proton
+
+
+class ProtonRoot(APIBase):
+
+    protons = [Proton]
+    """list of protons in their current version"""
 
     @staticmethod
     def convert():
+        service_list = particle_generator.get_service_list()
+        protons = list()
+        for service in service_list:
+            proton = Proton.convert(service)
+            protons.append(proton)
         root = ProtonRoot()
-        root.id = "proton"
-        root.links = [link.Link.make_link('self', pecan.request.host_url,
-                                          'proton', '', bookmark=True), ]
+        root.protons = protons
         return root
 
 
