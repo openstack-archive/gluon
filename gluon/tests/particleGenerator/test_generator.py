@@ -74,6 +74,7 @@ class GeneratorTestCase(partgen_base.ParticleGeneratorTestCase):
     """
     @mock.patch('gluon.particleGenerator.generator.load_model')
     @mock.patch.object(APIGenerator, 'create_controller')
+    @mock.patch.object(APIGenerator, 'create_version_controller')
     @mock.patch.object(APIGenerator, 'add_model')
     @mock.patch.object(APIGenerator, 'create_api')
     @mock.patch('gluon.particleGenerator.generator.GenData.DBGeneratorInstance'
@@ -82,24 +83,28 @@ class GeneratorTestCase(partgen_base.ParticleGeneratorTestCase):
                        mock_DBGeneratorInstance,
                        mock_create_api,
                        mock_add_model,
+                       mock_create_version_controller,
                        mock_create_controller,
                        mock_load_model):
         root = object()
         service_list = ['test']
-        mock_service = {'foo': 'bar'}
+        mock_service = {'foo': 'bar', 'info': {'version': '1.0'}}
         mock_load_model.return_value = mock_service
         db_models = mock.Mock()
         mock_DBGeneratorInstance.get_db_models.return_value = db_models
         service_root = mock.Mock()
+        version_root = mock.Mock()
         mock_create_controller.return_value = service_root
-
+        mock_create_version_controller.return_value = version_root
         generator.build_api(root, service_list)
 
         mock_load_model.assert_called_with('gluon', 'models', 'test')
-        mock_create_controller.assert_called_with('test', root)
+        mock_create_controller.assert_called_with('test', 'v1', root)
+        mock_create_version_controller.assert_called_with('test', 'v1',
+                                                          service_root)
         mock_add_model.assert_called_with(mock_service)
         mock_DBGeneratorInstance.get_db_models.assert_called_with('test')
-        mock_create_api.assert_called_with(service_root,
+        mock_create_api.assert_called_with(version_root,
                                            'test',
                                            db_models)
     """
