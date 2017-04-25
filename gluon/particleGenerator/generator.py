@@ -367,11 +367,16 @@ def build_sql_models(service_list):
 def build_api(root, service_list):
     from gluon.particleGenerator.ApiGenerator import APIGenerator
     for service in service_list:
-        load_model_for_service(service)
+        model = load_model_for_service(service)
+        version_id = str(model['info']['version'])
+        version_id = 'v' + version_id.split('.')[0]
         api_gen = APIGenerator()
-        service_root = api_gen.create_controller(service, root)
+        service_root = api_gen.create_controller(service, version_id, root)
+        service_version_root = \
+            api_gen.create_version_controller(service, version_id, 
+                                              service_root)
         api_gen.add_model(load_model_for_service(service))
-        api_gen.create_api(service_root, service,
+        api_gen.create_api(service_version_root, service,
                            GenData.DBGeneratorInstance.get_db_models(service))
 
 
