@@ -212,9 +212,10 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
     def test_make_list_func(self, mock_json_get):
         kwargs = {"host": "gluonURL.net", "port": 8080}
         api_model = "apimodel"
+        version = "v1"
         tablename = "tablename"
         mock_json_get.return_value = {"result": "successful"}
-        list_func = cli.make_list_func(api_model, tablename)
+        list_func = cli.make_list_func(api_model, version, tablename)
         observed = list_func(**kwargs)
         # self.assertIsNone(observed)
         expected = {"result": "successful"}
@@ -227,10 +228,12 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
     def test_make_show_func(self, mock_json_get):
         kwargs = {"host": "gluonURL.net", "port": 8080, "id": 1}
         api_model = "apimodel"
+        version = "v1"
         tablename = "tablename"
         primary_key = "id"
         mock_json_get.return_value = {"result": "successful"}
-        show_func = cli.make_show_func(api_model, tablename, primary_key)
+        show_func = cli.make_show_func(api_model, version,
+                                       tablename, primary_key)
         observed = show_func(**kwargs)
         # self.assertIsNone(observed)
         expected = {"result": "successful"}
@@ -245,9 +248,10 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
         kwargs = {"host": "gluonURL.net", "port": 8080, "id": 1,
                   "firstname": "Jane", "lastName": "Doe"}
         api_model = "apiModel"
+        version = "v1"
         tablename = "user"
         mock_do_post.return_value = '{"result": "successful"}'
-        create_func = cli.make_create_func(api_model, tablename)
+        create_func = cli.make_create_func(api_model, version, tablename)
         observed = create_func(**kwargs)
         self.assertIsNone(observed)
 
@@ -261,9 +265,11 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
                   "firstname": "Jane", "lastName": "Doe"}
         api_model = "apiModel"
         tablename = "user"
+        version = "v1"
         primary_key = "id"
         mock_do_put.return_value = '{"result": "successful"}'
-        update_func = cli.make_update_func(api_model, tablename, primary_key)
+        update_func = cli.make_update_func(api_model, version,
+                                           tablename, primary_key)
         observed = update_func(**kwargs)
         self.assertIsNone(observed)
 
@@ -275,10 +281,12 @@ class CliTestCase(partgen_base.ParticleGeneratorTestCase):
     def test_make_delete_func(self, mock_do_delete):
         kwargs = {"host": "gluonURL.net", "port": 8080, "id": 1}
         api_model = "apiModel"
+        version = "v1"
         tablename = "user"
         primary_key = "id"
         mock_do_delete.return_value = '{"result": "successful"}'
-        delete_func = cli.make_delete_func(api_model, tablename, primary_key)
+        delete_func = cli.make_delete_func(api_model, version,
+                                           tablename, primary_key)
         observed = delete_func(**kwargs)
         self.assertIsNone(observed)
 
