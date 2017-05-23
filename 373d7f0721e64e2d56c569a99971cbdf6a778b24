@@ -1,0 +1,10 @@
+Code-Review+2: Bin Hu <bh526r@att.com>
+Code-Review+1: Eduardo Gonzalez <dabarren@gmail.com>
+Code-Review+2: Georg Kunz <georg.kunz@ericsson.com>
+Workflow+1: Bin Hu <bh526r@att.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 23 May 2017 17:41:29 +0000
+Reviewed-on: https://review.openstack.org/456993
+Project: openstack/gluon
+Branch: refs/heads/master
