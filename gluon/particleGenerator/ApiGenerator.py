@@ -78,14 +78,14 @@ class APIGenerator(object):
         self.child = {}
         if not self.data:
             raise Exception('Cannot create API from empty model.')
-        for table_name, table_data in six.iteritems(self.data['api_objects']):
+        for table_name, table_data in self.data['api_objects'].items():
             try:
                 # For every entry build a (sub_)api_controller
                 # an APIObject, an APIObject and an APIListObject
                 # and a RealObject is created
                 api_object_fields = {}
                 for attribute, attr_value in \
-                        six.iteritems(table_data['attributes']):
+                        table_data['attributes'].items():
                     api_type = self.translate_model_to_api_type(
                         attr_value.get('type'),
                         attr_value.get('values'),
@@ -117,7 +117,7 @@ class APIGenerator(object):
 
         # Now add all childs since the roots are there now
         # And init the controller since all childs are there now
-        for table_name, table_data in six.iteritems(self.data['api_objects']):
+        for table_name, table_data in self.data['api_objects'].items():
             controller = self.controllers[table_name]
             if 'parent' in table_data['api']:
                 parent = table_data['api'].get('parent')
@@ -134,7 +134,7 @@ class APIGenerator(object):
                 self.subcontrollers[table_name] = new_subcontroller_class
                 self.child[parent] = table_name
                 setattr(parent_controller, sub_name, new_subcontroller_class())
-        for table_name, table_data in six.iteritems(self.data['api_objects']):
+        for table_name, table_data in self.data['api_objects'].items():
             api_name = table_data['api']['plural_name']
             controller_instance = self.controllers[table_name]()
             if table_name in self.child:

@@ -12,7 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import six
 import sqlalchemy.orm.exc
 
 from gluon.common import exception
@@ -106,7 +105,7 @@ class Connection(api.Connection):
     def _add_filters(self, query, filters):
         if filters is None:
             filters = {}
-        for (key, value) in six.iteritems(filters):
+        for (key, value) in filters.items():
             query = query.filter_by(**{key: value})
 
         return query

@@ -13,7 +13,6 @@
 #    under the License.
 
 import mock
-import six
 
 from gluon.particleGenerator.DataBaseModelGenerator import\
     DataBaseModelProcessor as DBMProcessor
@@ -187,8 +186,8 @@ class DataBaseModelGeneratorTestCase(partgen_base.ParticleGeneratorTestCase):
         # The class should have all the attributes from GluonInternalPort table
         GluonInternalPort_class_attrs = dir(GluonInternalPort_class)
         for col_name, col_desc in \
-                six.iteritems(self.model['api_objects']
-                              ['GluonInternalPort']['attributes']):
+                (self.model['api_objects']
+                 ['GluonInternalPort']['attributes']).items():
             self.assertIn(col_name, GluonInternalPort_class_attrs)
 
         # ** for the foo model **
@@ -209,7 +208,7 @@ class DataBaseModelGeneratorTestCase(partgen_base.ParticleGeneratorTestCase):
         # The class should have all the attributes from GluonInternalPort table
         foo_class_attrs = dir(foo_class)
         for col_name, col_desc in \
-                six.iteritems(self.model['api_objects']['foo']['attributes']):
+                (self.model['api_objects']['foo']['attributes']).items():
             self.assertIn(col_name, foo_class_attrs)
 
     """

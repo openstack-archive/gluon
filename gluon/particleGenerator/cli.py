@@ -14,7 +14,6 @@
 #    under the License.
 
 import os
-import six
 import sys
 
 import click
@@ -188,7 +187,7 @@ def make_create_func(api_model, tablename):
         del kwargs["host"]
         del kwargs["port"]
         data = {}
-        for key, val in six.iteritems(kwargs):
+        for key, val in kwargs.items():
             if val is not None:
                 data[key] = val
         result = do_post(url, data)
@@ -205,7 +204,7 @@ def make_update_func(api_model, tablename, primary_key):
         del kwargs["port"]
         del kwargs[primary_key]
         data = {}
-        for key, val in six.iteritems(kwargs):
+        for key, val in kwargs.items():
             if val is not None:
                 data[key] = val
         result = do_put(url, data)
@@ -225,7 +224,7 @@ def make_delete_func(api_model, tablename, primary_key):
 
 def get_primary_key(table_data):
     primary = []
-    for k, v in six.iteritems(table_data['attributes']):
+    for k, v in table_data['attributes'].items():
         if 'primary' in v:
             primary = k
             break
@@ -262,12 +261,12 @@ def proc_model(cli, package_name="unknown",
                portdefault=0):
     # print("loading model")
     model = load_model(package_name, model_dir, api_model)
-    for table_name, table_data in six.iteritems(model['api_objects']):
+    for table_name, table_data in model['api_objects'].items():
         get_primary_key(table_data)
-    for table_name, table_data in six.iteritems(model['api_objects']):
+    for table_name, table_data in model['api_objects'].items():
         try:
             attrs = {}
-            for col_name, col_desc in six.iteritems(table_data['attributes']):
+            for col_name, col_desc in table_data['attributes'].items():
                 try:
                     # Step 1: deal with object xrefs
                     if col_desc['type'] in model['api_objects']:
@@ -325,7 +324,7 @@ def proc_model(cli, package_name="unknown",
                                   default=hostdefault, help=hosthelp)(create)
             create = click.option("--port", envvar=portenv,
                                   default=portdefault, help=porthelp)(create)
-            for col_name, col_desc in six.iteritems(table_data['attributes']):
+            for col_name, col_desc in table_data['attributes'].items():
                 kwargs = {}
                 option_name = "--" + col_name
                 kwargs["default"] = None
@@ -344,7 +343,7 @@ def proc_model(cli, package_name="unknown",
                                   default=hostdefault, help=hosthelp)(update)
             update = click.option("--port", envvar=portenv,
                                   default=portdefault, help=porthelp)(update)
-            for col_name, col_desc in six.iteritems(table_data['attributes']):
+            for col_name, col_desc in table_data['attributes'].items():
                 if col_name == attrs['_primary_key']:
                     continue
                 kwargs = {}
