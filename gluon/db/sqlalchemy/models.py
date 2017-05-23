@@ -35,7 +35,8 @@ _DEFAULT_SQL_CONNECTION = ('sqlite:///' +
                            paths.state_path_def('gluon.sqlite'))
 
 cfg.CONF.register_opts(sql_opts, 'database')
-db_options.set_defaults(cfg.CONF, _DEFAULT_SQL_CONNECTION, 'gluon.sqlite')
+db_options.set_defaults(
+    cfg.CONF, connection=_DEFAULT_SQL_CONNECTION)
 
 
 class GluonBase(models.TimestampMixin, models.ModelBase):
