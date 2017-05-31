@@ -99,13 +99,14 @@ information from ``etcd``.
 The ``ports`` can be viewed using the command:
 
 .. code-block:: bash
-    $ protonclient --api net-l3vpn port-list
+
+  $ protonclient --api net-l3vpn port-list
 
 More generic command is something like:
 
 .. code-block:: bash
 
-    # protonclient --api <api-name> [OPTIONS] COMMAND [ARGS] ...
+  # protonclient --api <api-name> [OPTIONS] COMMAND [ARGS] ...
 
 Please refer to **User Guide** [1]_ for more details.
 

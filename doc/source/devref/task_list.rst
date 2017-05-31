@@ -43,18 +43,28 @@ For Enhancements of Gluon Implementation
 ----------------------------------------
 
 #. Investigate how different VIF drivers can be used for different port types on the same hypervisor
+
    #. Need to understand VIF plugging and how it affects Gluon
    #. Generic VIF driver may be okay for most use cases
+
 #. Investigate and resolve synchronization issues in the gluon/proton architecture
+
    #. Need to re-sync proton with gluon upon restart
+
       #. This is partially done
+
    #. Synchronization of mysql and etcd databases needs to be investigated
+
       #. Are we covered if Proton restarts or etcd is unavailable for a period of time?
+
 #. Synchronize bind operation with SDN controller
+
    #. There is no feedback if the SDN bind fails
    #. Need to make sure bind is done before VM is spawned. Synchronize bind with port_update response
    #. Binding information needs to be pushed back to Proton
+
       #. Should Proton just read this from etcd?
+
 #. Rebuild Gluon to not use particle generator
 
 ------------------------------------

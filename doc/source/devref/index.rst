@@ -32,6 +32,6 @@ Gluon Developer Docs
 .. include:: service_binding_model.rst
 .. include:: database_migration.rst
 .. include:: gluon-auth.rst
-.. include:: gluon-api-spec.rst
+.. include:: gluon_api_spec.rst
 .. include:: gluon_proton_versioning.rst
 .. include:: repo_structure.rst
