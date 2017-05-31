@@ -12,7 +12,7 @@ creating new network service APIs. It hence supports developers in making the
 best use of the flexibility provided by Gluon.
 
 This model is based on the "service binding pattern" described in the NetReady
-requirements document [1]_ and was adapted for Gluon.
+requirements document [0]_ and was adapted for Gluon.
 
 The modeling tools in Gluon provide building blocks to allow the creation of
 arbitrarily complex networking APIs.  However, some constraints are needed to
@@ -120,7 +120,7 @@ These are the base objects for defining APIs.  These objects cannot be used
 directly in an API definition.  They must be used as the base object for
 objects of similar type.  There is an **"extends"** keyword in the
 YAML model to provide this capability.  To have a functional networking API,
-one must extend the ``BasePort``, ``BaseInterface``, ``BaseService`` and 
+one must extend the ``BasePort``, ``BaseInterface``, ``BaseService`` and
 ``BaseServiceBinding`` objects.  It is not required that additional attributes
 are defined for the extended objects.  See the Interface definition in the
 example_ at the end of this document.
@@ -427,5 +427,5 @@ between these objects and objects extended from base objects.
 
 References
 
-.. [1] NetReady - Service Binding model: http://artifacts.opnfv.org/netready/colorado/docs/requirements/index.html#service-binding-design-pattern
+.. [0] NetReady - Service Binding model: http://artifacts.opnfv.org/netready/colorado/docs/requirements/index.html#service-binding-design-pattern
 

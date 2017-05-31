@@ -60,3 +60,6 @@ releasenotes/build
 .idea
 gluon/gluon.sqlite
 gluon/clean.sqlite
+
+doc/source/api
+doc/source/modules.rst
