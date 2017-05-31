@@ -160,9 +160,10 @@ def make_url(host, port, *args):
     return url
 
 
-def make_list_func(api_model, tablename):
+def make_list_func(api_model, version, tablename):
     def list_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], api_model, tablename)
+        url = make_url(kwargs["host"], kwargs["port"], api_model,
+                       version, tablename)
         result = json_get(url)
         print(json.dumps(result, indent=4))
         return result
@@ -170,10 +171,10 @@ def make_list_func(api_model, tablename):
     return list_func
 
 
-def make_show_func(api_model, tablename, primary_key):
+def make_show_func(api_model, version, tablename, primary_key):
     def show_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], api_model, tablename,
-                       kwargs[primary_key])
+        url = make_url(kwargs["host"], kwargs["port"], api_model,
+                       version, tablename, kwargs[primary_key])
         result = json_get(url)
         print(json.dumps(result, indent=4))
         return result
@@ -181,9 +182,10 @@ def make_show_func(api_model, tablename, primary_key):
     return show_func
 
 
-def make_create_func(api_model, tablename):
+def make_create_func(api_model, version, tablename):
     def create_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], api_model, tablename)
+        url = make_url(kwargs["host"], kwargs["port"], api_model,
+                       version, tablename)
         del kwargs["host"]
         del kwargs["port"]
         data = {}
@@ -196,10 +198,10 @@ def make_create_func(api_model, tablename):
     return create_func
 
 
-def make_update_func(api_model, tablename, primary_key):
+def make_update_func(api_model, version, tablename, primary_key):
     def update_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], api_model, tablename,
-                       kwargs[primary_key])
+        url = make_url(kwargs["host"], kwargs["port"], api_model,
+                       version, tablename, kwargs[primary_key])
         del kwargs["host"]
         del kwargs["port"]
         del kwargs[primary_key]
@@ -213,13 +215,19 @@ def make_update_func(api_model, tablename, primary_key):
     return update_func
 
 
-def make_delete_func(api_model, tablename, primary_key):
+def make_delete_func(api_model, version, tablename, primary_key):
     def delete_func(**kwargs):
-        url = make_url(kwargs["host"], kwargs["port"], api_model, tablename,
-                       kwargs[primary_key])
+        url = make_url(kwargs["host"], kwargs["port"], api_model,
+                       version, tablename, kwargs[primary_key])
         do_delete(url)
 
     return delete_func
+
+
+def get_version(model):
+    version = str(model['info']['version'])
+    version = 'v' + version
+    return version
 
 
 def get_primary_key(table_data):
@@ -261,6 +269,7 @@ def proc_model(cli, package_name="unknown",
                portdefault=0):
     # print("loading model")
     model = load_model(package_name, model_dir, api_model)
+    version = get_version(model)
     for table_name, table_data in model['api_objects'].items():
         get_primary_key(table_data)
     for table_name, table_data in model['api_objects'].items():
@@ -300,7 +309,7 @@ def proc_model(cli, package_name="unknown",
             #
             hosthelp = "Host of endpoint (%s) " % hostenv
             porthelp = "Port of endpoint (%s) " % portenv
-            list = make_list_func(api_model, attrs['__tablename__'])
+            list = make_list_func(api_model, version, attrs['__tablename__'])
             list.func_name = "%s-list" % (attrs['__objname__'])
             list = click.option("--host", envvar=hostenv,
                                 default=hostdefault, help=hosthelp)(list)
@@ -308,7 +317,7 @@ def proc_model(cli, package_name="unknown",
                                 default=portdefault, help=porthelp)(list)
             cli.command()(list)
 
-            show = make_show_func(api_model, attrs['__tablename__'],
+            show = make_show_func(api_model, version, attrs['__tablename__'],
                                   attrs['_primary_key'])
             show.func_name = "%s-show" % (attrs['__objname__'])
             show = click.option("--host", envvar=hostenv,
@@ -318,7 +327,8 @@ def proc_model(cli, package_name="unknown",
             show = click.argument(attrs['_primary_key'])(show)
             cli.command()(show)
 
-            create = make_create_func(api_model, attrs['__tablename__'])
+            create = make_create_func(api_model, version,
+                                      attrs['__tablename__'])
             create.func_name = "%s-create" % (attrs['__objname__'])
             create = click.option("--host", envvar=hostenv,
                                   default=hostdefault, help=hosthelp)(create)
@@ -336,7 +346,8 @@ def proc_model(cli, package_name="unknown",
                 create = click.option(option_name, **kwargs)(create)
             cli.command()(create)
 
-            update = make_update_func(api_model, attrs['__tablename__'],
+            update = make_update_func(api_model, version,
+                                      attrs['__tablename__'],
                                       attrs['_primary_key'])
             update.func_name = "%s-update" % (attrs['__objname__'])
             update = click.option("--host", envvar=hostenv,
@@ -355,7 +366,8 @@ def proc_model(cli, package_name="unknown",
             update = click.argument(attrs['_primary_key'])(update)
             cli.command()(update)
 
-            del_func = make_delete_func(api_model, attrs['__tablename__'],
+            del_func = make_delete_func(api_model, version,
+                                        attrs['__tablename__'],
                                         attrs['_primary_key'])
             del_func.func_name = "%s-delete" % (attrs['__objname__'])
             del_func = click.option("--host", envvar=hostenv,
