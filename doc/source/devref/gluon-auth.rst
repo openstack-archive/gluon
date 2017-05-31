@@ -28,28 +28,28 @@ If the token is valid, Keystone will retrieve additional information from token
 such as user name, user id, project name, project id etc and send this information
 to the OpenStack service. Otherwise, the request will be rejected.
 
-    Setting up
-    ~~~~~~~~~~
+Setting up
+~~~~~~~~~~
 
-    Once Keystone is installed and running, services have to be configured to work with it.
-    This involves setting up projects, roles, users, and services. By default, OpenStack
-    already has several projects, roles and users created.
+Once Keystone is installed and running, services have to be configured to work with it.
+This involves setting up projects, roles, users, and services. By default, OpenStack
+already has several projects, roles and users created.
 
-    Following is the normal process to add a service to Keystone.
+Following is the normal process to add a service to Keystone.
 
-        - Create a project
-        - Create a user for the service and add the user to the project
-        - Create an admin role and assign to the user
-        - Create service
-        - Create endpoint
+   - Create a project
+   - Create a user for the service and add the user to the project
+   - Create an admin role and assign to the user
+   - Create service
+   - Create endpoint
 
-    For Gluon, we will add these objects.
+For Gluon, we will add these objects.
 
-        - Create a new user called "gluon"
-        - Add "gluon" user to "service" project
-        - Add "service" role to "gluon" user in the "service" project
-        - Create a new service called "gluon"
-        - Create a new endpoint under the service "gluon"
+  - Create a new user called "gluon"
+  - Add "gluon" user to "service" project
+  - Add "service" role to "gluon" user in the "service" project
+  - Create a new service called "gluon"
+  - Create a new endpoint under the service "gluon"
 
 Authorization
 -------------
@@ -90,25 +90,27 @@ Following will be the default rules:
 
 The actions are defined within the "policies" section as shown below.
 
-    ProtonBasePort:
-        ...
-        existing model definition
-        ...
+.. code-block:: yaml
+
+  ProtonBasePort:
+      ...
+      existing model definition
+      ...
 
 
-        policies:
+      policies:
 
-          actions:
-            create:
-              role: "rule:admin_or_network_owner"
-            delete:
-              role: "rule:admin_or_network_owner"
-            get:
-              role: "rule:admin_or_owner"
-            get_one:
-              role: "rule:admin_or_owner"
-            update:
-              role: "rule:admin_or_network_owner"
+        actions:
+          create:
+            role: "rule:admin_or_network_owner"
+          delete:
+            role: "rule:admin_or_network_owner"
+          get:
+            role: "rule:admin_or_owner"
+          get_one:
+            role: "rule:admin_or_owner"
+          update:
+            role: "rule:admin_or_network_owner"
 
 
 This policy defines create, delete, get, get_one and update actions on the ProtonBasePort object.
@@ -122,42 +124,44 @@ Converting to policy.json file
 During the installation of Gluon, the embedded policies in the YAML model file will be converted
 to /etc/gluon/policy.json file. This file will have the following format.
 
-    {
-        "context_is_admin":  "role:admin or user_name:gluon",
-        "owner": "tenant_id:%(tenant_id)s",
-        "admin_or_owner": "rule:context_is_admin or rule:owner",
-        "context_is_advsvc":  "role:advsvc",
-        "admin_or_network_owner": "rule:context_is_admin or tenant_id:%(network:tenant_id)s",
-        "admin_owner_or_network_owner": "rule:owner or rule:admin_or_network_owner",
-        "admin_only": "rule:context_is_admin",
-        "regular_user": "",
-        "default": "rule:admin_or_owner",
+.. code-block:: json
 
-        "create_ports": "rule:admin_or_network_owner",
-        "get_ports": "rule:admin_or_owner",
-        "update_ports": "rule:admin_or_network_owner",
-        "delete_ports": "rule:admin_or_network_owner",
+  {
+      "context_is_admin":  "role:admin or user_name:gluon",
+      "owner": "tenant_id:%(tenant_id)s",
+      "admin_or_owner": "rule:context_is_admin or rule:owner",
+      "context_is_advsvc":  "role:advsvc",
+      "admin_or_network_owner": "rule:context_is_admin or tenant_id:%(network:tenant_id)s",
+      "admin_owner_or_network_owner": "rule:owner or rule:admin_or_network_owner",
+      "admin_only": "rule:context_is_admin",
+      "regular_user": "",
+      "default": "rule:admin_or_owner",
 
-        "create_interfaces": "rule:admin_or_network_owner",
-        "get_interfaces": "rule:admin_or_owner",
-        "update_interfaces": "rule:admin_or_network_owner",
-        "delete_interfaces": "rule:admin_or_network_owner",
+      "create_ports": "rule:admin_or_network_owner",
+      "get_ports": "rule:admin_or_owner",
+      "update_ports": "rule:admin_or_network_owner",
+      "delete_ports": "rule:admin_or_network_owner",
 
-        "create_vpns": "rule:admin_or_network_owner",
-        "get_vpns": "rule:admin_or_owner",
-        "update_vpns": "rule:admin_or_network_owner",
-        "delete_vpns": "rule:admin_or_network_owner",
+      "create_interfaces": "rule:admin_or_network_owner",
+      "get_interfaces": "rule:admin_or_owner",
+      "update_interfaces": "rule:admin_or_network_owner",
+      "delete_interfaces": "rule:admin_or_network_owner",
 
-        "create_vpnbindings": "rule:admin_or_network_owner",
-        "get_vpnbindings": "rule:admin_or_owner",
-        "update_vpnbindings": "rule:admin_or_network_owner",
-        "delete_vpnbindings": "rule:admin_or_network_owner",
+      "create_vpns": "rule:admin_or_network_owner",
+      "get_vpns": "rule:admin_or_owner",
+      "update_vpns": "rule:admin_or_network_owner",
+      "delete_vpns": "rule:admin_or_network_owner",
 
-        "create_vpnafconfigs": "rule:admin_or_network_owner",
-        "get_vpnafconfigs": "rule:admin_or_owner",
-        "update_vpnafconfigs": "rule:admin_or_network_owner",
-        "delete_vpnafconfigs": "rule:admin_or_network_owner",
-    }
+      "create_vpnbindings": "rule:admin_or_network_owner",
+      "get_vpnbindings": "rule:admin_or_owner",
+      "update_vpnbindings": "rule:admin_or_network_owner",
+      "delete_vpnbindings": "rule:admin_or_network_owner",
+
+      "create_vpnafconfigs": "rule:admin_or_network_owner",
+      "get_vpnafconfigs": "rule:admin_or_owner",
+      "update_vpnafconfigs": "rule:admin_or_network_owner",
+      "delete_vpnafconfigs": "rule:admin_or_network_owner",
+  }
 
 
 Bootstrapping policy.json
@@ -180,10 +184,10 @@ with Gluon to add keystone authentication and enforce RBAC policies defined in t
 
 The pecan-wsgi service in the Neutron will be used as a reference code for Gluon implementation
 
-Configuration 
+Configuration
 ~~~~~~~~~~~~~
 The /etc/proton/proton.conf file can be used to configure the authentication details. A sample
-configuration is shown below. 
+configuration is shown below.
 
 	[api]
 	auth_strategy = keystone

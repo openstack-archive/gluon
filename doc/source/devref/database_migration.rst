@@ -2,7 +2,6 @@
 Database Migration Strategy
 ===========================
 
--------------------------------
 What happens on a model change?
 -------------------------------
 
@@ -15,8 +14,6 @@ Similar to Neutron migration strategy a script for auto generation is used:
 The big difference is that Proton will have a YAML model. So a new
 auto generate script is needed.
 
-
------------------
 Migration Process
 -----------------
 
@@ -32,7 +29,6 @@ See details in the devref:
 `Neutron Database Migration <http://docs.openstack.org/developer/neutron/devref/alembic_migrations.html>`_
 
 
--------
 Testing
 -------
 
