@@ -211,21 +211,21 @@ Configuring identity details for Keystone:
 
     1. Create gluon user:
 
-        > openstack user create --name gluon --pass <password>
+        > openstack user create --password <password> gluon
 
     2. Add the admin role to the gluon user:
 
-        > openstack user role add --user gluon --tenant service --role admin
+        > openstack role add --project service --user gluon admin
 
     3. Create the gluon service
 
-        > openstack service create --name gluon --type network --description "Gluon"
+        > openstack service create --name gluon --description "Gluon" network
 
     4. Create Gluon API endpoints
 
-        > openstack endpoint create —publicurl http://10.0.2.15:2705  \
-            —adminurl http://10.0.2.15:2705 —internalurl http://10.0.2.15:2705 \
-            —region regionOne gluon
+        > openstack endpoint create --publicurl http://10.0.2.15:2705  \
+            --adminurl http://10.0.2.15:2705 --internalurl http://10.0.2.15:2705 \
+            --region regionOne gluon
 
 Reference
 ---------
