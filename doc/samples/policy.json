@@ -1,4 +1,5 @@
 {
+	"context_is_admin": "role:admin",
 	"owner": "tenant_id:%(tenant_id)s",
  	"admin_or_owner": "rule:context_is_admin or rule:owner",
 	"context_is_advsvc":  "role:advsvc",

@@ -187,45 +187,45 @@ The pecan-wsgi service in the Neutron will be used as a reference code for Gluon
 Configuration
 ~~~~~~~~~~~~~
 The /etc/proton/proton.conf file can be used to configure the authentication details. A sample
-configuration is shown below.
+configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
 
-	[api]
-	auth_strategy = keystone
+    [api]
+    auth_strategy = keystone
 
-	[keystone_authentication]
-	auth_uri = http://127.0.0.1/identity
-	project_domain_name = Default
-	project_name = service
-	user_domain_name = Default
-	password = welcome
-	username = gluon
-	auth_url = http://127.0.0.1/identity_admin
-	auth_type = password
+    [keystone_authtoken]
+    auth_uri = http://127.0.0.1:5000
+    project_domain_name = Default
+    project_name = service
+    user_domain_name = Default
+    password = <password>
+    username = gluon
+    auth_url = http://127.0.0.1:35357
+    auth_type = password
 
-	[oslo_policy]
-	policy_file = /etc/proton/policy.json
+    [oslo_policy]
+    policy_file = /etc/proton/policy.json
 
 Appendix
 --------
-Configuring identity details for Keystone:
+Configuring identity details for Keystone, change 110.0.2.15 to your gluon endpoint:
 
     1. Create gluon user:
 
-        > openstack user create --name gluon --pass <password>
+        > openstack user create --password <password> gluon
 
     2. Add the admin role to the gluon user:
 
-        > openstack user role add --user gluon --tenant service --role admin
+        > openstack role add --project service --user gluon admin
 
     3. Create the gluon service
 
-        > openstack service create --name gluon --type network --description "Gluon"
+        > openstack service create --name gluon --description "Gluon" network
 
     4. Create Gluon API endpoints
 
-        > openstack endpoint create —publicurl http://10.0.2.15:2705  \
-            —adminurl http://10.0.2.15:2705 —internalurl http://10.0.2.15:2705 \
-            —region regionOne gluon
+        > openstack endpoint create --publicurl http://10.0.2.15:2705  \
+            --adminurl http://10.0.2.15:2705 --internalurl http://10.0.2.15:2705 \
+            --region regionOne gluon
 
 Reference
 ---------
