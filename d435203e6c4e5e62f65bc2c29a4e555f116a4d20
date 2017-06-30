@@ -1,0 +1,9 @@
+Code-Review+1: Eduardo Gonzalez <dabarren@gmail.com>
+Code-Review+2: Bin Hu <bh526r@att.com>
+Workflow+1: Bin Hu <bh526r@att.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Fri, 30 Jun 2017 17:14:43 +0000
+Reviewed-on: https://review.openstack.org/474812
+Project: openstack/gluon
+Branch: refs/heads/master
