@@ -1,5 +1,5 @@
 [DEFAULT]
-state_path = /var/lib/proton
+
 #
 # From oslo.log
 #
@@ -322,6 +322,21 @@ state_path = /var/lib/proton
 #auth_section = <None>
 
 
+[oslo_policy]
+
+#
+# From gluon.conf
+#
+
+# File path to the policy_file. Gluon medels define policies in their
+# corresponding yaml files and in most cases users should manage policies e.g.
+# create, update, and delete within the yaml files thus making the yaml files
+# as the single reference for model definitions. This file is provided as an
+# avaiable option for users to add new or modify existing policies (string
+# value)
+#policy_file = /etc/proton/policy.json
+
+
 [path]
 
 #
@@ -335,5 +350,4 @@ state_path = /var/lib/proton
 #bindir = $pybasedir/bin
 
 # Top-level directory for maintaining gluon's state. (string value)
-# (JinLi) use the one in [default]
 #state_path = $pybasedir
