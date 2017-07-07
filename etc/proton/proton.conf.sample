@@ -322,6 +322,18 @@ state_path = /var/lib/proton
 #auth_section = <None>
 
 
+[oslo_policy]
+
+#
+# From gluon.conf
+#
+
+# file path to the policy_file. oslo_policy uses the rules and policies define
+# in this file to authorize request actions. e.g. create_port. Make sure this
+# file is there when using auth_strategy = keystone. (string value)
+#policy_file = /etc/proton/policy.json
+
+
 [path]
 
 #

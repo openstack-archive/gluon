@@ -59,14 +59,25 @@ SQL_OPTS = [
                help='MySQL engine to use.'),
 ]
 
+POLICY_OPTS = [
+    cfg.StrOpt('policy_file',
+               default='/etc/proton/policy.json',
+               help=("file path to the policy_file. oslo_policy uses the "
+                     "rules and policies define in this file to authorize "
+                     "request actions. e.g. create_port. Make sure this file "
+                     "is there when using auth_strategy = keystone.")),
+]
+
 
 def register_opts(conf):
     conf.register_opts(API_OPTS, 'api')
     conf.register_opts(PATH_OPTS)
     conf.register_opts(SQL_OPTS, 'database')
+    conf.register_opts(POLICY_OPTS)
 
 
 def list_opts():
     return {'api': API_OPTS,
             'path': PATH_OPTS,
-            'database': SQL_OPTS}
+            'database': SQL_OPTS,
+            'oslo_policy': POLICY_OPTS}
