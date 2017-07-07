@@ -59,14 +59,28 @@ SQL_OPTS = [
                help='MySQL engine to use.'),
 ]
 
+POLICY_OPTS = [
+    cfg.StrOpt('policy_file',
+               default='/etc/proton/policy.json',
+               help=("File path to the policy_file. Gluon medels define "
+                     "policies in their corresponding yaml files and in most "
+                     "cases users should manage policies e.g. create, update, "
+                     "and delete within the yaml files thus making the yaml "
+                     "files as the single reference for model definitions. "
+                     "This file is provided as an avaiable option for users "
+                     "to add new or modify existing policies")),
+]
+
 
 def register_opts(conf):
     conf.register_opts(API_OPTS, 'api')
     conf.register_opts(PATH_OPTS)
     conf.register_opts(SQL_OPTS, 'database')
+    conf.register_opts(POLICY_OPTS)
 
 
 def list_opts():
     return {'api': API_OPTS,
             'path': PATH_OPTS,
-            'database': SQL_OPTS}
+            'database': SQL_OPTS,
+            'oslo_policy': POLICY_OPTS}
