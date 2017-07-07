@@ -1,0 +1,9 @@
+Code-Review+1: Kamil <kamil.renczewski@gmail.com>
+Code-Review+2: Bin Hu <bh526r@att.com>
+Workflow+1: Bin Hu <bh526r@att.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Fri, 07 Jul 2017 13:35:34 +0000
+Reviewed-on: https://review.openstack.org/476509
+Project: openstack/gluon
+Branch: refs/heads/master
