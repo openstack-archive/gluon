@@ -189,6 +189,8 @@ Configuration
 The /etc/proton/proton.conf file can be used to configure the authentication details. A sample
 configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
 
+.. code-block:: conf
+
     [api]
     auth_strategy = keystone
 
@@ -204,6 +206,22 @@ configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
 
     [oslo_policy]
     policy_file = /etc/proton/policy.json
+
+Set Environment Variables
+~~~~~~~~~~~~~~~~~~~~~~~~~
+If Keystone is enable for authentication, some environment variables will need
+to be set up in order for protonclient commands to work properly. Modify the openrc
+file in gluon home directory with the appropriate value for you Keystone endpoint.
+A sample is shown below. 
+Then run ``source openrc <project_name> <user_name> <user_password>``to set these variables. 
+
+.. code-block:: bash
+
+    #
+    # set Keystone endpoint
+    #
+    export OS_AUTH_URL="http://192.168.56.101:5000"
+    
 
 Appendix
 --------
