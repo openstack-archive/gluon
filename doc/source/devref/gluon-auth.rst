@@ -205,6 +205,18 @@ configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
     [oslo_policy]
     policy_file = /etc/proton/policy.json
 
+Set Environment Variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If Keystone is enable for authentication, some environment variables will need
+to set up in order for protonclient commands to work properly. Modify the openrc
+file in gluon home directory with the apropriate values. Then run source openrc
+to set these variables. A sample is shown below.
+
+    export OS_AUTH_URL="http://192.168.56.101:5000"
+    export OS_TENANT_NAME="admin"
+    export OS_USERNAME="admin"
+    export OS_PASSWORD="pw"
+
 Appendix
 --------
 Configuring identity details for Keystone, change 10.0.2.15 to your gluon endpoint:
