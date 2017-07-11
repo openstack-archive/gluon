@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# source openrc
+#
+# Configure a set of credentials for $PROJECT/$USERNAME:
+#   set OS_AUTH_URL to Keystone end point
+#   Set OS_PROJECT_NAME to openstack project name
+#   Set OS_USERNAME to openstack user name
+#   Set ADMIN_PASSWORD to openstack password
+
+# If using devstack:
+#   set both OS_USERNAME and OS_TENANT_NAME to 'admin' or 'demo'
+# Example config for devstack:
+#   export OS_AUTH_URL="http://192.168.56.101:5000"
+#   export OS_TENANT_NAME="admin"
+#   export OS_USERNAME="admin"
+#   export OS_PASSWORD="ubuntu"
+
+export OS_AUTH_URL="<keystone enpoint>:5000"
+export OS_TENANT_NAME="<openstack project name>"
+export OS_USERNAME="<openstack user name>"
+export OS_PASSWORD="<openstack password>"
+
