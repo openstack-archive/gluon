@@ -13,6 +13,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+# TODO(JinLi)This is a simpilied version of the original policy.py with the
+# attribute-level authorization stripped off. The reason is because the
+# policy.py.bak file is borrowed from Neutron and the attribute-level authZ
+# code in that original file handles logic for Neutron attribute.
+#
+# This simplied version only handles object-level authorization. In the future,
+# we may use some code/logic from original policy.py and adapt it to enable
+# attibute-level authorization for Gluon.
+
 import collections
 import re
 import six
@@ -181,140 +190,6 @@ def _build_match_rule(action, target, pluralized):
                                     action, target)])
                         match_rule = policy.AndCheck([match_rule, attr_rule])
     return match_rule
-
-
-# This check is registered as 'tenant_id' so that it can override
-# GenericCheck which was used for validating parent resource ownership.
-# This will prevent us from having to handling backward compatibility
-# for policy.json
-# TODO(salv-orlando): Reinstate GenericCheck for simple tenant_id checks
-@policy.register('tenant_id')
-class OwnerCheck(policy.Check):
-    """Resource ownership check.
-
-    This check verifies the owner of the current resource, or of another
-    resource referenced by the one under analysis.
-    In the former case it falls back to a regular GenericCheck, whereas
-    in the latter case it leverages the plugin to load the referenced
-    resource and perform the check.
-    """
-    def __init__(self, kind, match):
-        # Process the match
-        try:
-            self.target_field = re.findall(r'^%\((.*)\)s$',
-                                           match)[0]
-        except IndexError:
-            err_reason = (_("Unable to identify a target field from:%s. "
-                            "Match should be in the form %%(<field_name>)s") %
-                          match)
-            LOG.exception(err_reason)
-            raise g_exc.PolicyInitError(
-                policy="%s:%s" % (kind, match),
-                reason=err_reason)
-        super(OwnerCheck, self).__init__(kind, match)
-
-    def __call__(self, target, creds, enforcer):
-        if self.target_field not in target:
-            # policy needs a plugin check
-            # target field is in the form resource:field
-            # however if they're not separated by a colon, use an underscore
-            # as a separator for backward compatibility
-
-            def do_split(separator):
-                parent_res, parent_field = self.target_field.split(
-                    separator, 1)
-                return parent_res, parent_field
-
-            for separator in (':', '_'):
-                try:
-                    parent_res, parent_field = do_split(separator)
-                    break
-                except ValueError:
-                    LOG.debug("Unable to find ':' as separator in %s.",
-                              self.target_field)
-            else:
-                # If we are here split failed with both separators
-                err_reason = (_("Unable to find resource name in %s") %
-                              self.target_field)
-                LOG.error(err_reason)
-                raise g_exc.PolicyCheckError(
-                    policy="%s:%s" % (self.kind, self.match),
-                    reason=err_reason)
-            parent_foreign_key = attributes.RESOURCE_FOREIGN_KEYS.get(
-                "%ss" % parent_res, None)
-            if not parent_foreign_key:
-                err_reason = (_("Unable to verify match:%(match)s as the "
-                                "parent resource: %(res)s was not found") %
-                              {'match': self.match, 'res': parent_res})
-                LOG.error(err_reason)
-                raise g_exc.PolicyCheckError(
-                    policy="%s:%s" % (self.kind, self.match),
-                    reason=err_reason)
-            # NOTE(salv-orlando): This check currently assumes the parent
-            # resource is handled by the core plugin. It might be worth
-            # having a way to map resources to plugins so to make this
-            # check more general
-            # NOTE(ihrachys): if import is put in global, circular
-            # import failure occurs
-            manager = importutils.import_module('neutron.manager')
-            f = getattr(manager.NeutronManager.get_instance().plugin,
-                        'get_%s' % parent_res)
-            # f *must* exist, if not found it is better to let neutron
-            # explode. Check will be performed with admin context
-            context = importutils.import_module('neutron.context')
-            try:
-                data = f(context.get_admin_context(),
-                         target[parent_foreign_key],
-                         fields=[parent_field])
-                target[self.target_field] = data[parent_field]
-            except g_exc.NotFound as e:
-                # NOTE(kevinbenton): a NotFound exception can occur if a
-                # list operation is happening at the same time as one of
-                # the parents and its children being deleted. So we issue
-                # a RetryRequest so the API will redo the lookup and the
-                # problem items will be gone.
-                raise db_exc.RetryRequest(e)
-            except Exception:
-                with excutils.save_and_reraise_exception():
-                    LOG.exception('Policy check error while calling %s!', f)
-        match = self.match % target
-        if self.kind in creds:
-            return match == six.text_type(creds[self.kind])
-        return False
-
-
-@policy.register('field')
-class FieldCheck(policy.Check):
-    def __init__(self, kind, match):
-        # Process the match
-        resource, field_value = match.split(':', 1)
-        field, value = field_value.split('=', 1)
-
-        super(FieldCheck, self).__init__(kind, '%s:%s:%s' %
-                                         (resource, field, value))
-
-        # Value might need conversion - we need help from the attribute map
-        try:
-            attr = attributes.RESOURCE_ATTRIBUTE_MAP[resource][field]
-            conv_func = attr['convert_to']
-        except KeyError:
-            conv_func = lambda x: x
-
-        self.field = field
-        self.value = conv_func(value)
-        self.regex = re.compile(value[1:]) if value.startswith('~') else None
-
-    def __call__(self, target_dict, cred_dict, enforcer):
-        target_value = target_dict.get(self.field)
-        # target_value might be a boolean, explicitly compare with None
-        if target_value is None:
-            LOG.debug("Unable to find requested field: %(field)s in target: "
-                      "%(target_dict)s",
-                      {'field': self.field, 'target_dict': target_dict})
-            return False
-        if self.regex:
-            return bool(self.regex.match(target_value))
-        return target_value == self.value
 
 
 def _prepare_check(context, action, target, pluralized):
