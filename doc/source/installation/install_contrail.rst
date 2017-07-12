@@ -68,7 +68,7 @@ https://github.com/codilime/ContrailMechanismDriver.
       *neutron.ml2.mechanism_drivers*
       set key *contrail_driver* to
       **neutron.plugins.ml2.drivers.contrail_driver:ContrailMechanismDriver**
-      * For Fuel based installations: ``/usr/lib/python2.7/dist-packages/neutron-<version>.egg-info/entry_points.txt``
-      * For devstack based installations: ``/opt/stack/neutron/neutron.egg-info/entry_points.txt``
+      - For Fuel based installations: ``/usr/lib/python2.7/dist-packages/neutron-<version>.egg-info/entry_points.txt``
+      - For devstack based installations: ``/opt/stack/neutron/neutron.egg-info/entry_points.txt``
 #. Neutron service need to be restarted.
 
