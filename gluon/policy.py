@@ -25,6 +25,7 @@ from oslo_utils import excutils
 from oslo_utils import importutils
 
 from gluon import constants
+from gluon import policies
 
 from gluon._i18n import _
 
@@ -52,6 +53,7 @@ def init(conf=cfg.CONF, policy_file=None):
     if not _ENFORCER:
         _ENFORCER = policy.Enforcer(conf, policy_file=policy_file)
         _ENFORCER.load_rules(True)
+        register_rules(_ENFORCER)
 
 
 def refresh(policy_file=None):
@@ -426,3 +428,7 @@ def check_is_advsvc(context):
     if ADVSVC_CTX_POLICY not in _ENFORCER.rules:
         return False
     return _ENFORCER.enforce(ADVSVC_CTX_POLICY, credentials, credentials)
+
+
+def register_rules(enforcer):
+    enforcer.register_defaults(policies.list_rules())
