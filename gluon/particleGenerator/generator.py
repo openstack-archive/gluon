@@ -44,6 +44,32 @@ def raise_obj_error(obj_name, format_str, val_tuple):
     raise_format_error("Object: %s, %s", (obj_name, str))
 
 
+# Check if policies are defined for each object and actions are valid.
+# Does not verify the content of the policy for undefined rules and cyclic
+# rules. The content of policies will be verified by calling the oslo_policy's
+# load_rules funtions after all policies are registered.
+def validate_policies(model):
+    '''Each api object should have policies defined'''
+
+    allowed_actions = ['create', 'delete', 'get', 'list', 'update']
+    for obj_name, obj_val in model['api_objects'].items():
+        if 'policies' not in obj_val:
+            raise_obj_error(obj_name,
+                            '%s has no policies defined.',
+                            (obj_name))
+        policies = obj_val.get('policies')
+        for action, policy in policies.items():
+            if action not in allowed_actions:
+                raise_obj_error(obj_name,
+                                'In %s policies, %s is not a valid action.',
+                                (obj_name, action))
+        for action in allowed_actions:
+            if action not in policies:
+                raise_obj_error(obj_name,
+                                'In %s policies, action %s is not defined.',
+                                (obj_name, action))
+
+
 def validate_attributes(obj_name, obj, model):
     props = ['type', 'primary', 'description', 'required',
              'length', 'values', 'format', 'min', 'max']

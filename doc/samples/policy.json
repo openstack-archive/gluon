@@ -1,4 +1,9 @@
 {
+    "COMMENT": "This file is no longer needed, but for historical record !!!",
+    "COMMENT": "The policy.json file in /etc/proton directory should contain",
+    "COMMENT": "empty json object: {}",
+    
+    "COMMENT": "This first part is moved to code in policies/base.py",
     "context_is_admin": "role:admin",
     "owner": "tenant_id:%(tenant_id)s",
     "admin_or_owner": "rule:context_is_admin or rule:owner",
@@ -9,6 +14,7 @@
     "regular_user": "",
     "default": "rule:admin_or_owner",
 
+    "COMMENT": "The rest of policies are defined in YAML",
     "create_ports": "rule:admin_or_network_owner",
     "get_ports": "rule:admin_or_owner",
     "update_ports": "rule:admin_or_network_owner",

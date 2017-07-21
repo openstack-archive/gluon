@@ -16,6 +16,17 @@
 
 from oslo_policy import policy
 
+
+RULE_CONTEXT_IS_ADMIN = 'rule:context_is_admin'
+RULE_OWNER = 'rule:owner'
+RULE_ADMIN_OR_OWNER = 'rule:admin_or_owner'
+RULE_CONTEXT_IS_ADVSVC = 'rule:context_is_advsvc'
+RULE_ADMIN_OR_NETWORK_OWNER = 'rule:admin_or_network_owner'
+RULE_ADMIN_OWNER_OR_NETWORK_OWNER = 'rule:admin_owner_or_network_owner'
+RULE_ADMIN_ONLY = 'rule:admin_only'
+RULE_REGULAR_USER = 'rule:regular_user'
+RULE_DEFAULT = 'rule:default'
+
 rules = [
     policy.RuleDefault('context_is_admin', 'role:admin'),
     policy.RuleDefault('owner', 'tenant_id:%(tenant_id)s'),
