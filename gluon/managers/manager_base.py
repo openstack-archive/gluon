@@ -110,6 +110,9 @@ class ApiManager(object):
                 retry -= 1
         return ret_val
 
+    # TODO(JinLi) This code now is hard-coded to create default interface when
+    # creating ports. Need to change the hardcoded code to support all types
+    # of YAML in future.
     def create_ports(self, api_class, values):
         ret_obj = api_class.create_in_db(values)
         #
@@ -132,6 +135,7 @@ class ApiManager(object):
                 name = 'default'
             data = {'id': values.get('id'),
                     'port_id': values.get('id'),
+                    "tenant_id": values.get('tenant_id', ''),
                     'name': name,
                     'segmentation_type': 'none',
                     'segmentation_id': 0}

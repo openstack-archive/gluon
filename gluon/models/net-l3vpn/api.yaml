@@ -73,6 +73,10 @@ objects:
       name: vpnafconfig
       plural_name: vpnafconfigs
     attributes:
+      tenant_id:
+        type: uuid
+        required: true
+        description: "UUID of Tenant"
       vrf_rt_value:
         required: true
         type: string
@@ -95,6 +99,17 @@ objects:
         type: string
         length: 32
         description: "Route target export policy"
+    policies:
+        create:
+          role: "rule:admin_or_owner"
+        delete:
+          role: "rule:admin_or_owner"
+        get:
+          role: "rule:admin_or_owner"
+        list:
+          role: "rule:admin"
+        update:
+          role: "rule:admin_or_owner"
   BGPPeering:
     api:
       name: bgppeering
