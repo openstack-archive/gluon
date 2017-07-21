@@ -35,6 +35,7 @@ class MyData(object):
 
 ApiGenData = MyData()
 ApiGenData.svc_controllers = {}
+API_OBJECT_CLASSES = {}
 
 
 class ProtonVersion(APIBase):
@@ -170,6 +171,8 @@ class APIGenerator(object):
         return controller
 
     def create_api(self, root, service_name, db_models):
+        global API_OBJECT_CLASSES
+        API_OBJECT_CLASSES[service_name] = {}
         self.db_models = db_models
         self.service_name = service_name
         self.controllers = {}
@@ -199,7 +202,12 @@ class APIGenerator(object):
 
                 # api_name
                 api_name = table_data['api']['plural_name']
-
+                
+                # Store each api_object_class created for the api.
+                # As in some situations, policy authorization will need to
+                # call an api_object_class to prefetch data
+                API_OBJECT_CLASSES[service_name][api_name] = api_object_class
+                
                 # primary_key_type
                 p_type, p_vals, p_fmt = self.get_primary_key_type(table_data)
                 primary_key_type = self.translate_model_to_api_type(p_type,

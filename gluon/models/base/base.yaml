@@ -6,17 +6,28 @@ objects:
         type: uuid
         primary: true
         description: "UUID of Object"
-      name:
-        type: string
-        length: 64
-        description: "Descriptive name of Object"
-  BasePort:
-    extends: BaseObject
-    attributes:
       tenant_id:
         type: uuid
         required: true
         description: "UUID of Tenant owning this Port"
+      name:
+        type: string
+        length: 64
+        description: "Descriptive name of Object"
+    policies:
+        create:
+          role: "rule:admin_or_owner"
+        delete:
+          role: "rule:admin_or_owner"
+        list:
+          role: "rule:admin_or_owner"
+        get:
+          role: "rule:admin_or_owner"
+        update:
+          role: "rule:admin_or_owner"
+  BasePort:
+    extends: BaseObject
+    attributes:
       mac_address:
         type: string
         length: 18
@@ -108,6 +119,10 @@ objects:
         description: "Description of Service"
   BaseServiceBinding:
     attributes:
+      tenant_id:
+        type: uuid
+        required: true
+        description: "UUID of Tenant owning this Port"
       interface_id:
         type: uuid
         required: true
@@ -117,3 +132,14 @@ objects:
         type: uuid
         required: true
         description: "Pointer to Service instance"
+    policies:
+        create:
+          role: "rule:admin_or_owner"
+        delete:
+          role: "rule:admin_or_owner"
+        list:
+          role: "rule:admin_or_owner"
+        get:
+          role: "rule:admin_or_owner"
+        update:
+          role: "rule:admin_or_owner"

@@ -95,6 +95,17 @@ objects:
         type: string
         length: 32
         description: "Route target export policy"
+    policies:
+        create:
+          role: "rule:admin_or_network_owner"
+        delete:
+          role: "rule:admin_or_network_owner"
+        get:
+          role: "rule:admin_or_owner"
+        list:
+          role: "rule:admin_or_owner"
+        update:
+          role: "rule:admin_or_network_owner"
   BGPPeering:
     api:
       name: bgppeering
