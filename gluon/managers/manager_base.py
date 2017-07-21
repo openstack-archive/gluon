@@ -132,6 +132,7 @@ class ApiManager(object):
                 name = 'default'
             data = {'id': values.get('id'),
                     'port_id': values.get('id'),
+                    "tenant_id": values.get('tenant_id', ''),
                     'name': name,
                     'segmentation_type': 'none',
                     'segmentation_id': 0}

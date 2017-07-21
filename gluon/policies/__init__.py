@@ -16,10 +16,16 @@
 
 import itertools
 
+from gluon.particleGenerator import generator
+from gluon.particleGenerator import PolicyGenerator
 from gluon.policies import base
+from gluon.policies import net_l3vpn
 
 
 def list_rules():
+    service_list = generator.get_service_list()
     return itertools.chain(
-        base.list_rules()
+       base.list_rules(),
+       PolicyGenerator.generatePolicies(service_list)
+       # net_l3vpn.list_rules()
     )
