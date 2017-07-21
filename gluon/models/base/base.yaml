@@ -78,6 +78,18 @@ objects:
         type: string
         length: 32
         description: "binding:vif_type: binding type for VIF"
+    policies:
+        actions:
+          create:
+            role: "rule:admin_or_network_owner"
+          delete:
+            role: "rule:admin_or_network_owner"
+          get:
+            role: "rule:admin_or_owner"
+          get_one:
+            role: "rule:admin_or_owner"
+          update:
+            role: "rule:admin_or_network_owner"    
   BaseInterface:
     extends: BaseObject
     attributes:
