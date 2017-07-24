@@ -10,7 +10,7 @@ job will vote against the change until a migration file for this change is
 also uploaded.
 
 Similar to Neutron migration strategy a script for auto generation is used:
-`Neutron Script Auto-generation <http://docs.openstack.org/developer/neutron/devref/alembic_migrations.html#script-auto-generation>`_
+`Neutron Script Auto-generation <https://docs.openstack.org/neutron/latest/contributor/alembic_migrations.html#script-auto-generation>`_
 The big difference is that Proton will have a YAML model. So a new
 auto generate script is needed.
 
@@ -26,7 +26,7 @@ to update the database.
 The migration process is done in the exact same way as the Neutron
 database migration.
 See details in the devref:
-`Neutron Database Migration <http://docs.openstack.org/developer/neutron/devref/alembic_migrations.html>`_
+`Neutron Database Migration <https://docs.openstack.org/neutron/latest/contributor/alembic_migrations.html>`_
 
 
 Testing

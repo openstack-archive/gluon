@@ -179,7 +179,7 @@ Action to API Mapping
 ~~~~~~~~~~~~~~~~~~~~~
 
 Gluon service has to map actions to respective API calls. The OpenStack keystonemiddleware
-and oslo.policy(http://docs.openstack.org/developer/oslo.policy/) modules will be integrated
+and oslo.policy(https://docs.openstack.org/oslo.policy/latest/) modules will be integrated
 with Gluon to add keystone authentication and enforce RBAC policies defined in the JSON.policy file.
 
 The pecan-wsgi service in the Neutron will be used as a reference code for Gluon implementation
