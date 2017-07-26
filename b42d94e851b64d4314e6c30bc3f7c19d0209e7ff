@@ -1,0 +1,10 @@
+Code-Review+1: Cuong Nguyen <cuongnv@vn.fujitsu.com>
+Code-Review+2: Bin Hu <bh526r@att.com>
+Workflow+1: Bin Hu <bh526r@att.com>
+Code-Review+1: Jin Li <jl7351@att.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Wed, 26 Jul 2017 18:18:09 +0000
+Reviewed-on: https://review.openstack.org/486511
+Project: openstack/gluon
+Branch: refs/heads/master
