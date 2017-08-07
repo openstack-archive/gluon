@@ -26,10 +26,10 @@
 Welcome to Gluon's documentation!
 =================================
 
-Contents:
+Contents
 
 .. toctree::
-   :maxdepth:2
+   :maxdepth: 2
 
    readme.rst
    devref/high_level_design.rst

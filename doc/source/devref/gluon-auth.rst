@@ -189,7 +189,7 @@ Configuration
 The /etc/proton/proton.conf file can be used to configure the authentication details. A sample
 configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
 
-.. code-block:: conf
+.. code-block:: ini
 
     [api]
     auth_strategy = keystone

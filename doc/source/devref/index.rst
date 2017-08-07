@@ -19,7 +19,8 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-:tocdepth: 2
+.. toctree::
+   :maxdepth: 2
 
 ####################
 Gluon Developer Docs
@@ -35,3 +36,4 @@ Gluon Developer Docs
 .. include:: gluon_api_spec.rst
 .. include:: gluon_proton_versioning.rst
 .. include:: repo_structure.rst
+
