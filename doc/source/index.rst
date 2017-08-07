@@ -26,12 +26,14 @@
 Welcome to Gluon's documentation!
 =================================
 
-Contents:
+Contents
 
 .. toctree::
-   :maxdepth:2
+   :maxdepth: 2
 
    readme.rst
+   api/modules.rst
+   devref/task_list.rst
    devref/high_level_design.rst
    devref/repo_structure.rst
    installation.rst
@@ -46,4 +48,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

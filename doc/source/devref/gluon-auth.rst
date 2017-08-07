@@ -186,10 +186,11 @@ The pecan-wsgi service in the Neutron will be used as a reference code for Gluon
 
 Configuration
 ~~~~~~~~~~~~~
+
 The /etc/proton/proton.conf file can be used to configure the authentication details. A sample
 configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
 
-.. code-block:: conf
+.. code-block:: ini
 
     [api]
     auth_strategy = keystone
@@ -209,11 +210,12 @@ configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
 
 Set Environment Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If Keystone is enabled for authentication, some environment variables will need
 to be set up in order for protonclient commands to work properly. Modify the openrc
 file in gluon home directory with the appropriate value for you Keystone endpoint.
 A sample is shown below.
-Then run ``source openrc <project_name> <user_name> <user_password>``to set these variables.
+Then run ``source openrc <project_name> <user_name> <user_password>`` to set these variables.
 
 .. code-block:: bash
 
@@ -224,6 +226,7 @@ Then run ``source openrc <project_name> <user_name> <user_password>``to set thes
 
 Appendix
 --------
+
 Configuring identity details for Keystone, change 10.0.2.15 to your gluon endpoint:
 
     1. Create gluon user:
@@ -246,4 +249,5 @@ Configuring identity details for Keystone, change 10.0.2.15 to your gluon endpoi
 
 Reference
 ---------
+
     1) Port and service binding model - https://review.openstack.org/#/c/392250
