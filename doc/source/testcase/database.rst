@@ -1,3 +1,5 @@
+:orphan:
+
 ..Database
 
 
@@ -81,7 +83,7 @@
 |Output Specifications  |The responses after executing gluon.db.sqlalchemy.api|
 |                       |                                                     |
 +-----------------------+-----------------------------------------------------+
-|Pass/Fail Criteria     |If testcase fails, tox should output errors with      |
+|Pass/Fail Criteria     |If testcase fails, tox should output errors with     |
 |                       |trace.                                               |
 |                       |                                                     |
 |                       |                                                     |

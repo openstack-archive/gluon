@@ -38,7 +38,7 @@ still needs to be manually set up.
 Contents:
 
 .. toctree::
-   :maxdepth:2
+   :maxdepth: 2
 
    installation/install_etcd.rst
    installation/install_gluon.rst

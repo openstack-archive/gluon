@@ -19,19 +19,18 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-:tocdepth: 2
-
 ####################
 Gluon Developer Docs
 ####################
 
-.. rest_expand_all::
+.. toctree::
+   :maxdepth: 2
 
-.. include:: high_level_design.rst
-.. include:: plugin_wrapper.rst
-.. include:: service_binding_model.rst
-.. include:: database_migration.rst
-.. include:: gluon-auth.rst
-.. include:: gluon_api_spec.rst
-.. include:: gluon_proton_versioning.rst
-.. include:: repo_structure.rst
+.. include:: high_level_design.inc
+.. include:: plugin_wrapper.inc
+.. include:: service_binding_model.inc
+.. include:: database_migration.inc
+.. include:: gluon-auth.inc
+.. include:: gluon_api_spec.inc
+.. include:: gluon_proton_versioning.inc
+.. include:: repo_structure.inc
