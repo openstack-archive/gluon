@@ -1,3 +1,4 @@
+=======================
 Gluon API Specification
 =======================
 
@@ -131,7 +132,8 @@ ProtonDef object. See the complete Example_ at the end of this page for an
 example of the ProtonDef syntax.
 
 ProtonDef
-+++++++++
+~~~~~~~~~
+
 .. csv-table::
    :header: "Fixed Field", "Type", "Required", "Description"
    :widths: 5, 5, 3, 20
@@ -174,7 +176,8 @@ contains the metadata about the API.  The *objects* field contains the base
 and API object definitions for the API.
 
 InfoDef
-+++++++
+~~~~~~~
+
 .. csv-table::
    :header: "Fixed Field", "Type", "Required", "Description"
    :widths: 5, 5, 3, 20
@@ -200,7 +203,8 @@ The InfoDef is where metadata about the API can be specified.  At a minimum the
     email: bh526r@att.com
 
 AuthorDef
-+++++++++
+~~~~~~~~~
+
 .. csv-table::
    :header: "Fixed Field", "Type", "Required", "Description"
    :widths: 5, 5, 3, 20
@@ -222,12 +226,14 @@ This information is optional.
   email: bh526r@att.com
 
 ObjectsDef
-++++++++++
+~~~~~~~~~~
+
 .. csv-table::
    :header: "Pattern Field", "Type", "Required", "Description"
-   :widths: 10, 5, 3, 20
+   # TODO adjust widths
+   :widths: 13, 5, 3, 17
 
-   [_a-zA-Z][_a-zA-Z0-9]*, ObjectDef_,  true, Field/Value Object definitions
+   [_a-zA-Z][_a-zA-Z0-9]*, ObjectDef_, true, Field/Value Object definitions
 
 The ObjectsDef allows one or more objects to be specified for the API.  The
 field name should follow the lexical definitions for a Python identifier.
@@ -256,7 +262,8 @@ field name should follow the lexical definitions for a Python identifier.
             description: "Route distinguisher for this VPN"
 
 ObjectDef
-+++++++++
+~~~~~~~~~
+
 .. csv-table::
    :header: "Fixed Field", "Type", "Required", "Description"
    :widths: 5, 5, 3, 20
@@ -295,7 +302,8 @@ the object.
 
 
 ApiDef
-++++++
+~~~~~~
+
 .. csv-table::
    :header: "Fixed Field", "Type", "Required", "Description"
    :widths: 5, 5, 3, 20
@@ -321,7 +329,8 @@ for the API path during code generation.
   parent: Port
 
 PolicyDef
-+++++++++
+~~~~~~~~~
+
 .. csv-table::
    :header: "Fixed Field", "Type", "Required", "Description"
    :widths: 5, 5, 3, 20
@@ -348,7 +357,8 @@ of the rule specifier string is defined in the Openstack Policy
   update: "rule:admin_or_network_owner"
 
 AttributesDef
-+++++++++++++
+~~~~~~~~~~~~~
+
 .. csv-table::
    :header: "Pattern Field", "Type", "Required", "Description"
    :widths: 10, 5, 3, 20
@@ -371,7 +381,7 @@ identifier.
 
 
 AttributeSchemaDef
-++++++++++++++++++
+~~~~~~~~~~~~~~~~~~
 
 .. csv-table::
    :header: "Fixed Field", "Type", "Required", "Description"
@@ -446,7 +456,7 @@ subnet_prefix, status, and profile.
     format: json
 
 References
-++++++++++
+~~~~~~~~~~
 
 `Date_Time <https://tools.ietf.org/html/draft-wright-json-schema-validation-00#section-7.3.1>`_
 `IPV4 <https://tools.ietf.org/html/draft-wright-json-schema-validation-00#section-7.3.4>`_
@@ -457,7 +467,7 @@ References
 .. _Example:
 
 Complete Example Specification
-++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section shows the L3VPN API defined using this specification.  The base
 objects that would be defined in base/base.yaml are in the Base Objects
@@ -701,4 +711,3 @@ API Specification
             type: string
             length: 32
             description: "Route target export policy"
-

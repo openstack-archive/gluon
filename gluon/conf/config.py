@@ -37,7 +37,7 @@ API_OPTS = [
                help='the type of authentication to use'),
     cfg.BoolOpt('debug',
                 default=True,
-                help='debug')
+                help='debug'),
 ]
 
 PATH_OPTS = [

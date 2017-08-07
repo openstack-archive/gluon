@@ -50,6 +50,9 @@ add_module_names = True
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# TODO(otleimat): Add exlusion to certain rst files
+# exclude_patterns = []
+
 # -- Options for HTML output --------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
