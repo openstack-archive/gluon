@@ -14,34 +14,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-      Convention for heading levels in Gluon documentation:
-      =======  Heading 0 (reserved for the title in a document)
-      -------  Heading 1
-      ~~~~~~~  Heading 2
-      +++++++  Heading 3
-      '''''''  Heading 4
-      (Avoid deeper levels because they do not render well.)
-
-=================================
-Welcome to Gluon's documentation!
-=================================
-
-Contents
-
+Code Documentation
+==================
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   readme.rst
-   installation.rst
-   usage.rst
-   contributing.rst
-   devref/index.rst
-   code_documentation.rst
-
-==================
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   api/modules
