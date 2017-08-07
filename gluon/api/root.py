@@ -84,7 +84,6 @@ class RootController(rest.RestController):
     """The default API version"""
 
     proton = ProtonController()
-
     @wsme_pecan.wsexpose(Root)
     def get(self):
         # NOTE: The reason why convert() is being called for every
