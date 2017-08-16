@@ -375,7 +375,7 @@ def build_api(root, service_list):
         service_version_root = \
             api_gen.create_version_controller(service, version_id,
                                               service_root)
-        api_gen.add_model(load_model_for_service(service))
+        api_gen.add_model(model)
         api_gen.create_api(service_version_root, service,
                            GenData.DBGeneratorInstance.get_db_models(service))
 
