@@ -23,18 +23,15 @@ class ContextHook(hooks.PecanHook):
     """Configures a request context and attaches it to the request.
 
     The following HTTP request headers are used:
-    X-User-Id or X-User:
-        Used for context.user_id.
-    X-Project-Id:
-        Used for context.tenant_id.
-    X-Project-Name:
-        Used for context.tenant_name.
-    X-Auth-Token:
-        Used for context.auth_token.
-    X-Roles:
-        Used for setting context.is_admin flag to either True or False.
-        The flag is set to True, if X-Roles contains either an administrator
-        or admin substring. Otherwise it is set to False.
+
+    * X-User-Id or X-User - Used for context.user_id
+    * X-Project-Id - Used for context.tenant_id
+    * X-Project-Name - Used for context.tenant_name
+    * X-Auth-Token - Used for context.auth_token.
+    * X-Roles - Used for setting context.is_admin flag to either
+      True or False. If the flag is set to True, if X-Roles contains
+      either an administrator or admin substring. Otherwise it is
+      set to False.
 
     """
 

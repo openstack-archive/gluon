@@ -32,8 +32,8 @@ Current Repository Structure
 - **doc**
   - samples     # Sample policy.json and proton.conf files
   - source      # All documentation
-    - devref    # Developer Guides
-    - testcase  # Test Case proposals
+  - devref      # Developer Guides
+  - testcase    # Test Case proposals
 
 - **etc**       # Config options for model handlers and backends
   - proton      # Config options for Protons
