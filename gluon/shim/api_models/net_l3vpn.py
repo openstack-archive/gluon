@@ -224,9 +224,9 @@ class ApiNetL3VPN(ApiModelBase):
 
     def handle_port_delete(self, key, shim_data):
         if key in self.model.ports:
-            deleted_obj = self.model.ports[key]
+            # deleted_obj = self.model.ports[key]
             del self.model.ports[key]
-            self.backend.delete_port(key, self.model, deleted_obj)
+            self.backend.delete_port(key, self.model)
 
     def handle_interface_delete(self, key, shim_data):
         if key in self.model.interfaces:
