@@ -99,11 +99,12 @@ class DummyNetL3VPN(HandlerBase):
         LOG.info(changes)
         pass
 
-    def delete_port(self, uuid, model):
+    def delete_port(self, uuid, model, port):
         """Called when a bound port is deleted
 
         :param uuid: UUID of Port
         :param model: Model object
+        :param port: dictionary of changed attributes
         :returns: None
         """
         pass
