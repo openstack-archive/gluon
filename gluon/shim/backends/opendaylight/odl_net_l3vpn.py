@@ -70,7 +70,7 @@ class OdlNetL3VPN(HandlerBase):
         LOG.info("modify_port: %s" % uuid)
         LOG.info(changes)
 
-    def delete_port(self, uuid, model, port):
+    def delete_port(self, uuid, model):
         """Called when a bound port is deleted
 
         :param uuid: UUID of Port
