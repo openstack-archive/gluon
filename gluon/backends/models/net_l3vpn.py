@@ -28,6 +28,7 @@ class MyData(object):
 
 DriverData = MyData()
 DriverData.service = u'net-l3vpn'
+DriverData.version = 'v1.0'
 DriverData.proton_base = 'proton'
 DriverData.ports_name = 'ports'
 DriverData.binding_name = 'vpnbindings'
@@ -47,15 +48,17 @@ class Driver(backend_base.Driver):
     def __init__(self, backend, dummy_net, dummy_subnet):
         super(Driver, self).__init__(backend, dummy_net, dummy_subnet)
         self._port_url = \
-            "{0:s}/{1:s}/{2:s}/{3:s}".format(backend["url"],
-                                             DriverData.proton_base,
-                                             DriverData.service,
-                                             DriverData.ports_name)
+            "{0:s}/{1:s}/{2:s}/{3:s}/{4:s}".format(backend["url"],
+                                                   DriverData.proton_base,
+                                                   DriverData.service,
+                                                   DriverData.version,
+                                                   DriverData.ports_name)
         self._binding_url = \
-            "{0:s}/{1:s}/{2:s}/{3:s}".format(backend["url"],
-                                             DriverData.proton_base,
-                                             DriverData.service,
-                                             DriverData.binding_name)
+            "{0:s}/{1:s}/{2:s}/{3:s}/{4:s}".format(backend["url"],
+                                                   DriverData.proton_base,
+                                                   DriverData.service,
+                                                   DriverData.version,
+                                                   DriverData.binding_name)
 
     def port(self, port_id):
         url = self._port_url + "/" + port_id
