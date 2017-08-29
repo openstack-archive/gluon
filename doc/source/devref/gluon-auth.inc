@@ -1,20 +1,44 @@
-====================================
-Gluon Authentication & Authorization
-====================================
+..
+      Licensed under the Apache License, Version 2.0 (the "License"); you may
+      not use this file except in compliance with the License. You may obtain
+      a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+      WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+      License for the specific language governing permissions and limitations
+      under the License.
+
+      Convention for heading levels in Gluon devref:
+      =======  Heading 0 (reserved for the title in a document)
+      -------  Heading 1
+      ~~~~~~~  Heading 2
+      +++++++  Heading 3
+      '''''''  Heading 4
+      (Avoid deeper levels because they do not render well.)
+
+======================================
+Gluon Authentication and Authorization
+======================================
 
 Summary
 -------
 
-This document explains the integration of Gluon with OpenStack identity service
-or Keystone. When Keystone is enabled, users that submit requests to Gluon
+This document explains the integration of Gluon with OpenStack Identity service
+or Keystone. When Keystone is enabled, users that submit requests to Gluon NFV
 networking service will have to  provide an authentication token in X-Auth-Token
-request header. The token is obtained by making a call to the Keystone authentication
+request header. The token is obtained via making a call to the Keystone authentication
 service by passing in username and password.
 
 Assumptions
 -----------
 
-The document uses the proposed "port and service binding model"[1] to determine the
+This document conforms to Identity concepts, and the mechanism of managing services,
+projects, users, and roles described in "OpenStack Keystone Administrator Guide" [1]_.
+
+The document uses the proposed "Port and Service Binding Model" [2]_ to determine the
 policy actions (see section on Authorization).
 
 Authentication
@@ -28,167 +52,175 @@ If the token is valid, Keystone will retrieve additional information from token
 such as user name, user id, project name, project id etc and send this information
 to the OpenStack service. Otherwise, the request will be rejected.
 
-Setting up
+Setting Up
 ~~~~~~~~~~
 
 Once Keystone is installed and running, services have to be configured to work with it.
-This involves setting up projects, roles, users, and services. By default, OpenStack
-already has several projects, roles and users created.
+This involves setting up services, projects, and users, and assigning roles to
+{ project, user } pair. After OpenStack is installed, when Identity (Keystone) is bootstrapped,
+several services, projects, roles and users will be created by default.
 
-Following is the normal process to add a service to Keystone.
+Following is the normal process to add a service, and assign roles to
+{ project, user } pairs in Keystone.
 
-   - Create a project
-   - Create a user for the service and add the user to the project
-   - Create an admin role and assign to the user
-   - Create service
-   - Create endpoint
+  - Create a **service**
+  - Create **endpoint** of that **service**
+  - Create a **project**
+  - Create a **user** that is expected to use the **service** under the **project**
+  - Assign an ``admin`` **role** to the { **project**, **user** } pair
 
-For Gluon, we will add these objects.
+For bootstrapping Gluon with Identity service, we will follow the procedure of:
 
-  - Create a new user called "gluon"
-  - Add "gluon" user to "service" project
-  - Add "service" role to "gluon" user in the "service" project
-  - Create a new service called "gluon"
-  - Create a new endpoint under the service "gluon"
+* Step 1: Create a new "NFV Networking" **service** named ``gluon`` (or any name) with service type ``nfvnet``
+
+.. code-block:: bash 
+
+    $ openstack service create --name gluon --description "NFV Network Service" nfvnet
+
+* Step 2: Create a new **endpoint** under the **service** ``gluon``
+
+.. code-block:: bash 
+
+    # Note: you need to change the IP address 10.0.2.7 to match your environment
+
+    $ openstack endpoint create --region RegionOne gluon public http://10.0.2.7:2705/proton/
+    $ openstack endpoint create --region RegionOne gluon admin http://10.0.2.7:2705/proton/
+    $ openstack endpoint create --region RegionOne gluon internal http://10.0.2.7:2705/proton/
+
+* Step 3: Either reuse an existing **project** (e.g. a default project named ``service``) or create a new **project**
+
+.. code-block:: bash 
+
+    #
+    # We reuse "service" project here.
+    # If you want to create a new project:
+    #     $ openstack project create --description <description of your new project> <new-project-name> --domain default
+    #
+
+* Step 4: Create a new **user** named ``gluon`` (or any name)
+
+.. code-block:: bash 
+
+    $ openstack user create --password <password> gluon
+
+* Step 5: Assign ``admin`` **role** to { ``service``, ``gluon`` } pair
+
+.. code-block:: bash 
+
+    $ openstack role add --project service --user gluon admin
 
 Authorization
 -------------
 
 Each OpenSack service has its own role-based access policies to allow/disallow access to
-specific actions. The policy.json is used to define the access control, which contains
-each policy defined in the format "<action> : <rule>".
+specific actions. The access control policy is defined in the format of ``<action> : <rule>``.
 
-The <action> represents an API call like "create network" whereas <rule> determines
-under which circumstances API call is permitted. As an example, consider following rule
+The <action> represents an API call like "create a user" whereas <rule> determines
+under which circumstances this API call is permitted. For example, consider following policy:
 
-``"identity:create_user" : "role:admin"``
+.. code-block:: yaml
 
-This rule allows admin role to create a new user in the identity service.
+    "identity:create_user" : "role:admin"
+
+This policy allows ``admin`` **role** to create a new user in the Identity service.
 
 Authorization Scope
 ~~~~~~~~~~~~~~~~~~~
 
-It will be possible to specify authorization at object level. In the future, we may allow
-setting access control at the attribute level.
+Currently, Gluon supports the policy-based authorization at object level. In the future,
+we may consider to support this role-based access control (RBAC) at the attribute level.
 
-Defining authorization rules
+Defining Authorization Rules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The YAML model definitions will be enhanced to support authorization rules. We will add a new
-section for policies.
+In OpenStack, typically a ``policy.json`` file is used to store those RBAC policies,
+for example, in ``/etc/nova/policy.json``. Because the APIs of those services (e.g.
+``nova`` / ``compute``) are fixed, this policy.json mechanism provides flexibility
+for defining policies for those services.
 
-The "rules" will be defined at the system level and model authors can use the rules while
-defining the actions.
+On the other hand, Gluon provides a model-driven approach to generate
+NFV Networking Service APIs (including objects, database schema, and
+RESTful API endpoints) from a YAML file which models the Networking Service.
+Thus it is natural to define the RBAC policies of a new service with its own YAML
+model definitions in the same YAML file. Thus a new section for RBAC policies
+is defined in the YAML of service model.
 
-Following will be the default rules:
-
-    "owner": "tenant_id:%(tenant_id)s",
-    "admin_or_owner": "rule:context_is_admin or rule:owner",
-    "admin_or_network_owner": "rule:context_is_admin or tenant_id:%(network:tenant_id)s",
-    "admin_owner_or_network_owner": "rule:owner or rule:admin_or_network_owner",
-    "admin_only": "rule:context_is_admin",
-
-The actions are defined within the "policies" section as shown below.
+A set of default <rules> is defined at the system level (i.e. in ``gluon/policies/base.py``).
+Model authors can then use those rules to define the actions, and thus the policies in YAML.
+The default <rules> are defined in ``gluon/policies/base.py``:
 
 .. code-block:: yaml
 
-  ProtonBasePort:
-      ...
-      existing model definition
-      ...
+    "context_is_admin": "role:admin",
+    "owner": "tenant_id:%(tenant_id)s",
+    "admin_or_owner": "rule:context_is_admin or rule:owner",
+    "context_is_advsvc": "role:advsvc",
+    "admin_or_network_owner": "rule:context_is_admin or tenant_id:%(network:tenant_id)s",
+    "admin_owner_or_network_owner": "rule:owner or rule:admin_or_network_owner",
+    "admin_only": "rule:context_is_admin",
+    "regular_user": "",
+    "default": "rule:admin_or_owner",
 
+The default policies are defined at the system level too (i.e. within the ``policies`` section
+in ``BaseObject`` definition and ``BaseServiceBinding`` definition in
+``gluon/models/base/base.yaml`` file). Model authors can define own policies for those
+service objects in its own service YAML, or reuse the default policies if there is no policy
+definition in service objects. The default policies defined in ``gluon/models/base/base.yaml``
+are as follows:
 
-      policies:
+.. code-block:: yaml
 
-        actions:
-          create:
-            role: "rule:admin_or_network_owner"
-          delete:
-            role: "rule:admin_or_network_owner"
-          get:
-            role: "rule:admin_or_owner"
-          get_one:
-            role: "rule:admin_or_owner"
-          update:
-            role: "rule:admin_or_network_owner"
+    BasePort:
+        ...
+        existing model definition
+        ...
+        policies:
+            create:
+                role: "rule:admin_or_owner"
+            delete:
+                role: "rule:admin_or_owner"
+            list:
+                role: "rule:admin"
+            get:
+                role: "rule:admin_or_owner"
+            update:
+                role: "rule:admin_or_owner"
 
+This policy defines ``create``, ``delete``, ``get``, ``get_one`` and ``update`` actions on
+the ``BasePort`` object. The rules section can embed any OpenStack policy directive
+that is supported.
 
-This policy defines create, delete, get, get_one and update actions on the ProtonBasePort object.
-The rules section can embed any openstack policy directive that is supported. Please see
-https://docs.openstack.org/kilo/config-reference/content/policy-json-file.html for complete details
-of the policy.json file
+Summary of Gluon Authorization Rules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Converting to policy.json file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please refer to ``doc/samples/policy.json`` for a summary of default <rules> and default policies
+used in Gluon. Note that this policy.json is a historical record for informational purpose.
+The mechanism of how to define those default <rules> and default policies is at system level
+as described above.
 
-During the installation of Gluon, the embedded policies in the YAML model file will be converted
-to /etc/gluon/policy.json file. This file will have the following format.
+More Details of OpenStack Policies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: json
-
-  {
-      "context_is_admin":  "role:admin or user_name:gluon",
-      "owner": "tenant_id:%(tenant_id)s",
-      "admin_or_owner": "rule:context_is_admin or rule:owner",
-      "context_is_advsvc":  "role:advsvc",
-      "admin_or_network_owner": "rule:context_is_admin or tenant_id:%(network:tenant_id)s",
-      "admin_owner_or_network_owner": "rule:owner or rule:admin_or_network_owner",
-      "admin_only": "rule:context_is_admin",
-      "regular_user": "",
-      "default": "rule:admin_or_owner",
-
-      "create_ports": "rule:admin_or_network_owner",
-      "get_ports": "rule:admin_or_owner",
-      "update_ports": "rule:admin_or_network_owner",
-      "delete_ports": "rule:admin_or_network_owner",
-
-      "create_interfaces": "rule:admin_or_network_owner",
-      "get_interfaces": "rule:admin_or_owner",
-      "update_interfaces": "rule:admin_or_network_owner",
-      "delete_interfaces": "rule:admin_or_network_owner",
-
-      "create_vpns": "rule:admin_or_network_owner",
-      "get_vpns": "rule:admin_or_owner",
-      "update_vpns": "rule:admin_or_network_owner",
-      "delete_vpns": "rule:admin_or_network_owner",
-
-      "create_vpnbindings": "rule:admin_or_network_owner",
-      "get_vpnbindings": "rule:admin_or_owner",
-      "update_vpnbindings": "rule:admin_or_network_owner",
-      "delete_vpnbindings": "rule:admin_or_network_owner",
-
-      "create_vpnafconfigs": "rule:admin_or_network_owner",
-      "get_vpnafconfigs": "rule:admin_or_owner",
-      "update_vpnafconfigs": "rule:admin_or_network_owner",
-      "delete_vpnafconfigs": "rule:admin_or_network_owner",
-  }
-
-
-Bootstrapping policy.json
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In the Devstack environment, the gluon software is installed using "python setup.py install"
-command from the gluon directory. The setup script will be enhanced to support creating
-/etc/gluon/policy.json file from the YAML model file. Users will be able to edit the generated
-policy.json file to add their own local rules even though it is not a recommended approach.
-
-For a production OpenStack environment, the above steps need to be done from the package
-installation scripts that are supported by tools such as rpm or dpkg.
+Please refer to "OpenStack Security Guide - Policies" [3]_ for more details of
+OpenStack policy directive.
 
 Action to API Mapping
 ~~~~~~~~~~~~~~~~~~~~~
 
-Gluon service has to map actions to respective API calls. The OpenStack keystonemiddleware
-and oslo.policy(https://docs.openstack.org/oslo.policy/latest/) modules will be integrated
-with Gluon to add keystone authentication and enforce RBAC policies defined in the JSON.policy file.
+Gluon service has to map actions to respective API calls. The OpenStack ``keystonemiddleware``
+and ``oslo.policy`` [4]_ modules is integrated with Gluon to add keystone authentication
+and enforce RBAC policies defined in the YAMl files.
 
-The pecan-wsgi service in the Neutron will be used as a reference code for Gluon implementation
+The pecan-wsgi service in the Neutron is used as a reference code for above implementation in Gluon.
+
+Current implementation in Gluon is at ``gluon/api/hooks/policy_enforcement.py``.
 
 Configuration
 ~~~~~~~~~~~~~
 
-The /etc/proton/proton.conf file can be used to configure the authentication details. A sample
-configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
+The /etc/proton/proton.conf file is used to configure the authentication details. A sample
+configuration is shown below. Note that you need to change IP address ``127.0.0.1``
+to your keystone endpoint.
 
 .. code-block:: ini
 
@@ -205,49 +237,56 @@ configuration is shown below. Change 127.0.0.1 to your keystone endpoint.
     auth_url = http://127.0.0.1:35357
     auth_type = password
 
-    [oslo_policy]
-    policy_file = /etc/proton/policy.json
+The default ``auth_strategy`` is ``noauth`` in Gluon.
+
+Please note that:
+
+* ``auth_uri`` is the **external** or **public** URL that ends up in the
+  ``WWW-Authenticate: keystone-uri=<auth_uri>`` header. It is the unversioned public endpoint,
+  which tells someone where they need to go to authenticate.
+* ``auth_url`` is the **internal** URL that the **auth plugin** is using. It is
+  where the process will authenticate to before it authenticates tokens. 
 
 Set Environment Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If Keystone is enabled for authentication, some environment variables will need
-to be set up in order for protonclient commands to work properly. Modify the openrc
-file in gluon home directory with the appropriate value for you Keystone endpoint.
-A sample is shown below.
-Then run ``source openrc <project_name> <user_name> <user_password>`` to set these variables.
+to be set up in order for ``protonclient`` commands to work properly.
+
+Modify the ``openrc`` file in Gluon home directory (or in ``devstack`` home directory)
+with the appropriate value for you Keystone endpoint, your project name/tenant name,
+your user name and password.
+
+A sample is shown as follows:
 
 .. code-block:: bash
 
     #
-    # set Keystone endpoint
+    # Configure a set of credentials for $PROJECT/$USERNAME:
+    #     set OS_AUTH_URL to Keystone end point
+    #     set OS_PROJECT_NAME to openstack project name
+    #     set OS_USERNAME to openstack user name
+    #     set ADMIN_PASSWORD to openstack password
     #
-    export OS_AUTH_URL="http://192.168.56.101:5000"
+    # If using devstack:
+    #     set both OS_USERNAME and OS_TENANT_NAME to "admin" or "demo"
+    #
+    # Example config for devstack:
+    #     export OS_AUTH_URL="http://192.168.56.101:5000"
+    #     export OS_TENANT_NAME="admin"
+    #     export OS_USERNAME="admin"
+    #     export OS_PASSWORD="ubuntu"
+    #
 
-Appendix
---------
+Then run the following command to set these variables.
 
-Configuring identity details for Keystone, change 10.0.2.15 to your gluon endpoint:
+.. code-block:: bash
 
-    1. Create gluon user:
+    $ source openrc <project_name> <user_name> <user_password>
 
-        > openstack user create --password <password> gluon
+References
 
-    2. Add the admin role to the gluon user:
-
-        > openstack role add --project service --user gluon admin
-
-    3. Create the gluon service
-
-        > openstack service create --name gluon --description "Gluon" network
-
-    4. Create Gluon API endpoints
-
-        > openstack endpoint create --publicurl http://10.0.2.15:2705  \
-            --adminurl http://10.0.2.15:2705 --internalurl http://10.0.2.15:2705 \
-            --region regionOne gluon
-
-Reference
----------
-
-    1) Port and service binding model - https://review.openstack.org/#/c/392250
+.. [1] https://docs.openstack.org/keystone/latest/admin/index.html
+.. [2] ./service_binding_model
+.. [3] https://docs.openstack.org/security-guide/identity/policies.html
+.. [4] https://docs.openstack.org/oslo.policy/latest/
