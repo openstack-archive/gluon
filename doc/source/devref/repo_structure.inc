@@ -30,28 +30,32 @@ Current Repository Structure
 ----------------------------
 
 - **doc**
-  - samples     # Sample policy.json and proton.conf files
-  - source      # All documentation
-  - devref      # Developer Guides
-  - testcase    # Test Case proposals
+  - doc/samples             # Sample policy.json and proton.conf.sample files
+  - doc/source              # All documentation
+  - doc/source/devref       # Developer Guides
+  - doc/source/installation # Installation Guides
+  - doc/source/testcase     # Test Case proposals
 
-- **etc**       # Config options for model handlers and backends
-  - proton      # Config options for Protons
-  - shim        # Config options for Shims
+- **etc**           # Config options for model handlers and backends
+  - etc/proton      # Config options for Protons
+  - etc/shim        # Config options for Shims
 
-- **gluon**     # Gluon code base
-  - api         # Proton API model and control
-  - backends    # Proton backend handlers, including ``net_l3vpn`` model handler
-  - cmd         # CLI API generator and other tools
-  - common      # Common libraries
-  - db          # Database handler
-  - managers    # API manager, including ``net_l3vpn`` API manager
-  - models      # Proton data model, including base model and ``net_l3vpn`` model
-  - particleGenerator # Particle Generator to generate APIs from YAML
-  - plugin      # Extended ML2 Plugin for Gluon, a.k.a. Gluon Wrapper Plugin
-  - shim        # Shim Layer, including ``net-l3vpn`` model, sample backend and ODL backend
-  - sync_etcd   # Make hosts of ``etcd`` configurable
-  - tests       # Unit tests
+- **gluon**                 # Gluon code base
+  - gluon/api               # Proton API model and control
+  - gluon/api/hooks         # Policy enforcement is included here
+  - gluon/backends          # Proton backend handlers, including ``net_l3vpn`` model handler
+  - gluon/cmd               # CLI API generator and other tools
+  - gluon/conf              # Handling configuration options in /etc/proton/proton.conf
+  - gluon/common            # Common libraries
+  - gluon/db                # Database handler, e.g. managing database /opt/proton/gluon.sqlite
+  - gluon/managers          # API and model manager, including ``net_l3vpn`` API manager
+  - gluon/models            # Proton data model, including base model ``net_l3vpn`` model, and ``ietf-sfc`` model
+  - gluon/particleGenerator # Particle Generator to generate APIs from YAML
+  - gluon/plugin            # Extended ML2 Plugin for Gluon, a.k.a. Gluon Wrapper Plugin
+  - gluon/policies          # Default rules definition at system level
+  - gluon/shim              # Shim Layer, including ``net-l3vpn`` model, sample backend and ODL backend
+  - gluon/sync_etcd         # Make hosts of ``etcd`` configurable
+  - gluon/tests             # Unit tests
 
 - **releasenotes** # Enable release notes translation. Initiated by cookiecutter when repo was created
 

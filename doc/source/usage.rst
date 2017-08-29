@@ -30,6 +30,16 @@ and then use ``nova boot`` to bind the port to a VM. It is assumed that you
 have already installed ``etcd`` and **Gluon Plugin**, and started
 **Proton Server**.  If not, please refer to [1]_.
 
+Advanced users may also want to enable RBAC feature in Gluon. Please refer to
+"Gluon Authentication and Authorization" [2]_ for the basic concept,
+and how to configure and enable RBAC in Gluon. The setup steps are also described
+in [1]_.
+
+This User Guide provides CLI examples. The RESTful API is specified in
+"Gluon API Specification" [3]_. If RBAC is enabled, you need to make sure
+that "X-Auth-Token: <auth-token>" header is always added in your
+RESTful HTTP request.
+
 Getting Help
 ------------
 
@@ -38,12 +48,16 @@ information:
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     GET /proton HTTP/1.1
+
     $ protonclient --help
+    --api is not specified!
 
     Usage: protonclient --api <api_name> [OPTIONS] COMMAND[ARGS]...
 
     Options:
-    --api TEXT      Name of API, one of ['net-l3vpn', 'test']
+    --api TEXT      Name of API, one of ['ietf-sfc', 'net-l3vpn', 'test']
     --port INTEGER  Port of endpoint (OS_PROTON_PORT)
     --host TEXT     Host of endpoint (OS_PROTON_HOST)
     --help          Show this message and exit.
@@ -58,13 +72,16 @@ parameters are required, and gives you general help information too:
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     GET /proton HTTP/1.1
+
     $ protonclient
     --api is not specified!
 
     Usage: protonclient --api <api_name> [OPTIONS] COMMAND[ARGS]...
 
     Options:
-    --api TEXT      Name of API, one of ['net-l3vpn', 'test']
+    --api TEXT      Name of API, one of ['ietf-sfc', 'net-l3vpn', 'test']
     --port INTEGER  Port of endpoint (OS_PROTON_PORT)
     --host TEXT     Host of endpoint (OS_PROTON_HOST)
     --help          Show this message and exit.
@@ -78,6 +95,9 @@ correct command line usage.
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     GET /proton/net-l3vpn/v1.0 HTTP/1.1
+
     $ protonclient --api net-l3vpn
     Usage: protonclient [OPTIONS] COMMAND [ARGS]...
 
@@ -85,6 +105,16 @@ correct command line usage.
       --help  Show this message and exit.
 
     Commands:
+      bgppeering-create
+      bgppeering-delete
+      bgppeering-list
+      bgppeering-show
+      bgppeering-update
+      dataplanetunnel-create
+      dataplanetunnel-delete
+      dataplanetunnel-list
+      dataplanetunnel-show
+      dataplanetunnel-update
       interface-create
       interface-delete
       interface-list
@@ -116,6 +146,9 @@ Create ``Interface`` Object
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/interfaces HTTP/1.1
+
     $ protonclient --api net-l3vpn interface-create --help
     Usage: protonclient interface-create [OPTIONS]
 
@@ -126,6 +159,7 @@ Create ``Interface`` Object
       --segmentation_type [none|vlan|tunnel_vxlan|tunnel_gre|mpls]
                                   Type of segmentation for this interface
                                   [required]
+      --tenant_id TEXT          UUID of Tenant  [required]
       --port_id TEXT            Pointer to Port instance  [required]
       --port INTEGER            Port of endpoint (OS_PROTON_PORT)
       --host TEXT               Host of endpoint (OS_PROTON_HOST)
@@ -139,6 +173,9 @@ UUID of the parent ``Port``.
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     GET /proton/net-l3vpn/v1.0/interfaces HTTP/1.1
+
     $ protonclient --api net-l3vpn interface-list
     {
         "interfaces": [
@@ -147,6 +184,7 @@ UUID of the parent ``Port``.
                 "segmentation_id": 0,
                 "created_at": "2017-02-14T20:35:47.760126",
                 "updated_at": "2017-02-14T20:35:47.760126",
+                "tenant_id": "a868a466bca84df18404a77db0ecac72", 
                 "port_id": "fe338d4c-2aef-4487-aa25-cb753bf02518",
                 "segmentation_type": "none",
                 "id": "fe338d4c-2aef-4487-aa25-cb753bf02518"
@@ -159,6 +197,9 @@ Create ``VPNAFConfig`` Object
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/vpnafconfigs HTTP/1.1
+
     $ protonclient --api net-l3vpn vpnafconfig-create --help
     Usage: protonclient vpnafconfig-create [OPTIONS]
 
@@ -168,6 +209,7 @@ Create ``VPNAFConfig`` Object
       --import_route_policy TEXT      Route target import policy
       --vrf_rt_type [export_extcommunity|import_extcommunity|both]
                                         Route target type [required]
+      --tenant_id TEXT                UUID of Tenant  [required]
       --port INTEGER                  Port of endpoint (OS_PROTON_PORT)
       --host TEXT                     Host of endpoint (OS_PROTON_HOST)
       --help                          Show this message and exit.
@@ -176,7 +218,10 @@ Create ``VPNAFConfig`` Object
 
 .. code-block:: bash
 
-    $ protonclient --api net-l3vpn vpnafconfig-create --vrf_rt_type both --vrf_rt_value 1000:1000
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/vpnafconfigs HTTP/1.1
+
+    $ protonclient --api net-l3vpn vpnafconfig-create --vrf_rt_type both --vrf_rt_value 1000:1000 --tenant_id a868a466bca84df18404a77db0ecac72
     {
         "vrf_rt_type": "both",
         "vrf_rt_value": "1000:1000"
@@ -187,18 +232,22 @@ Create ``VPN`` Object
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/vpns HTTP/1.1
+
     $ protonclient --api net-l3vpn vpn-create --help
     Usage: protonclient vpn-create [OPTIONS]
 
     Options:
-      --id TEXT                    UUID of VPN instance
-      --name TEXT                  Name of VPN  [required]
+      --id TEXT                    UUID of Object
+      --name TEXT                  Descriptive name of Object
+      --tenant_id TEXT             UUID of Tenant  [required]
       --ipv4_family TEXT           Comma separated list of route target strings
                                    (VpnAfConfig)
       --ipv6_family TEXT           Comma separated list of route target strings
                                    (VpnAfConfig)
       --route_distinguishers TEXT  Route distinguisher for this VPN
-      --description TEXT           About the VPN
+      --description TEXT           Description of Service
       --port INTEGER               Port of endpoint (OS_PROTON_PORT)
       --host TEXT                  Host of endpoint (OS_PROTON_HOST)
       --help                       Show this message and exit.
@@ -209,10 +258,14 @@ The UUID of VPN instance ``id`` is generated by Proton and returned.
 
 .. code-block:: bash
 
-    $ protonclient --api net-l3vpn vpn-create --name "TestVPN" --ipv4_family 1000:1000 --ipv6_family 1000:1000 --route_distinguishers 1000:1000 --description "My Test VPN"
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/vpns HTTP/1.1
+
+    $ protonclient --api net-l3vpn vpn-create --name "TestVPN" --ipv4_family 1000:1000 --ipv6_family 1000:1000 --route_distinguishers 1000:1000 --tenant_id a868a466bca84df18404a77db0ecac72 --description "My Test VPN"
     {
         "description": "My Test VPN",
         "route_distinguishers": "1000:1000",
+        "tenant_id": "a868a466bca84df18404a77db0ecac72", 
         "created_at": "2017-02-14T20:37:58.592999",
         "updated_at": "2017-02-14T20:37:58.592999",
         "ipv6_family": "1000:1000",
@@ -225,6 +278,9 @@ Create ``Port`` Object
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
+
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/ports HTTP/1.1
 
     $ protonclient --api net-l3vpn port-create --help
     Usage: protonclient port-create [OPTIONS]
@@ -244,7 +300,7 @@ Create ``Port`` Object
                                       [required]
       --vif_details TEXT              binding:vif_details: JSON string for VIF
                                       details
-      --tenant_id TEXT                UUID of Tenant owning this Port [required]
+      --tenant_id TEXT                UUID of Tenant [required]
       --admin_state_up BOOLEAN        Admin state of Port  [required]
       --name TEXT                     Descriptive name of Object
       --vif_type TEXT                 binding:vif_type: binding type for VIF
@@ -256,13 +312,16 @@ Create ``Port`` Object
 
 These values should be specified.
 
-The ``tenant_id`` should be obtained from OpenStack.
+The ``tenant_id`` should be a ``project-id``obtained from OpenStack.
 
 The UUID of the object ``id`` is generated by the Proton and returned.
 
 **For example: create a ``Port`` Object**:
 
 .. code-block:: bash
+
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/ports HTTP/1.1
 
     $ protonclient --api net-l3vpn port-create --mac_address c8:2a:14:04:43:80 --mtu 1500 --admin_state_up True --name "TestVPNPort" --vlan_transparency True --vnic_type normal --vif_type ovs --status ACTIVE --tenant_id 5205b400fa6c4a888a0b229200562229
     {
@@ -272,7 +331,7 @@ The UUID of the object ``id`` is generated by the Proton and returned.
         "name": "TestVPNPort",
         "device_owner": null,
         "admin_state_up": true,
-        "tenant_id": "5205b400fa6c4a888a0b229200562229",
+        "tenant_id": "a868a466bca84df18404a77db0ecac72", 
         "created_at": "2017-02-14T20:35:47.749427",
         "vif_details": null,
         "updated_at": "2017-02-14T20:35:47.749427",
@@ -298,12 +357,16 @@ You can view the values with the following commands:
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     GET /proton/net-l3vpn/v1.0/vpns HTTP/1.1
+
     $ protonclient --api net-l3vpn vpn-list
     {
         "vpns": [
             {
                 "description": "My Test VPN",
                 "route_distinguishers": "1000:1000",
+                "tenant_id": "a868a466bca84df18404a77db0ecac72", 
                 "created_at": "2017-02-14T20:37:58.592999",
                 "updated_at": "2017-02-14T20:37:58.592999",
                 "ipv6_family": "1000:1000",
@@ -313,7 +376,11 @@ You can view the values with the following commands:
             }
         ]
     }
-    $ 
+    $
+
+    # The equivalent RESTful API is
+    #     GET /proton/net-l3vpn/v1.0/ports HTTP/1.1
+
     $ protonclient --api net-l3vpn port-list
     {
         "ports": [
@@ -324,7 +391,7 @@ You can view the values with the following commands:
                 "name": "TestVPNPort",
                 "device_owner": null,
                 "admin_state_up": true,
-                "tenant_id": "5205b400fa6c4a888a0b229200562229",
+                "tenant_id": "a868a466bca84df18404a77db0ecac72", 
                 "created_at": "2017-02-14T20:35:47.749427",
                 "vif_details": null,
                 "updated_at": "2017-02-14T20:35:47.749427",
@@ -347,6 +414,9 @@ You need to create a ``vpnbinding`` object to tie the ``Interface`` and the
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/vpnbindings HTTP/1.1
+
     $ protonclient --api net-l3vpn vpnbinding-create --help
     Usage: protonclient vpnbinding-create [OPTIONS]
 
@@ -356,6 +426,7 @@ You need to create a ``vpnbinding`` object to tie the ``Interface`` and the
       --ipaddress TEXT         IP Address of port
       --subnet_prefix INTEGER  Subnet mask
       --service_id TEXT        Pointer to Service instance  [required]
+      --tenant_id TEXT         UUID of Tenant [required]
       --port INTEGER           Port of endpoint (OS_PROTON_PORT)
       --host TEXT              Host of endpoint (OS_PROTON_HOST)
       --help                   Show this message and exit.
@@ -370,8 +441,12 @@ default ``interface`` object, and the ``id`` of the ``vpn`` object.
 
 .. code-block:: bash
 
-    $ protonclient --api net-l3vpn vpnbinding-create --interface_id fe338d4c-2aef-4487-aa25-cb753bf02518 --service_id b70b4bbd-aa40-48d7-aa4b-57cc2fd34010 --ipaddress 10.10.0.2 --subnet_prefix 24 --gateway 10.10.0.1
+    # The equivalent RESTful API is
+    #     POST /proton/net-l3vpn/v1.0/vpnbindings HTTP/1.1
+
+    $ protonclient --api net-l3vpn vpnbinding-create --interface_id fe338d4c-2aef-4487-aa25-cb753bf02518 --service_id b70b4bbd-aa40-48d7-aa4b-57cc2fd34010 --ipaddress 10.10.0.2 --subnet_prefix 24 --gateway 10.10.0.1 --tenant_id a868a466bca84df18404a77db0ecac72
     {
+        "tenant_id": "a868a466bca84df18404a77db0ecac72", 
         "created_at": "2017-02-14T20:39:52.382433",
         "subnet_prefix": 24,
         "updated_at": "2017-02-14T20:39:52.382433",
@@ -386,10 +461,14 @@ View ``VPNBinding`` Objects
 
 .. code-block:: bash
 
+    # The equivalent RESTful API is
+    #     GET /proton/net-l3vpn/v1.0/vpnbindings HTTP/1.1
+
     $ protonclient --api net-l3vpn vpnbinding-list
     {
         "vpnbindings": [
             {
+                "tenant_id": "a868a466bca84df18404a77db0ecac72",
                 "created_at": "2017-02-14T20:39:52.382433",
                 "subnet_prefix": 24,
                 "updated_at": "2017-02-14T20:39:52.382433",
@@ -409,7 +488,9 @@ Create VM and Bind our L3VPN Port
 
 .. code-block:: bash
 
-    $ nova --debug boot --flavor 1 --image cirros --nic port-id=fe338d4c-2aef-4487-aa25-cb753bf02518 TestGluon
+    # Refer to Nova documentation for RESTful APIs
+
+    $ nova --debug boot --flavor m1.tiny --image cirros --nic port-id=fe338d4c-2aef-4487-aa25-cb753bf02518 TestGluon
 
 When bound, the ``etcd`` data will look like:
 
@@ -446,5 +527,6 @@ To Use Gluon in a Project
 
 References
 
-.. [1] installation
-
+.. [1] installation.rst
+.. [2] devref/gluon-auth.inc
+.. [3] devref/gluon_api_spec.inc
