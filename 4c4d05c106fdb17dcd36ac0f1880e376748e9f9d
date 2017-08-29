@@ -1,0 +1,9 @@
+Code-Review+1: ShangXiao <shangxiaobj@inspur.com>
+Code-Review+2: Bin Hu <bh526r@att.com>
+Workflow+1: Bin Hu <bh526r@att.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 29 Aug 2017 04:10:38 +0000
+Reviewed-on: https://review.openstack.org/498670
+Project: openstack/gluon
+Branch: refs/heads/stable/pike
