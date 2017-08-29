@@ -115,7 +115,7 @@ The actions are defined within the "policies" section as shown below.
 
 This policy defines create, delete, get, get_one and update actions on the ProtonBasePort object.
 The rules section can embed any openstack policy directive that is supported. Please see
-http://docs.openstack.org/kilo/config-reference/content/policy-json-file.html for complete details
+https://docs.openstack.org/kilo/config-reference/content/policy-json-file.html for complete details
 of the policy.json file
 
 Converting to policy.json file
