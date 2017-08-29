@@ -343,7 +343,7 @@ PolicyDef
 The PolicyDef defines the Role-Based Access Control (RBAC) for the object.  The
 access to the object can be controlled for each generated action.  The syntax
 of the rule specifier string is defined in the Openstack Policy
-`document <http://docs.openstack.org/newton/config-reference/policy-json-file.html>`_.
+`document <https://docs.openstack.org/newton/config-reference/policy-json-file.html>`_.
 
 **Example**
 
