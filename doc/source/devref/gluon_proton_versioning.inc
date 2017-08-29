@@ -1,3 +1,24 @@
+..
+      Licensed under the Apache License, Version 2.0 (the "License"); you may
+      not use this file except in compliance with the License. You may obtain
+      a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+      WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+      License for the specific language governing permissions and limitations
+      under the License.
+
+      Convention for heading levels in Gluon devref:
+      =======  Heading 0 (reserved for the title in a document)
+      -------  Heading 1
+      ~~~~~~~  Heading 2
+      +++++++  Heading 3
+      '''''''  Heading 4
+      (Avoid deeper levels because they do not render well.)
+
 =============================
 Proton API Version Management
 =============================
@@ -22,136 +43,177 @@ When the Proton root URI "/proton/" is accessed it will return a list of Proton 
     $ curl http://192.168.59.103:2705/proton/
     {
     "protons":
+      [
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "links":
             [
-                {"id": "net-l3vpn",
-                 "status": "CURRENT",
-                 "links":
-                     [
-                         {"href": "http://192.168.59.103:2705/proton/net-l3vpn/",
-                          "rel": "self"
-                         }
-                     ]
-                },
-                {"id": "bgp",
-                 "status": "CURRENT",
-                 "links":
-                     [
-                         {"href": "http://192.168.59.103:2705/proton/bgp/",
-                          "rel": "self"
-                         }
-                     ]
-                }
-                ...
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn",
+                "rel": "self"
+              }
             ]
+        },
+        { "status": "CURRENT",
+          "proton_service": "test",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/test",
+                "rel": "self"
+              }
+            ]
+        },
+        { "status": "CURRENT",
+          "proton_service": "ietf-sfc",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/ietf-sfc",
+                "rel": "self"
+              }
+            ]
+        }
+      ]
     }
 
 Proton Version Management
 -------------------------
 
+Proton providers can specify version info in the proton model's YAML file.
+
+**Example**
+
+.. code-block:: yaml
+
+    file_version: 1.0
+    imports: base/base.yaml
+    info:
+      name: net-l3vpn
+      version: 1.0
+      description "L3VPN API Specification"
+    ...
+
 Version information is appended to the root URL of a particular Proton, e.g. L3VPN.
-For example, <some URL>/proton/net-l3vpn/v1.
+For example, http://192.168.59.103:2705/proton/net-l3vpn/v1.0/.
 
 When accessing the root URL of a particular Proton without version information, all
 available versions of this Proton will be returned so that users can choose to use
 a particular version of this Proton.
-
-When accessing the root URL of a particular Proton with version information, all
-available resources in this version of Proton will be returned.
-
-Proton providers can specify version info in the proton model's yaml file.
 
 .. code-block:: bash
 
     $ curl http://192.168.59.103:2705/proton/net-l3vpn/
     {
     "default_version":
-        {"id": "v1",
-         "status": "CURRENT",
-         "links":
-             [
-                 {"href":"http://192.168.59.103:2705/proton/net-l3vpn/v1/",
-                  "rel": "self"
-                 }
-             ]
-        },
-    "versions":
-        [
-            {"id": "v1",
-             "status": "CURRENT",
-             "links":
-                 [
-                     {"href":"http://192.168.59.103:2705/proton/net-l3vpn/v1/",
-                      "rel": "self"
-                     }
-                 ]
+      { "status": "CURRENT",
+        "proton_service": "net-l3vpn",
+        "links":
+          [
+            { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0",
+              "rel": "self"
             }
-        ],
-    "name": "net-l3vpn",
-    "description": "net-l3vpn description..."
+          ],
+        "version_id": "v1.0"
+      },
+    "versions":
+      [
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        }
+      ]
     }
+
+When accessing the root URL of a particular Proton with version information, all
+available resources in this version of Proton will be returned.
 
 .. code-block:: bash
 
-    $ curl http://192.168.59.103:2705/proton/net-l3vpn/v1/
+    $ curl http://192.168.59.103:2705/proton/net-l3vpn/v1.0/
     {
     "resources":
-        [
-            {"id": "interface",
-             "status": "CURRENT",
-             "links":
-                 [
-                     {"href":"http://192.168.59.103:2705/proton/net-l3vpn/v1/interface/",
-                      "rel": "self"
-                     }
-                 ]
-            },
-            {"id": "port",
-             "status": "CURRENT",
-             "links":
-                 [
-                     {"href":"http://192.168.59.103:2705/proton/net-l3vpn/v1/port/",
-                      "rel": "self"
-                     }
-                 ]
-            },
-            {"id": "vpn",
-             "status": "CURRENT",
-             "links":
-                 [
-                     {"href":"http://192.168.59.103:2705/proton/net-l3vpn/v1/vpn/",
-                      "rel": "self"
-                     }
-                 ]
-            },
-            {"id": "vpnafconfig",
-             "status": "CURRENT",
-             "links":
-                 [
-                     {"href":"http://192.168.59.103:2705/proton/net-l3vpn/v1/vpnafconfig/",
-                      "rel": "self"
-                     }
-                 ]
-            },
-            {"id": "vpnbinding",
-             "status": "CURRENT",
-             "links":
-                 [
-                     {"href":"http://192.168.59.103:2705/proton/net-l3vpn/v1/binding/",
-                      "rel": "self"
-                     }
-                 ]
-            }
-        ]
+      [
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "resource_name": "dataplanetunnels",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0/dataplanetunnels",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        },
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "resource_name": "bgppeerings",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0/bgppeerings",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        },
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "resource_name": "vpnafconfigs",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0/vpnafconfigs",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        },
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "resource_name": "vpns",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0/vpns",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        },
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "resource_name": "interfaces",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0/interfaces",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        },
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "resource_name": "vpnbindings",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0/vpnbindings",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        },
+        { "status": "CURRENT",
+          "proton_service": "net-l3vpn",
+          "resource_name": "ports",
+          "links":
+            [
+              { "href": "http://192.168.59.103:2705/proton/net-l3vpn/v1.0/ports",
+                "rel": "self"
+              }
+            ],
+          "version_id": "v1.0"
+        }
+      ]
     }
-
-**Example**
-
-::
-
-  file_version: 1.0
-  imports: base/base.yaml
-  info:
-    name: net-l3vpn
-    version: 1.0
-    description "L3VPN API Specification"
-    ...
+ 
