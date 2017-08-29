@@ -21,6 +21,42 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
+=================
+Install OpenStack
+=================
+
+Before you start installing ``etcd``, please make sure that you have installed
+OpenStack Pike Release. For example, to install ``devstack`` Pike release:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/openstack-dev/devstack -b stable/pike
+
+    # Then generate local.conf in devstack directory, then run
+    $ ./stack.sh
+
+=======================================
+Stop ``etcd3`` in Devstack Pike Release
+=======================================
+
+OpenStack Pike Release starts ``etcd3`` by default when user starts stack,
+while Gluon is based on ``etcd-v2.3.6``. This will cause issue for Gluon.
+Thus you need to stop ``etcd3`` that is started by OpenStack Pike.
+
+For Devstack Pike Release:
+
+.. code-block:: bash
+
+    $ sudo systemctl stop devstack@etcd.service
+
+You may double check to make sure there is no etcd3 running:
+
+.. code-block:: bash
+
+    $ ps -aef | grep etcd
+
+You should not see any etcd process running.
+
 ==========================
 Install ``etcd`` for Gluon
 ==========================
@@ -37,22 +73,23 @@ On Each Node
 
 .. code-block:: bash
 
-    curl -L  https://github.com/coreos/etcd/releases/download/v2.3.6/etcd-v2.3.6-linux-amd64.tar.gz -o etcd-v2.3.6-linux-amd64.tar.gz
-    Unzip/Untar the downloaded file
+    $ curl -L  https://github.com/coreos/etcd/releases/download/v2.3.6/etcd-v2.3.6-linux-amd64.tar.gz -o etcd-v2.3.6-linux-amd64.tar.gz
+
+    # Then Unzip/Untar the downloaded file
 
 **STEP-2**: Copy executables to ``/usr/local/bin``
 
 .. code-block:: bash
 
-    cd etcd-v2.3.6-linux-amd64
-    sudo cp etcd /usr/local/bin
-    sudo cp etcdctl /usr/local/bin
+    $ cd etcd-v2.3.6-linux-amd64
+    $ sudo cp etcd /usr/local/bin
+    $ sudo cp etcdctl /usr/local/bin
 
 **STEP-3**: Create a directory for ``etcd`` data
 
 .. code-block:: bash
 
-    sudo mkdir /var/etcd
+    $ sudo mkdir /var/etcd
 
 **STEP-4**: Create upstart ``init`` file:
 
@@ -135,8 +172,12 @@ For instance, the files on the other two nodes would look like:
 
 .. code-block:: bash
 
-    sudo iptables -A INPUT -p tcp -m multiport --ports 2380,2379 -m comment --comment "etcd" -j ACCEPT
-    sudo invoke-rc.d iptables-persistent save
+    $ sudo iptables -A INPUT -p tcp -m multiport --ports 2380,2379 -m comment --comment "etcd" -j ACCEPT
+    $ sudo invoke-rc.d iptables-persistent save
+
+    # Note: for Ubuntu 16.04, you may have to use netfilter-persistent as follows:
+    # sudo apt-get install netfilter-persistent
+    # sudo invoke-rc.d netfilter-persistent save
 
 **STEP-7**: Start the ``etcd`` server:
 
@@ -144,15 +185,15 @@ As root:
 
 .. code-block:: bash
 
-    initctl start etcd
+    $ initctl start etcd
 
 Or on ``ubuntu 14.04``, run:
 
 .. code-block:: bash
 
-    sudo start etcd
+    $ sudo start etcd
 
-**STEP-8**: Verify the cluster is healty:
+**STEP-8**: Verify the cluster is healthy:
 
 .. code-block:: bash
 
