@@ -54,7 +54,7 @@ class Client(object):
 
     def do_post(self, url, values):
         resp = post(url, json=values)
-        if resp.status_code != 201 or resp.status_code != 201:
+        if resp.status_code != 200 or resp.status_code != 201:
             raise exc.GluonClientException('Bad return status %d'
                                            % resp.status_code,
                                            status_code=resp.status_code)
