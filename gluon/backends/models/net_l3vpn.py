@@ -37,10 +37,11 @@ DriverData.binding_name = 'vpnbindings'
 class Provider(backend_base.ProviderBase):
 
     def driver_for(self, backend, dummy_net, dummy_subnet):
-        if backend['service'] == DriverData.service:
+        service = backend['service']
+        if service == DriverData.service:
             return Driver(backend, dummy_net, dummy_subnet)
         else:
-            return None
+            return backend_base.getDriver(backend, dummy_net, dummy_subnet)
 
 
 class Driver(backend_base.Driver):

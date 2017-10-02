@@ -19,10 +19,67 @@ import six
 import stevedore
 
 from gluon.backends.proton_client import Client
+from gluon.particleGenerator import generator
 from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 logger = LOG
+
+
+DriverData = buildDrivers()
+
+
+def buildDrivers():
+    service_list = generator.get_service_list()
+    driverData = dict()
+    for service in service_list:
+        model = generator.load_model_for_service(service)
+        modelData = dict()
+        modelData['service'] = str(model['info']['name'])
+        modelData['version'] = 'v' + str(model['info']['version'])
+        modelData['proton_base'] = 'proton'
+        modelData['attributes'] = list()
+        for obj_name, obj_val in model['api_objects'].items():
+            attributes = obj_val.get('attributes')
+            for att_name, att_val in attributes.items():
+                modelData['attributes'].append(att_name)
+        driverData[service] = modelData
+    return driverData
+        # need a way to dynamically generate binding_name from yaml as well
+        # driverData.ports_name = 'ports'
+        # need a way to dynamically generate binding_name from yaml as well
+        # driverData.binding_name = 'vpnbindings'
+        # drivers[service] = driverData
+
+
+def make_get_func(driver, url):
+    def get_func(*args, **kwargs):
+        return driver._convert_port_data(driver._client.json_get(url))
+    return get_func
+        
+        
+
+def getDriver(backend, dummy_net, dummy_subnet):
+    service = backend['service']
+    driver = Driver(backend, dummy_net, dummy_subnet)
+    modelData = DriverData[service]
+    driver._base_url = \
+        "{0:s}/{1:s}/{2:s}/{3:s}".format(backend["url"],
+                                               modelData['proton_base'],
+                                               modelData['service'],
+                                               modelData['version'])
+    driver._port_url = \
+        "{0:s}/{1:s}".format(driver._base_url, 'ports')
+                                               
+    driver._binding_url = \                                              
+        "{0:s}/{1:s}".format(driver._base_url,'vpnbindings')
+        
+    if modelData['attributes'] is not None:
+        for attr in modelData['attributes']:
+        
+        
+    
+    
 
 
 @six.add_metaclass(abc.ABCMeta)
