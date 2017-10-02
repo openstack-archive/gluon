@@ -17,6 +17,7 @@ from oslo_log import log as logging
 
 from gluon.backends import backend_base
 from gluon.common import exception as exc
+from gluon.particleGenerator import generator
 
 
 LOG = logging.getLogger(__name__)
@@ -26,39 +27,55 @@ logger = LOG
 class MyData(object):
     pass
 
-DriverData = MyData()
-DriverData.service = u'net-l3vpn'
-DriverData.version = 'v1.0'
-DriverData.proton_base = 'proton'
-DriverData.ports_name = 'ports'
-DriverData.binding_name = 'vpnbindings'
+
+def createDriverData():
+    service_list = generator.get_service_list()
+    drivers = dict()
+    for service in service_list:
+        model = generator.load_model_for_service(service)
+        generator.verify_model(model)
+        driverData = MyData()
+        driverData.service = str(model['info']['name'])
+        driverData.version = 'v' + str(model['info']['version'])
+        driverData.proton_base = 'proton'
+        # need a way to dynamically generate binding_name from yaml as well
+        driverData.ports_name = 'ports'
+        # need a way to dynamically generate binding_name from yaml as well
+        driverData.binding_name = 'vpnbindings'
+        drivers[service] = driverData
+    return drivers
+
+
+DriverData = createDriverData()
 
 
 class Provider(backend_base.ProviderBase):
 
     def driver_for(self, backend, dummy_net, dummy_subnet):
-        if backend['service'] == DriverData.service:
-            return Driver(backend, dummy_net, dummy_subnet)
+        service = backend['service']
+        if service in DriverData:
+            driverData = DriverData[service]
+            return Driver(backend, dummy_net, dummy_subnet, driverData)
         else:
             return None
 
 
 class Driver(backend_base.Driver):
 
-    def __init__(self, backend, dummy_net, dummy_subnet):
+    def __init__(self, backend, dummy_net, dummy_subnet, driverData):
         super(Driver, self).__init__(backend, dummy_net, dummy_subnet)
         self._port_url = \
             "{0:s}/{1:s}/{2:s}/{3:s}/{4:s}".format(backend["url"],
-                                                   DriverData.proton_base,
-                                                   DriverData.service,
-                                                   DriverData.version,
-                                                   DriverData.ports_name)
+                                                   driverData.proton_base,
+                                                   driverData.service,
+                                                   driverData.version,
+                                                   driverData.ports_name)
         self._binding_url = \
             "{0:s}/{1:s}/{2:s}/{3:s}/{4:s}".format(backend["url"],
-                                                   DriverData.proton_base,
-                                                   DriverData.service,
-                                                   DriverData.version,
-                                                   DriverData.binding_name)
+                                                   driverData.proton_base,
+                                                   driverData.service,
+                                                   driverData.version,
+                                                   driverData.binding_name)
 
     def port(self, port_id):
         url = self._port_url + "/" + port_id
