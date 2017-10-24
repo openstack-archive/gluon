@@ -148,17 +148,24 @@ class ApiManager(object):
         is_bind_request = (has_bind_attrs and
                            new_values.get("host_id", "") != "" and
                            new_values.get("device_id", "") != "")
+                           
+        # port_controller = get_controller(self.service, 'Port')
+        # ipAddress_data = dict()
+        
         if is_bind_request:
             self.setup_bind_key(key)
         ret_obj = api_class.update_in_db(key, new_values)
         if is_bind_request:
             # bind
+                                                  
             vif_dict = self.wait_for_bind(key)
             if len(vif_dict) == 0:
                 LOG.error("No binding information available")
             else:
                 LOG.info(vif_dict)
                 vif_values = dict()
+                vif_values["ipaddress"] = \
+                new_values.get("new_values","0.0.0.0")       
                 if "vif_type" in vif_dict:
                     vif_values["vif_type"] = vif_dict["vif_type"]
                 if "vif_details" in vif_dict:
@@ -168,6 +175,7 @@ class ApiManager(object):
                     ret_obj = api_class.update_in_db(key, vif_values)
         elif has_bind_attrs:  # unbind request
             vif_dict = dict()
+            vif_values["ipaddress"] = None
             vif_dict["vif_type"] = None
             vif_dict["vif_details"] = json.dumps({})
             ret_obj = api_class.update_in_db(key, vif_dict)
