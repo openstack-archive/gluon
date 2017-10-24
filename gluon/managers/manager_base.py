@@ -168,6 +168,7 @@ class ApiManager(object):
                     ret_obj = api_class.update_in_db(key, vif_values)
         elif has_bind_attrs:  # unbind request
             vif_dict = dict()
+            vif_values["ipaddress"] = None
             vif_dict["vif_type"] = None
             vif_dict["vif_details"] = json.dumps({})
             ret_obj = api_class.update_in_db(key, vif_dict)
@@ -194,6 +195,16 @@ class ApiManager(object):
         return retval
 
     def handle_create(self, root_class, values):
+        # If we see ipaddress and port_id in a create request, we assume this
+        # ip address is assigned to the port. This normally happen during
+        # service binding
+        def hasIpAddressAndPort(values):
+            return 'ipaddress' in values and 'port_id' in values \
+                   and values['ipaddress'] is not None \
+                   and values['ipaddress'] != "" \
+                   and values['port_id'] is not None \
+                   and values['port_id'] != ""
+
         api_class = root_class.api_object_class
         #
         # If the primary key is a UUID and it is not set, we generate
@@ -207,6 +218,12 @@ class ApiManager(object):
         if root_class.__name__ == 'ports':
             return self.create_ports(root_class.api_object_class, values)
         else:
+            if hasIpAddressAndPort(values):
+                new_values = dict()
+                new_values['ipaddress'] = values.get('ipaddress')
+                key = values.get('port_id')
+                port_controller = get_controller(self.service, 'Port')
+                port_controller.api_object_class.update_in_db(key, new_values)
             return api_class.create_in_db(values)
 
     def handle_update(self, root_class, key, new_values):
