@@ -14,16 +14,13 @@
 
 from gluon.shim import utils
 import json
-from oslo_config import cfg
-import requests
-import uuid as UUID
-try:
-    from neutron.openstack.common import jsonutils
-except ImportError:
-    from oslo_serialization import jsonutils
 from log import for_all_methods
 from log import LOG
 from log import log_enter_exit
+from oslo_config import cfg
+import requests
+import ujson
+import uuid as UUID
 
 ODL_SHIM_OPTS = [
     cfg.StrOpt('odl_host',
@@ -102,7 +99,7 @@ class ODL_Client(object):
     def sendjson(self, method, urlpath, obj=None):
         """Send json to the OpenDaylight controller."""
         headers = {'Content-Type': 'application/json'}
-        data = jsonutils.dumps(obj, indent=2) if obj else None
+        data = ujson.dumps(obj, indent=2) if obj else None
         url = '/'.join([self.url, urlpath])
         LOG.debug("Sending METHOD (%(method)s) URL (%(url)s) JSON (%(obj)s)" %
                   {'method': method, 'url': url, 'obj': obj})

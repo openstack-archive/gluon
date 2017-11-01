@@ -25,3 +25,4 @@ click>=6.6
 python-etcd>=0.4.3
 keystonemiddleware>=4.12.0 # Apache-2.0
 keystoneauth1>=2.18.0 # Apache-2.0
+ujson
