@@ -311,8 +311,9 @@ def append_model(model, yaml_dict):
     if file_version and cur_file_version:
         if file_version != file_version:
             raise_format_error('File version mismatch %s', (file_version))
-        else:
-            model['file_version'] = yaml_dict['file_version']
+        # no need to re-assign! entering else statement implies they are equal
+        # else:
+        #     model['file_version'] = yaml_dict['file_version']
     elif file_version:
         model['file_version'] = file_version
     if 'imports' in yaml_dict:
