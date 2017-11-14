@@ -26,9 +26,9 @@ from gluon.sync_etcd.log import logupdate
 
 
 # (enikher): for unittests
+# for example, sqlite:////home/ubuntu/gluon/gluon/gluon.sqlite
 _DEFAULT_SQL_CONNECTION = ('sqlite:///' +
                            paths.state_path_def('gluon.sqlite'))
-
 db_options.set_defaults(
     cfg.CONF, connection=_DEFAULT_SQL_CONNECTION)
 
