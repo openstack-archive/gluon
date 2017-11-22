@@ -1,5 +1,5 @@
 [DEFAULT]
-state_path = /var/lib/proton
+
 #
 # From oslo.log
 #
@@ -350,5 +350,4 @@ state_path = /var/lib/proton
 #bindir = $pybasedir/bin
 
 # Top-level directory for maintaining gluon's state. (string value)
-# (JinLi) use the one in [default]
 #state_path = $pybasedir
