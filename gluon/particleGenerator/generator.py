@@ -44,6 +44,28 @@ def raise_obj_error(obj_name, format_str, val_tuple):
     raise_format_error("Object: %s, %s", (obj_name, str))
 
 
+# Get the binding name for a serivce. For example, the binding for net_l3vpn
+# would be VpnBinding. The reason for getting the binding name is to get the
+# port's ipaddress stored in binding. One example of using the binding name is
+# when building the binding_url in the core plug_in backend, gluon.backends.
+# models.net_l3vpn.py file.
+# param service: service name
+# return list of binding names, there could be more than one binding per
+# service
+def get_service_binding(service):
+    binding_names = []
+    model = load_model_for_service(service)
+    for obj_name, obj_val in model['api_objects'].items():
+        if 'extends' in obj_val and \
+           obj_val.get('extends') == 'BaseServiceBinding':
+            binding_names.append(obj_name)
+    if not binding_names:
+        raise_obj_error(service,
+                        'Service: %s does not have binding defined',
+                        (service))
+    return binding_names
+
+
 # Check if policies are defined for each object and actions are valid.
 # Does not verify the content of the policy for undefined rules and cyclic
 # rules. The content of policies will be verified by calling the oslo_policy's
