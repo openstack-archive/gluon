@@ -409,3 +409,25 @@ def build_api(root, service_list):
 
 def get_db_gen():
     return GenData.DBGeneratorInstance
+
+
+# Get the binding name for a serivce. For example the binding for net_l3vpn
+# would be VpnBinding, and the binding for ietf-sfc would be both
+# SfDataPlaneLocator and SffDataPlaneLocator.
+# One reason for getting the binding name is to get the port's ipaddress stored
+# in binding. One example of using the binding name is when building the
+# binding_url in the core plug_in backend in gluon.backends.models.net_l3vpn.py
+# param service: service name
+# return list of binding names, could be more than one binding per service
+def get_service_binding(service):
+    binding_names = []
+    model = load_model_for_service(service)
+    for obj_name, obj_val in model['api_objects'].items():
+        if 'extends' in obj_val and \
+           obj_val.get('extends') == 'BaseServiceBinding':
+            binding_names.append(obj_val['api']['plural_name'])
+    if not binding_names:
+        raise_obj_error(service,
+                        'Service %s does not have binding defined',
+                        (service))
+    return binding_names
