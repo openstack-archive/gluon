@@ -1,7 +1,7 @@
 file_version: "1.0"
 imports: base/base.yaml
 info:
-  name: test_api
+  name: test
   version: 1.0
   description: "Test API Specification"
   author:
@@ -65,3 +65,8 @@ objects:
           - one
           - two
           - three
+  TestBinding:
+    api:
+      name: TestBinding
+      plural_name: TestBindings
+    extends: BaseServiceBinding
