@@ -132,6 +132,11 @@ objects:
         type: uuid
         required: true
         description: "Pointer to Service instance"
+      ipaddress:
+        type: string
+        length: 16
+        description: "IP Address of port"
+        format: ipv4
     policies:
         create:
           role: "rule:admin_or_owner"

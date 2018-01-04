@@ -126,11 +126,6 @@ objects:
         type: string
         length: 255
         description: "Name of this data plane locator"
-      ip:
-        type: string
-        format: ipv4
-        length: 16
-        description: "Data plane IP address"
       l4_port:
         type: integer
         format: int32
@@ -154,10 +149,6 @@ objects:
       plural_name: sffdataplanelocator
     extends: BaseServiceBinding
     attributes:
-       ip:
-         type: string
-         format: ipv4
-         length: 16
        l4_port:
          type: integer
          format: int32
