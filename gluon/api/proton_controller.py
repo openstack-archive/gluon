@@ -21,7 +21,6 @@ from gluon.api.baseObject import APIBase
 from gluon.api import link
 from gluon.api import types
 from gluon.particleGenerator import generator as particle_generator
-from oslo_config import cfg
 
 
 class Proton(APIBase):
