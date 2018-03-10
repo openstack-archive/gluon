@@ -103,7 +103,6 @@ class GluonPlugin(Ml2Plugin):
                     LOG.debug("Skipping directory")
                     continue
                 id = os.path.basename(keydata.key)
-                LOG.debug("id = %s" % id)
                 meta = json.loads(keydata.value)
                 if current_service != meta['service']:
                     current_service = meta['service']

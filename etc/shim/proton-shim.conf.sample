@@ -19,7 +19,7 @@ handlers = net-l3vpn:net-l3vpn-odl
 
 [shim_odl]
 # IP of the OpenDaylight RESTconf interface. Typically needs to be changed after installation.
-odl_host = 192.0.2.8
+odl_host = 172.19.0.6
 
 # Default port of the RESTconf interface.
 odl_port = 8181
