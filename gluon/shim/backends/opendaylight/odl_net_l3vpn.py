@@ -238,11 +238,12 @@ class OdlNetL3VPN(HandlerBase):
         """create a L3VPN network if needed """
         if self.l3vpn_network_id is None:
             networks = self.odlclient.get_l3vpn_networks()
-            for network in networks['networks']['network']:
-                if network['name'] == 'GluonL3VPNNetwork':
-                    LOG.info('Caching UUID %s of Gluon L3VPN network %s' %
-                             (network['uuid'], network['name']))
-                    self.l3vpn_network_id = network['uuid']
+	    if networks['networks']:
+                for network in networks['networks']['network']:
+                    if network['name'] == 'GluonL3VPNNetwork':
+                        LOG.info('Caching UUID %s of Gluon L3VPN network %s' %
+                                 (network['uuid'], network['name']))
+                        self.l3vpn_network_id = network['uuid']
 
             # no existing L3VPN network found -> create one
             if self.l3vpn_network_id is None:
@@ -263,11 +264,12 @@ class OdlNetL3VPN(HandlerBase):
         if subnet_name not in self.l3vpn_subnets:
             # try to refresh cache
             subnets = self.odlclient.get_l3vpn_subnets()
-            for subnet in subnets['subnets']['subnet']:
-                if subnet['name'] == subnet_name:
-                    LOG.info('Caching Gluon L3VPN subnet %s (%s)' %
-                             (subnet_name, subnet['uuid']))
-                    self.l3vpn_subnets[subnet_name] = subnet['uuid']
+	    if subnets['subnets']:
+                for subnet in subnets['subnets']['subnet']:
+                    if subnet['name'] == subnet_name:
+                        LOG.info('Caching Gluon L3VPN subnet %s (%s)' %
+                                 (subnet_name, subnet['uuid']))
+                        self.l3vpn_subnets[subnet_name] = subnet['uuid']
 
             # no subnet exists yet -> create one
             if subnet_name not in self.l3vpn_subnets:
