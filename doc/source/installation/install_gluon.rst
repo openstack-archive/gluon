@@ -267,7 +267,7 @@ and enable RBAC in Gluon. Here is the summary of steps:
     auth_strategy = keystone
 
     [keystone_authtoken]
-    auth_uri = http://10.0.2.7:5000
+    www_authenticate_uri = http://10.0.2.7:5000
     project_domain_name = Default
     project_name = service
     user_domain_name = Default
