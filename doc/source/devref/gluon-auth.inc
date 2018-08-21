@@ -112,7 +112,7 @@ For bootstrapping Gluon with Identity service, we will follow the procedure of:
 Authorization
 -------------
 
-Each OpenSack service has its own role-based access policies to allow/disallow access to
+Each OpenStack service has its own role-based access policies to allow/disallow access to
 specific actions. The access control policy is defined in the format of ``<action> : <rule>``.
 
 The <action> represents an API call like "create a user" whereas <rule> determines
