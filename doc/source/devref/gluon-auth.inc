@@ -228,7 +228,7 @@ to your keystone endpoint.
     auth_strategy = keystone
 
     [keystone_authtoken]
-    auth_uri = http://127.0.0.1:5000
+    www_authenticate_uri = http://127.0.0.1:5000
     project_domain_name = Default
     project_name = service
     user_domain_name = Default
@@ -241,8 +241,8 @@ The default ``auth_strategy`` is ``noauth`` in Gluon.
 
 Please note that:
 
-* ``auth_uri`` is the **external** or **public** URL that ends up in the
-  ``WWW-Authenticate: keystone-uri=<auth_uri>`` header. It is the unversioned public endpoint,
+* ``www_authenticate_uri`` is the **external** or **public** URL that ends up in the
+  ``WWW-Authenticate: keystone-uri=<www_authenticate_uri>`` header. It is the unversioned public endpoint,
   which tells someone where they need to go to authenticate.
 * ``auth_url`` is the **internal** URL that the **auth plugin** is using. It is
   where the process will authenticate to before it authenticates tokens. 
