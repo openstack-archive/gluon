@@ -411,7 +411,7 @@ def get_db_gen():
     return GenData.DBGeneratorInstance
 
 
-# Get the binding name for a serivce. For example the binding for net_l3vpn
+# Get the binding name for a service. For example the binding for net_l3vpn
 # would be VpnBinding, and the binding for ietf-sfc would be both
 # SfDataPlaneLocator and SffDataPlaneLocator.
 # One reason for getting the binding name is to get the port's ipaddress stored
